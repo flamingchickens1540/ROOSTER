@@ -1,0 +1,15 @@
+plugins {
+    id "java"
+    id "idea"
+    id "jaci.openrio.gradle.GradleRIO" version "2017.10.30"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile wpilib()
+    compile navx()
+    compile ctre()
+}
