@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: edu.wpi.first.wpilibj:athena:2017.2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibj/athena/2017.2.1/584af5e7c4aa60d81c726571d5a4efcbb7db3d77/athena-2017.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibj/athena/2017.2.1/38c75d30d3cd6bd44be358c16a543cf664b8d4a1/athena-2017.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
