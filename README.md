@@ -4,14 +4,16 @@ A collection of useful classes intended to be used for all Team 1540 robots.
 
 ## Getting started
 
-If you're using Gradle, you can attach the library using the following Maven repository:
+If you're using Gradle, you can add the library by adding the following lines in your `build.gradle` file.
 
-```
+```Gradle
 repositories {
+     (other repos)
      maven { url 'https://jitpack.io' }
 }
 
 dependencies {
+     (other dependencies)
      compile 'com.github.flamingchickens1540:reference-libraries:-SNAPSHOT'
 }
 ```
