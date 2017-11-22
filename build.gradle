@@ -2,7 +2,6 @@ plugins {
     id "java"
     id "idea"
     id "maven"
-    id "jaci.openrio.gradle.GradleRIO" version "2017.10.30"
 }
 
 group = 'com.github.flamingchickens1540'
@@ -24,11 +23,18 @@ artifacts {
 }
 
 repositories {
+    maven { url "http://first.wpi.edu/FRC/roborio/maven/release" }
+    maven { url "http://dev.imjac.in/maven/" }
+    maven { url "http://first.wpi.edu/FRC/roborio/maven/release" }
+    maven { url "http://dev.imjac.in/maven/" }
     mavenCentral()
 }
 
 dependencies {
-    compile wpilib()
-    compile navx()
-    compile ctre()
+    compile 'edu.wpi.first.wpilibj:athena:2017.2.1'
+    compile 'edu.wpi.first.wpilib.networktables.java:NetworkTables:3.1.7'
+    compile 'org.opencv:opencv-java:3.1.0'
+    compile 'edu.wpi.cscore.java:cscore:1.0.1'
+    compile 'thirdparty.frc.kauai:Navx-Java:3.0.323'
+    compile 'thirdparty.frc.ctre:Toolsuite-Java:4.4.1.14'
 }
