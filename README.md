@@ -19,7 +19,7 @@ dependencies {
 }
 ```
 
-We use [JitPack](jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files. 
+We use [JitPack](https://jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files. 
 
 ### Manually
 Download [reference-libraries.jar](build/libs/reference-libraries.jar) and attach it to your project.
