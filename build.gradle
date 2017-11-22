@@ -1,7 +1,26 @@
 plugins {
     id "java"
     id "idea"
+    id "maven"
     id "jaci.openrio.gradle.GradleRIO" version "2017.10.30"
+}
+
+group = 'com.github.flamingchickens1540'
+
+// for JitPack
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
 
 repositories {
