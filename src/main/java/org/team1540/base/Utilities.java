@@ -10,7 +10,7 @@ public class Utilities {
    * @param axis The axis to return
    * @param deadzone The deadzone to use.
    *
-   * @return If |{@code axis}| > |{@code deadzone}|, returns {@code axis}; otherwise, returns 0.
+   * @return If |{@code axis}| is greater than |{@code deadzone}|, returns {@code axis}; otherwise, returns 0.
    */
   public static double processAxisDeadzone(double axis, double deadzone) {
     return (Math.abs(axis) > Math.abs(deadzone)) ? axis : 0;
