@@ -9,6 +9,21 @@ import java.util.Set;
 
 public abstract class ChickenCommand extends Command implements Comparable<ChickenCommand> {
 
+  public ChickenCommand() {
+  }
+
+  public ChickenCommand(String name) {
+    super(name);
+  }
+
+  public ChickenCommand(double timeout) {
+    super(timeout);
+  }
+
+  public ChickenCommand(String name, double timeout) {
+    super(name, timeout);
+  }
+
   /**
    * The subsystems used by this command. Used for power management. Should be overridden as
    * necessary.
