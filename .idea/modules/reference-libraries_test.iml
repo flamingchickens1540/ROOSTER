@@ -11,10 +11,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="reference-libraries_main" />
     <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:athena:2017.2.1" level="project" />
-    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilib.networktables.java:NetworkTables:arm:3.1.7" level="project" />
-    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilib.networktables.java:NetworkTables:desktop:3.1.7" level="project" />
     <orderEntry type="library" name="Gradle: org.opencv:opencv-java:3.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: edu.wpi.cscore.java:cscore:arm:1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: thirdparty.frc.kauai:Navx-Java:3.0.323" level="project" />
     <orderEntry type="library" name="Gradle: thirdparty.frc.ctre:Toolsuite-Java:4.4.1.14" level="project" />
   </component>

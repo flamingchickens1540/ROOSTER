@@ -3,31 +3,24 @@ package org.team1540.base;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 // Reminder that everything will need to be thread safe
 public class PowerManager extends Thread {
-
   // Singleton
   public static PowerManager theManager;
 
-  /*
-  Because these two should be really the same for your entire robot, they have to be edited here.
-  I may change this in the future if we decide we need to change this on the fly for some reason
-  In case you need someone to blame, @author Jonathan Edelman
-  */
-  // Required value to be considered spiking in amps
-  private final double SPIKE_PEAK = 50;
-  // How long the spike must spike for before doing anything in seconds
-  private final double SPIKE_LENGTH = 2.0;
-  // Target value when we start power managing
-  private final double TARGET = 40;
-  /**
-   * Kill switch. Make it false to kill the power manager. No idea why you'd ever need to do this
-   * though
-   */
-  public boolean keepRunning = true;
+  // static { theManager.start(); }
+  // controversial–will be uncommented or deleted later
+
+  private int updateDelay = 5;
+  private double spikePeak = 50;
+  private double spikeLength = 2.0;
+  private double target = 40;
+  private boolean running = true;
+  private RobotBase robot;
 
   // Store the subsystems being used by the currently running commands and their priorities as set by the sum of the
   // commands' priorities
@@ -36,40 +29,46 @@ public class PowerManager extends Thread {
   private Map<ChickenSubsystem, Double> runningSubsystems = new LinkedHashMap<>();
   // Because we gotta grab the power info off of it
   private PowerDistributionPanel pdp = new PowerDistributionPanel();
-  // General check-ins, such as if the robot is enabled
-  private RobotBase theRobot;
 
-  private PowerManager(RobotBase theRobot) {
-    this.theRobot = theRobot;
+  private PowerManager(RobotBase robot) {
+    this.robot = robot;
   }
 
-  public void createPowerManager(RobotBase theRobot) {
-    theManager = new PowerManager(theRobot);
+  /**
+   * Gets the PowerManager.
+   */
+  public PowerManager getInstance() {
+    return theManager;
+  }
+
+  public void createPowerManager(RobotBase robot) {
+    theManager = new PowerManager(robot);
   }
 
   @Override
   public void run() {
-
     Timer theTimer = new Timer();
+    while (robot.isEnabled()) {
+      if (running) {
+        if (isSpiking()) {
+          // Start a timer
+          theTimer.start();
 
-    while (theRobot.isEnabled() && keepRunning) {
-      if (isSpiking()) {
-        // Start a timer
-        theTimer.start();
-
-        // Start the timer and check if it continues to spike at least for SPIKE_LENGTH
-        while (isSpiking()) {
-          if (theTimer.get() > SPIKE_LENGTH) {
+          if (theTimer.hasPeriodPassed(spikeLength)) {
             scalePower();
           }
+        } else {
+          stopScaling();
+          theTimer.stop();
+          theTimer.reset();
         }
+      }
 
-        // Stop scaling the power for everyone
-        stopScaling();
-
-        // Stop and reset the timer. Done here instead of at the start because we want to capture the spiking ASAP
-        theTimer.stop();
-        theTimer.reset();
+      try {
+        sleep(updateDelay);
+      } catch (InterruptedException e) {
+        // end the thread
+        return;
       }
     }
   }
@@ -92,12 +91,12 @@ public class PowerManager extends Thread {
     }
 
     // Find a factor such that the new total equals the target
-    double factor = TARGET / totalScaledCurrent;
+    double factor = target / totalScaledCurrent;
 
     // Multiply that factor by the ratio between the new power and the actual power and pass that
     // back to the subsystem
     for (ChickenSubsystem currentSubsystem : subsystemCurrents.keySet()) {
-      currentSubsystem.setAbsolutePowerLimit(subsystemCurrents.get(currentSubsystem) * factor);
+      currentSubsystem.limitPower(subsystemCurrents.get(currentSubsystem) * factor);
     }
   }
 
@@ -111,12 +110,12 @@ public class PowerManager extends Thread {
 
   /**
    * Determines if the voltage is currently spiking. Literally just return pdp.getTotalCurrent() >
-   * SPIKE_PEAK
+   * spikePeak
    *
    * @return Boolean representing if the voltage is spiking.
    */
   private boolean isSpiking() {
-    return pdp.getTotalCurrent() > SPIKE_PEAK;
+    return pdp.getTotalCurrent() > spikePeak;
   }
 
   /**
@@ -126,6 +125,7 @@ public class PowerManager extends Thread {
    *
    * @param highestPriority The priority of the highest priority subsystem currently running.
    * @param priority The priority of this subsystem.
+   *
    * @return The scale factor for this subsystem.
    */
   private double scaleExponential(double highestPriority, double priority) {
@@ -152,12 +152,12 @@ public class PowerManager extends Thread {
   synchronized void registerCommand(ChickenCommand toRegister) {
     // For every subsystem the command uses, add it to runningSubsystems; if it's already in there, increment the
     // priority by the priority of the given command
-    for (ChickenSubsystem currentSubsystem : toRegister.usedSubsystems) {
+    for (ChickenSubsystem currentSubsystem : toRegister.getUsedSubsystems()) {
       Double currentValue = runningSubsystems.get(currentSubsystem);
       if (currentValue == null) {
         currentValue = 0d;
       }
-      runningSubsystems.put(currentSubsystem, currentValue + toRegister.priority);
+      runningSubsystems.put(currentSubsystem, currentValue + toRegister.getPriority());
     }
   }
 
@@ -169,9 +169,9 @@ public class PowerManager extends Thread {
   synchronized void unregisterCommand(ChickenCommand toUnregister) {
     // For every subsystem the command uses, decrement its priority in runningSubsystems; if this causes its
     // priority to 0, it is removed and scaling for that command is stopped
-    for (ChickenSubsystem currentSubsystem : toUnregister.usedSubsystems) {
+    for (ChickenSubsystem currentSubsystem : toUnregister.getUsedSubsystems()) {
       runningSubsystems.replace(currentSubsystem,
-          runningSubsystems.get(currentSubsystem) - toUnregister.priority);
+          runningSubsystems.get(currentSubsystem) - toUnregister.getPriority());
       if (runningSubsystems.get(currentSubsystem) <= 0) {
         runningSubsystems.remove(currentSubsystem);
         currentSubsystem.stopLimitingPower();
@@ -179,4 +179,69 @@ public class PowerManager extends Thread {
     }
   }
 
+  public double getSpikePeak() {
+    return spikePeak;
+  }
+
+  /**
+   * Sets the required current value for the robot to be considered spiking. Defaults to 50A.
+   *
+   * @param spikePeak The minimum spike value, in amps.
+   */
+  public void setSpikePeak(double spikePeak) {
+    this.spikePeak = spikePeak;
+  }
+
+  public double getSpikeLength() {
+    return spikeLength;
+  }
+
+  /**
+   * Sets how long the spike must spike for before doing anything. Defaults to 2 seconds.
+   *
+   * @param spikeLength The minimum actionable spike length, in seconds.
+   */
+  public void setSpikeLength(double spikeLength) {
+    this.spikeLength = spikeLength;
+  }
+
+  public double getTarget() {
+    return target;
+  }
+
+  /**
+   * Sets the target value we want when starting to power-manage. Defaults to 40A.
+   *
+   * @param target The target value, in amps.
+   */
+  public void setTarget(double target) {
+    this.target = target;
+  }
+
+  public int getUpdateDelay() {
+    return updateDelay;
+  }
+
+  /**
+   * Sets the time between power management cycles. Defaults to 5ms.
+   *
+   * @param updateDelay The time between power management cycles, in milliseconds.
+   */
+  public void setUpdateDelay(int updateDelay) {
+    this.updateDelay = updateDelay;
+  }
+
+  /**
+   * Allows the power manager to run. This method has no effect if the manager is already running.
+   */
+  public void start() {
+    running = true;
+  }
+
+  /**
+   * Stops the power manager. It can be restarted with a call to {@link #start()}.
+   */
+  public void kill() {
+    running = false;
+  }
 }
