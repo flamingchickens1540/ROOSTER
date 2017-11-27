@@ -1,7 +1,6 @@
 package org.team1540.base;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -10,17 +9,15 @@ import java.util.Map;
 // Reminder that everything will need to be thread safe
 public class PowerManager extends Thread {
   // Singleton
-  public static PowerManager theManager;
+  public static PowerManager theManager = new PowerManager();
 
-  // static { theManager.start(); }
-  // controversial–will be uncommented or deleted later
+  static { theManager.start(); }
 
   private int updateDelay = 5;
   private double spikePeak = 50;
   private double spikeLength = 2.0;
   private double target = 40;
   private boolean running = true;
-  private RobotBase robot;
 
   // Store the subsystems being used by the currently running commands and their priorities as set by the sum of the
   // commands' priorities
@@ -30,9 +27,7 @@ public class PowerManager extends Thread {
   // Because we gotta grab the power info off of it
   private PowerDistributionPanel pdp = new PowerDistributionPanel();
 
-  private PowerManager(RobotBase robot) {
-    this.robot = robot;
-  }
+  private PowerManager() {}
 
   /**
    * Gets the PowerManager.
@@ -41,14 +36,10 @@ public class PowerManager extends Thread {
     return theManager;
   }
 
-  public void createPowerManager(RobotBase robot) {
-    theManager = new PowerManager(robot);
-  }
-
   @Override
   public void run() {
     Timer theTimer = new Timer();
-    while (robot.isEnabled()) {
+    while (true) {
       if (running) {
         if (isSpiking()) {
           // Start a timer
@@ -235,8 +226,9 @@ public class PowerManager extends Thread {
     return running;
   }
 
-  /** Sets the state of the power manager. Set to {@code true} to enable power management, set to {@code
-   * false} to disable management.
+  /**
+   * Sets the state of the power manager. Set to {@code true} to enable power management, set to
+   * {@code false} to disable management.
    *
    * @param running The state of the power manager.
    */
