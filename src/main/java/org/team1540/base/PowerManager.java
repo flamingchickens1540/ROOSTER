@@ -231,17 +231,16 @@ public class PowerManager extends Thread {
     this.updateDelay = updateDelay;
   }
 
-  /**
-   * Allows the power manager to run. This method has no effect if the manager is already running.
-   */
-  public void start() {
-    running = true;
+  public boolean isRunning() {
+    return running;
   }
 
-  /**
-   * Stops the power manager. It can be restarted with a call to {@link #start()}.
+  /** Sets the state of the power manager. Set to {@code true} to enable power management, set to {@code
+   * false} to disable management.
+   *
+   * @param running The state of the power manager.
    */
-  public void kill() {
-    running = false;
+  public void setRunning(boolean running) {
+    this.running = running;
   }
 }
