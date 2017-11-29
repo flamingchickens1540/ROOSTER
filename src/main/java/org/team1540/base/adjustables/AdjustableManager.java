@@ -19,7 +19,8 @@ import java.util.List;
  */
 public class AdjustableManager {
 
-  private static AdjustableManager instance = new AdjustableManager();
+  private static AdjustableManager
+      instance = new AdjustableManager();
   private List<TunableField> tunables = new LinkedList<>();
   private List<TelemetryField> telemetry = new LinkedList<>();
 
@@ -46,7 +47,8 @@ public class AdjustableManager {
       if (tunable != null) {
         // check if the field is of a supported type
         TunableType tt = null;
-        for (TunableType type : TunableType.values()) {
+        for (TunableType type : TunableType
+            .values()) {
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
@@ -70,7 +72,8 @@ public class AdjustableManager {
       if (teleAnnotation != null) {
         // check if the field is of a supported type
         TelemetryType tt = null;
-        for (TelemetryType type : TelemetryType.values()) {
+        for (TelemetryType type : TelemetryType
+            .values()) {
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
@@ -103,23 +106,42 @@ public class AdjustableManager {
     // Update tunables
     for (TunableField tf : tunables) {
       try {
-        switch (tf.type) {
-          case INT:
-            tf.field.set(tf.obj,
-                (int) SmartDashboard.getNumber(tf.label, (int) tf.field.get(tf.obj)));
-            break;
-          case DOUBLE:
-            tf.field.set(tf.obj, SmartDashboard.getNumber(tf.label, (double) tf.field.get(tf.obj)));
-            break;
-          case STRING:
-            tf.field.set(tf.obj, SmartDashboard.getString(tf.label, (String) tf.field.get(tf.obj)));
-            break;
-          case BOOLEAN:
-            tf.field.set(tf.obj,
-                SmartDashboard.getBoolean(tf.label, (boolean) tf.field.get(tf.obj)));
-            break;
-          default:
-            break;
+        if (SmartDashboard.containsKey(tf.label)) {
+          switch (tf.type) {
+            case INT:
+              tf.field.set(tf.obj,
+                  (int) SmartDashboard.getNumber(tf.label, (Integer) tf.field.get(tf.obj)));
+              break;
+            case DOUBLE:
+              tf.field.set(tf.obj,
+                  SmartDashboard.getNumber(tf.label, (Double) tf.field.get(tf.obj)));
+              break;
+            case STRING:
+              tf.field.set(tf.obj,
+                  SmartDashboard.getString(tf.label, (String) tf.field.get(tf.obj)));
+              break;
+            case BOOLEAN:
+              tf.field.set(tf.obj,
+                  SmartDashboard.getBoolean(tf.label, (Boolean) tf.field.get(tf.obj)));
+              break;
+            default:
+              break;
+          }
+        } else {
+          switch (tf.type) {
+            case INT:
+              SmartDashboard.putNumber(tf.label, (Integer) tf.field.get(tf.obj));
+              break;
+            case DOUBLE:
+              SmartDashboard.putNumber(tf.label, (Double) tf.field.get(tf.obj));
+              break;
+            case STRING:
+              SmartDashboard.putString(tf.label, (String) tf.field.get(tf.obj));
+              break;
+            case BOOLEAN:
+              SmartDashboard.putBoolean(tf.label, (Boolean) tf.field.get(tf.obj));
+              break;
+          }
         }
       } catch (IllegalAccessException e) {
         DriverStation.reportError(e.getMessage(), true);
@@ -131,16 +153,16 @@ public class AdjustableManager {
       try {
         switch (tf.type) {
           case INT:
-            SmartDashboard.putNumber(tf.label, (double) tf.field.get(tf.obj));
+            SmartDashboard.putNumber(tf.label, (Integer) tf.field.get(tf.obj));
             break;
           case DOUBLE:
-            SmartDashboard.putNumber(tf.label, (double) tf.field.get(tf.obj));
+            SmartDashboard.putNumber(tf.label, (Double) tf.field.get(tf.obj));
             break;
           case STRING:
             SmartDashboard.putString(tf.label, (String) tf.field.get(tf.obj));
             break;
           case BOOLEAN:
-            SmartDashboard.putBoolean(tf.label, (boolean) tf.field.get(tf.obj));
+            SmartDashboard.putBoolean(tf.label, (Boolean) tf.field.get(tf.obj));
             break;
           case GYRO:
             Gyro gyro = (Gyro) tf.field.get(tf.obj);
