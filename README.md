@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
      (other dependencies)
-     compile 'com.github.flamingchickens1540:reference-libraries:-SNAPSHOT'
+     compile 'org.team1540:reference-libraries:master-SNAPSHOT'
 }
 ```
 
