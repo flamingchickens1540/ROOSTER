@@ -9,12 +9,12 @@ Add the library by adding these lines in your `build.gradle` file:
 
 ```Gradle
 repositories {
-     (other repos)
+     // other repositories
      maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-     (other dependencies)
+     // other dependencies
      compile 'org.team1540:reference-libraries:master-SNAPSHOT'
 }
 ```
