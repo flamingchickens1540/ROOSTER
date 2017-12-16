@@ -78,16 +78,24 @@ public abstract class ChickenCommand extends Command implements Comparable<Chick
   }
 
   /**
-   * Get the priority of this command. Used for power management. Should be overriden as necessary.
+   * Get the priority of this command. Used for power management.
    */
   public double getPriority() {
     return priority;
   }
 
+  /**
+   * Sets the priority of this command. Used for power management.
+   */
   public void setPriority(double priority) {
     this.priority = priority;
   }
 
+  /**
+   * Get the subsystems used by this command.
+   *
+   * @return A set of subsystems used by this command.
+   */
   public Set<ChickenSubsystem> getUsedSubsystems() {
     return usedSubsystems;
   }
