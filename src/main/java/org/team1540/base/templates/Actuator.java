@@ -27,4 +27,10 @@ public interface Actuator extends SubsystemAttached {
    * depending on the motor controller you are working with.
    */
   public void zeroPosition();
+  /**
+   * Gets the total output current of the actuator's motor(s).
+   *
+   * @return The combined current output of all the actuator's motors, in amps.
+   */
+  public double getCurrent();
 }
