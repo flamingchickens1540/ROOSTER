@@ -3,8 +3,10 @@ package org.team1540.base.commandutils;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import org.team1540.base.templates.Actuator;
+import org.team1540.base.triggers.VibrationManager;
 
 /**
  * Factory class to create {@link Actuator}-related commands.
@@ -36,6 +38,17 @@ public class ActuatorCommandFactory {
   private int minConsecutiveSpikeTicks;
   private double speed;
   private double upperLim;
+
+  /**
+   * Creates a {@link Command} that controls the provided {@link Actuator} with a joystick.
+   *
+   * @param joystick The joystick to use when controlling the actuator.
+   * @param axis The axis ID to use for control.
+   */
+  public Command createJoystickControlCommand(Joystick joystick, int axis) {
+    return new JoystickControlCommand(actuator, joystick, axis, speed, upperLim, lowerLim,
+        minConsecutiveSpikeTicks, currentLimit);
+  }
 
   /**
    * Creates a {@link Command} that moves the actuator to the provided position using the values set
@@ -217,6 +230,77 @@ public class ActuatorCommandFactory {
   public ActuatorCommandFactory setUpperLim(double upperLim) {
     this.upperLim = upperLim;
     return this;
+  }
+
+  private static class JoystickControlCommand extends Command {
+    final Actuator actuator;
+    final int axis;
+    int consecutiveSpikeTicks;
+    final double currentLimit;
+    final double lowerLim;
+    final int minConsecutiveSpikeTicks;
+    final double multiplier;
+    final Joystick stick;
+    final double upperLim;
+    final Command vibrationCommand;
+    double position;
+
+    private JoystickControlCommand(Actuator actuator, Joystick joystick,
+        int joystickAxis, double multiplier, double upperLim, double lowerLim,
+        int minConsecutiveSpikeTicks, double currentLimit) {
+      super("Control " + actuator.getSubsystem().getName() + " with joysticks");
+      this.actuator = actuator;
+      this.stick = joystick;
+      this.axis = joystickAxis;
+      this.multiplier = multiplier;
+      this.lowerLim = lowerLim;
+      this.upperLim = upperLim;
+      this.minConsecutiveSpikeTicks = minConsecutiveSpikeTicks;
+      this.consecutiveSpikeTicks = 0;
+      this.currentLimit = currentLimit;
+      vibrationCommand = VibrationManager.getVibrationCommand(joystick, 0.25, 1);
+    }
+
+    @Override
+    protected void initialize() {
+      position = actuator.getPosition();
+    }
+
+    @Override
+    protected void execute() {
+      // where the operator is telling the mechanism to go
+      double requestedPos = position + (stick.getRawAxis(axis) * multiplier);
+      double commandedPos;
+
+      // do current limit processing
+      if (actuator.getCurrent() > currentLimit) {
+        // current is spiking
+        consecutiveSpikeTicks++;
+      } else {
+        consecutiveSpikeTicks = 0;
+      }
+
+      if (consecutiveSpikeTicks > minConsecutiveSpikeTicks) {
+        commandedPos = actuator.getPosition();
+      } else {
+        commandedPos = requestedPos;
+
+        // where it's actually going to go (skipped if limits are disabled)
+        commandedPos = commandedPos < upperLim ? commandedPos : upperLim - multiplier;
+        commandedPos = commandedPos >= lowerLim ? commandedPos : lowerLim + multiplier;
+      }
+      position = commandedPos;
+      actuator.setPosition(position);
+      // if where it's actually going is different than where it was told to go, complain
+      if (requestedPos != commandedPos) {
+        vibrationCommand.start();
+      }
+    }
+
+    @Override
+    protected boolean isFinished() {
+      return false;
+    }
   }
 
   private static class MoveToPositionCommand extends Command {
