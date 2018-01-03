@@ -1,4 +1,5 @@
-# Team 1540 Reference Libraries
+# ROOSTER
+Reusable Object-Oriented Systems, Templates, and Executables for Robots
 
 A common library of useful classes and systems intended to be used for all Team 1540 robots.
 
