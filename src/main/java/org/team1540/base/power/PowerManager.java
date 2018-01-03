@@ -1,17 +1,23 @@
-package org.team1540.base;
+package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
+import java.rmi.AlreadyBoundException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 // Reminder that everything will need to be thread safe
 public class PowerManager extends Thread {
-  // Singleton
-  public static PowerManager theManager = new PowerManager();
 
-  static { theManager.start(); }
+  // Singleton
+  private static PowerManager theManager = new PowerManager();
+
+  static {
+    theManager.start();
+  }
 
   private int updateDelay = 5;
   private double spikePeak = 50;
@@ -19,11 +25,10 @@ public class PowerManager extends Thread {
   private double target = 40;
   private boolean running = true;
 
-  // Store the subsystems being used by the currently running commands and their priorities as set by the sum of the
-  // commands' priorities
+  // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though synchronized
   // methods
-  private Map<ChickenSubsystem, Double> runningSubsystems = new LinkedHashMap<>();
+  private Set<PowerManageable> powerManaged = new HashSet<PowerManageable>();
   // Because we gotta grab the power info off of it
   private PowerDistributionPanel pdp = new PowerDistributionPanel();
 
@@ -64,20 +69,21 @@ public class PowerManager extends Thread {
     }
   }
 
-  // Separate method to block command registration/unregistration while actually scaling the power.
+  // Separate method to block PowerManageable registration/unregistration while actually scaling the power.
   private synchronized void scalePower() {
-    Map<ChickenSubsystem, Double> subsystemCurrents = new LinkedHashMap<>();
+    Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
     // Find out what the highest priority is
-    double highestPriority = Collections.max(runningSubsystems.values());
+    double highestPriority = Collections.max(powerManaged).getPriority();
 
-    // For each subsystem, pass the priority into an arbitrary function, multiply that value by the
+    // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
     // actual current draw, and store it in a map along with a running tally of the total
     double totalScaledCurrent = 0;
-    for (ChickenSubsystem currentSubsystem : runningSubsystems.keySet()) {
-      double scaledCurrent = scaleExponential(highestPriority,
-          runningSubsystems.get(currentSubsystem)) * currentSubsystem.getCurrent();
-      subsystemCurrents.put(currentSubsystem, scaledCurrent);
+    for (PowerManageable currentSubsystem : powerManaged) {
+      double scaledCurrent =
+          scaleExponential(highestPriority, currentSubsystem.getPriority()) * currentSubsystem
+              .getCurrent();
+      powerManageableCurrents.put(currentSubsystem, scaledCurrent);
       totalScaledCurrent += scaledCurrent;
     }
 
@@ -85,15 +91,15 @@ public class PowerManager extends Thread {
     double factor = target / totalScaledCurrent;
 
     // Multiply that factor by the ratio between the new power and the actual power and pass that
-    // back to the subsystem
-    for (ChickenSubsystem currentSubsystem : subsystemCurrents.keySet()) {
-      currentSubsystem.limitPower(subsystemCurrents.get(currentSubsystem) * factor);
+    // back to the PowerManageable
+    for (PowerManageable currentSubsystem : powerManaged) {
+      currentSubsystem.limitPower(powerManageableCurrents.get(currentSubsystem) * factor);
     }
   }
 
-  // Separate method to block command registration/unregistration while stopping scaling.
+  // Separate method to block PowerManageable registration/unregistration while stopping scaling.
   private synchronized void stopScaling() {
-    for (ChickenSubsystem currentSubsystem : runningSubsystems.keySet()) {
+    for (PowerManageable currentSubsystem : powerManaged) {
       currentSubsystem.stopLimitingPower();
     }
   }
@@ -110,14 +116,14 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Run an arbitrary function to scale the priority of a given subsystem. <p> Currently uses
+   * Run an arbitrary function to scale the priority of a given PowerManageable. <p> Currently uses
    * inverse natural exponential For those who like LaTeX, here's the function, where h is the
    * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
    *
-   * @param highestPriority The priority of the highest priority subsystem currently running.
-   * @param priority The priority of this subsystem.
+   * @param highestPriority The priority of the highest priority PowerManageable currently running.
+   * @param priority The priority of this PowerManageable.
    *
-   * @return The scale factor for this subsystem.
+   * @return The scale factor for this PowerManageable.
    */
   private double scaleExponential(double highestPriority, double priority) {
     return highestPriority / (Math.exp(highestPriority - priority));
@@ -127,47 +133,34 @@ public class PowerManager extends Thread {
     A comment on the following two methods: Why are they synchronized? Why not use a more thread-safe data structure
 	that better supports the intended use case? Because it doesn't really matter.
 
-	In theory, it'd be nice to be able to say "Hey, this command isn't being used any more, let's ignore it when we're
+	In theory, it'd be nice to be able to say "Hey, this PowerManageable isn't being used any more, let's ignore it when we're
 	doing our calculations" while we're actually doing those calculations. But that actually isn't really a big deal.
-	Any time we actually do need to register/unregister a command, it'll happen immediately after we're done managing
+	Any time we actually do need to register/unregister a PowerManageable, it'll happen immediately after we're done managing
 	the power for that cycle. Furthermore, if we allocate it power it doesn't use, that's not a huge problem for
 	everyone else. There's also no good reason to access the map outside of the methods defined here, so just don't do
 	it.
 	 */
 
   /**
-   * Registers the command's subsystems as being used. Blocks power scaling.
+   * Registers the PowerManageable as being used. Blocks power scaling.
    *
-   * @param toRegister The command to register.
+   * @param toRegister The PowerManageable to register.
    */
-  synchronized void registerCommand(ChickenCommand toRegister) {
-    // For every subsystem the command uses, add it to runningSubsystems; if it's already in there, increment the
-    // priority by the priority of the given command
-    for (ChickenSubsystem currentSubsystem : toRegister.getUsedSubsystems()) {
-      Double currentValue = runningSubsystems.get(currentSubsystem);
-      if (currentValue == null) {
-        currentValue = 0d;
-      }
-      runningSubsystems.put(currentSubsystem, currentValue + toRegister.getPriority());
+  synchronized void registerSubsystem(PowerManageable toRegister) throws AlreadyBoundException {
+    // For every PowerManageable, add it to powerManaged; if it's already there, throw an exception
+    if (powerManaged.contains(toRegister)) {
+      throw new AlreadyBoundException("PowerManageable " + toRegister + " is already registered.");
     }
+    powerManaged.add(toRegister);
   }
 
   /**
-   * Unregisters the command's subsystems as being used. Blocks power scaling.
+   * Unregisters the PowerManageable as being used. Blocks power scaling.
    *
-   * @param toUnregister The command to unregister.
+   * @param toUnregister The PowerManageable to unregister.
    */
-  synchronized void unregisterCommand(ChickenCommand toUnregister) {
-    // For every subsystem the command uses, decrement its priority in runningSubsystems; if this causes its
-    // priority to 0, it is removed and scaling for that command is stopped
-    for (ChickenSubsystem currentSubsystem : toUnregister.getUsedSubsystems()) {
-      runningSubsystems.replace(currentSubsystem,
-          runningSubsystems.get(currentSubsystem) - toUnregister.getPriority());
-      if (runningSubsystems.get(currentSubsystem) <= 0) {
-        runningSubsystems.remove(currentSubsystem);
-        currentSubsystem.stopLimitingPower();
-      }
-    }
+  synchronized void unregisterCommand(PowerManageable toUnregister) {
+    powerManaged.remove(toUnregister);
   }
 
   public double getSpikePeak() {
