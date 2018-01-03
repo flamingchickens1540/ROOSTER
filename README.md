@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
      // other dependencies
-     compile 'org.team1540:reference-libraries:master-SNAPSHOT'
+     compile 'org.team1540:rooster:master-SNAPSHOT'
 }
 ```
 
