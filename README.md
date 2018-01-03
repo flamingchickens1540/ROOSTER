@@ -1,1 +1,2 @@
-# Reusable Object-Oriented Systems, Templates, and Executables for Robots (ROOSTER)
+# ROOSTER
+Reusable Object-Oriented Systems, Templates, and Executables for Robots
