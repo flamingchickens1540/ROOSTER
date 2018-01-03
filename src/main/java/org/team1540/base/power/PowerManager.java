@@ -69,7 +69,10 @@ public class PowerManager extends Thread {
     }
   }
 
-  // Separate method to block PowerManageable registration/unregistration while actually scaling the power.
+  /**
+   * Separate method to block PowerManageable registration/unregistration while actually scaling the
+   * power.
+   */
   private synchronized void scalePower() {
     Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
@@ -79,11 +82,11 @@ public class PowerManager extends Thread {
     // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
     // actual current draw, and store it in a map along with a running tally of the total
     double totalScaledCurrent = 0;
-    for (PowerManageable currentSubsystem : powerManaged) {
+    for (PowerManageable currentManageable : powerManaged) {
       double scaledCurrent =
-          scaleExponential(highestPriority, currentSubsystem.getPriority()) * currentSubsystem
+          scaleExponential(highestPriority, currentManageable.getPriority()) * currentManageable
               .getCurrent();
-      powerManageableCurrents.put(currentSubsystem, scaledCurrent);
+      powerManageableCurrents.put(currentManageable, scaledCurrent);
       totalScaledCurrent += scaledCurrent;
     }
 
@@ -92,21 +95,23 @@ public class PowerManager extends Thread {
 
     // Multiply that factor by the ratio between the new power and the actual power and pass that
     // back to the PowerManageable
-    for (PowerManageable currentSubsystem : powerManaged) {
-      currentSubsystem.limitPower(powerManageableCurrents.get(currentSubsystem) * factor);
+    for (PowerManageable currentManageable : powerManaged) {
+      currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
     }
   }
 
-  // Separate method to block PowerManageable registration/unregistration while stopping scaling.
+  /**
+   * Separate method to block PowerManageable registration/deregistration while stopping scaling.
+   */
   private synchronized void stopScaling() {
-    for (PowerManageable currentSubsystem : powerManaged) {
-      currentSubsystem.stopLimitingPower();
+    for (PowerManageable currentManageable : powerManaged) {
+      currentManageable.stopLimitingPower();
     }
   }
 
 
   /**
-   * Determines if the voltage is currently spiking. Literally just return pdp.getTotalCurrent() >
+   * Determines if the voltage is currently spiking. Literally just returns pdp.getTotalCurrent() >
    * spikePeak
    *
    * @return Boolean representing if the voltage is spiking.
@@ -116,14 +121,14 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Run an arbitrary function to scale the priority of a given PowerManageable. <p> Currently uses
+   * Run an arbitrary function to scale the priority of a given {@link PowerManageable}. <p> Currently uses
    * inverse natural exponential For those who like LaTeX, here's the function, where h is the
    * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
    *
-   * @param highestPriority The priority of the highest priority PowerManageable currently running.
-   * @param priority The priority of this PowerManageable.
+   * @param highestPriority The priority of the highest priority {@link PowerManageable} currently running.
+   * @param priority The priority of this {@link PowerManageable}.
    *
-   * @return The scale factor for this PowerManageable.
+   * @return The scale factor for this {@link PowerManageable}.
    */
   private double scaleExponential(double highestPriority, double priority) {
     return highestPriority / (Math.exp(highestPriority - priority));
@@ -142,11 +147,12 @@ public class PowerManager extends Thread {
 	 */
 
   /**
-   * Registers the PowerManageable as being used. Blocks power scaling.
+   * Registers the {@link PowerManageable} as being used. Blocks power scaling.
    *
-   * @param toRegister The PowerManageable to register.
+   * @param toRegister The {@link PowerManageable} to register.
    */
-  synchronized void registerSubsystem(PowerManageable toRegister) throws AlreadyBoundException {
+  synchronized void registerPowerManageable(PowerManageable toRegister)
+      throws AlreadyBoundException {
     // For every PowerManageable, add it to powerManaged; if it's already there, throw an exception
     if (powerManaged.contains(toRegister)) {
       throw new AlreadyBoundException("PowerManageable " + toRegister + " is already registered.");
@@ -155,11 +161,11 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Unregisters the PowerManageable as being used. Blocks power scaling.
+   * Unregisters the {@link PowerManageable} as being used. Blocks power scaling.
    *
-   * @param toUnregister The PowerManageable to unregister.
+   * @param toUnregister The {@link PowerManageable} to unregister.
    */
-  synchronized void unregisterCommand(PowerManageable toUnregister) {
+  synchronized void unregisterPowerManageable(PowerManageable toUnregister) {
     powerManaged.remove(toUnregister);
   }
 
