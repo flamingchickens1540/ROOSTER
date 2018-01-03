@@ -7,10 +7,14 @@ import java.util.Set;
 import org.team1540.base.power.PowerManageable;
 
 
+/**
+ * Simple implementation of core {@link Subsystem} related interfaces. Makes it quick and easy to
+ * build a basic robot.
+ */
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
-  private Set<CANTalon> motors = new HashSet<CANTalon>();
+  private final Set<CANTalon> motors = new HashSet<CANTalon>();
 
   public ChickenSubsystem(String name) {
     super(name);
@@ -19,7 +23,6 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public ChickenSubsystem() {
   }
 
-  @Override
   protected void initDefaultCommand() {
 
   }
@@ -58,7 +61,6 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   }
 
-  @Override
   public void stopLimitingPower() {
     for (CANTalon currentMotor : motors) {
       currentMotor.EnableCurrentLimit(false);
