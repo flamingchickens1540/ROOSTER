@@ -1,12 +1,16 @@
 package org.team1540.base;
 
+import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import java.util.HashSet;
+import java.util.Set;
 import org.team1540.base.power.PowerManageable;
 
 
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
+  private Set<CANTalon> motors = new HashSet<CANTalon>();
 
   public ChickenSubsystem(String name) {
     super(name);
@@ -39,19 +43,26 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     this.priority = priority;
   }
 
-  @Override
   public double getCurrent() {
-    return 0.0;
+    double sum = 0;
+    for (CANTalon currentMotor : motors) {
+      sum += currentMotor.getOutputCurrent();
+    }
+    return sum;
   }
 
-  @Override
   public void limitPower(double limit) {
-
+    for (CANTalon currentMotor : motors) {
+      currentMotor.EnableCurrentLimit(true);
+      currentMotor.setCurrentLimit(Math.toIntExact(Math.round(limit)));
+    }
   }
 
   @Override
   public void stopLimitingPower() {
-
+    for (CANTalon currentMotor : motors) {
+      currentMotor.EnableCurrentLimit(false);
+    }
   }
 
   /**
