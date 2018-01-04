@@ -54,14 +54,14 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return sum;
   }
 
-  public void limitPower(double limit) {
+  public synchronized void limitPower(double limit) {
     for (CANTalon currentMotor : motors) {
       currentMotor.EnableCurrentLimit(true);
-      currentMotor.setCurrentLimit(Math.toIntExact(Math.round(limit)));
+      currentMotor.setCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
     }
   }
 
-  public void stopLimitingPower() {
+  public synchronized void stopLimitingPower() {
     for (CANTalon currentMotor : motors) {
       currentMotor.EnableCurrentLimit(false);
     }
