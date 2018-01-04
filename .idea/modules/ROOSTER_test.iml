@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="reference-libraries:test" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="org.team1540" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="ROOSTER:test" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="org.team1540" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output-test url="file://$MODULE_DIR$/../../out/test/classes" />
     <exclude-output />
@@ -9,11 +9,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="reference-libraries_main" />
+    <orderEntry type="module" module-name="ROOSTER_main" />
     <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:athena:2017.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.opencv:opencv-java:3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: thirdparty.frc.kauai:Navx-Java:3.0.323" level="project" />
     <orderEntry type="library" name="Gradle: thirdparty.frc.ctre:Toolsuite-Java:4.4.1.14" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="reference-libraries_main" />
+  <component name="TestModuleProperties" production-module="ROOSTER_main" />
 </module>
