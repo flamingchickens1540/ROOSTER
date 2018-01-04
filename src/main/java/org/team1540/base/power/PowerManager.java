@@ -2,7 +2,6 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
-import java.rmi.AlreadyBoundException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -150,23 +149,21 @@ public class PowerManager extends Thread {
    * Registers the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toRegister The {@link PowerManageable} to register.
+   * @return true if this set did not already contain the specified element
    */
-  synchronized void registerPowerManageable(PowerManageable toRegister)
-      throws AlreadyBoundException {
-    // For every PowerManageable, add it to powerManaged; if it's already there, throw an exception
-    if (powerManaged.contains(toRegister)) {
-      throw new AlreadyBoundException("PowerManageable " + toRegister + " is already registered.");
-    }
-    powerManaged.add(toRegister);
+  synchronized boolean registerPowerManageable(PowerManageable toRegister) {
+    return powerManaged.add(toRegister);
   }
 
   /**
    * Unregisters the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toUnregister The {@link PowerManageable} to unregister.
+   *
+   * @return true if this set contained the specified element
    */
-  synchronized void unregisterPowerManageable(PowerManageable toUnregister) {
-    powerManaged.remove(toUnregister);
+  synchronized boolean unregisterPowerManageable(PowerManageable toUnregister) {
+    return powerManaged.remove(toUnregister);
   }
 
   public double getSpikePeak() {
