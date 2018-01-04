@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 // Reminder that everything will need to be thread safe
+@SuppressWarnings("unused")
 public class PowerManager extends Thread {
 
   // Singleton

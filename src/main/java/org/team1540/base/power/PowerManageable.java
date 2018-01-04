@@ -1,5 +1,6 @@
 package org.team1540.base.power;
 
+@SuppressWarnings("unused")
 public interface PowerManageable extends Comparable<PowerManageable> {
 
   /**
@@ -31,10 +32,10 @@ public interface PowerManageable extends Comparable<PowerManageable> {
    * Compare two PowerManageables by priority.
    *
    * @param o PowerManageables to compare to.
-   * @return getPriority().compareTo(o.getPriority())
+   * @return (int) (getPriority() - o.getPriority())
    */
   default int compareTo(PowerManageable o) {
-    return Double.compare((getPriority()), o.getPriority());
+    return (int) (getPriority() - o.getPriority());
   }
 
 }
