@@ -27,17 +27,6 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   }
 
-  /**
-   * Compare two ChickenCommands by priority.
-   *
-   * @param o ChickenCommand to compare to.
-   *
-   * @return priority.compareTo(o.priority)
-   */
-  public int compareTo(ChickenSubsystem o) {
-    return Double.compare((priority), o.priority);
-  }
-
   public double getPriority() {
     return priority;
   }
@@ -65,15 +54,5 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     for (CANTalon currentMotor : motors) {
       currentMotor.EnableCurrentLimit(false);
     }
-  }
-
-  /**
-   * Compare two PowerManageables by priority.
-   *
-   * @param o PowerManageables to compare to.
-   * @return priority.compareTo(o.priority)
-   */
-  public int compareTo(PowerManageable o) {
-    return Double.compare((priority), o.getPriority());
   }
 }

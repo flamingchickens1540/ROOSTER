@@ -26,4 +26,15 @@ public interface PowerManageable extends Comparable<PowerManageable> {
    */
   void stopLimitingPower();
 
+
+  /**
+   * Compare two PowerManageables by priority.
+   *
+   * @param o PowerManageables to compare to.
+   * @return getPriority().compareTo(o.getPriority())
+   */
+  default int compareTo(PowerManageable o) {
+    return Double.compare((getPriority()), o.getPriority());
+  }
+
 }
