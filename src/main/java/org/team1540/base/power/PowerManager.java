@@ -25,11 +25,11 @@ public class PowerManager extends Thread {
   private boolean running = true;
 
   // Store the currently running PowerManageables
-  // For the love of everything, so there are no race conditions, do not access this except though synchronized
-  // methods
-  private Set<PowerManageable> powerManaged = new HashSet<PowerManageable>();
+  // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
+  private final Set<PowerManageable> powerManaged = Collections.synchronizedSet(new HashSet<>());
+  private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
-  private PowerDistributionPanel pdp = new PowerDistributionPanel();
+  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
 
   private PowerManager() {}
 
@@ -72,39 +72,43 @@ public class PowerManager extends Thread {
    * Separate method to block PowerManageable registration/unregistration while actually scaling the
    * power.
    */
-  private synchronized void scalePower() {
-    Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
+  private void scalePower() {
+    synchronized (powerLock) {
+      Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
-    // Find out what the highest priority is
-    double highestPriority = Collections.max(powerManaged).getPriority();
+      // Find out what the highest priority is
+      double highestPriority = Collections.max(powerManaged).getPriority();
 
-    // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
-    // actual current draw, and store it in a map along with a running tally of the total
-    double totalScaledCurrent = 0;
-    for (PowerManageable currentManageable : powerManaged) {
-      double scaledCurrent =
-          scaleExponential(highestPriority, currentManageable.getPriority()) * currentManageable
-              .getCurrent();
-      powerManageableCurrents.put(currentManageable, scaledCurrent);
-      totalScaledCurrent += scaledCurrent;
-    }
+      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
+      // actual current draw, and store it in a map along with a running tally of the total
+      double totalScaledCurrent = 0;
+      for (PowerManageable currentManageable : powerManaged) {
+        double scaledCurrent =
+            scaleExponential(highestPriority, currentManageable.getPriority()) * currentManageable
+                .getCurrent();
+        powerManageableCurrents.put(currentManageable, scaledCurrent);
+        totalScaledCurrent += scaledCurrent;
+      }
 
-    // Find a factor such that the new total equals the target
-    double factor = target / totalScaledCurrent;
+      // Find a factor such that the new total equals the target
+      double factor = target / totalScaledCurrent;
 
-    // Multiply that factor by the ratio between the new power and the actual power and pass that
-    // back to the PowerManageable
-    for (PowerManageable currentManageable : powerManaged) {
-      currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
+      // Multiply that factor by the ratio between the new power and the actual power and pass that
+      // back to the PowerManageable
+      for (PowerManageable currentManageable : powerManaged) {
+        currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
+      }
     }
   }
 
   /**
    * Separate method to block PowerManageable registration/deregistration while stopping scaling.
    */
-  private synchronized void stopScaling() {
-    for (PowerManageable currentManageable : powerManaged) {
-      currentManageable.stopLimitingPower();
+  private void stopScaling() {
+    synchronized (powerLock) {
+      for (PowerManageable currentManageable : powerManaged) {
+        currentManageable.stopLimitingPower();
+      }
     }
   }
 
@@ -133,26 +137,16 @@ public class PowerManager extends Thread {
     return highestPriority / (Math.exp(highestPriority - priority));
   }
 
-	/*
-    A comment on the following two methods: Why are they synchronized? Why not use a more thread-safe data structure
-	that better supports the intended use case? Because it doesn't really matter.
-
-	In theory, it'd be nice to be able to say "Hey, this PowerManageable isn't being used any more, let's ignore it when we're
-	doing our calculations" while we're actually doing those calculations. But that actually isn't really a big deal.
-	Any time we actually do need to register/unregister a PowerManageable, it'll happen immediately after we're done managing
-	the power for that cycle. Furthermore, if we allocate it power it doesn't use, that's not a huge problem for
-	everyone else. There's also no good reason to access the map outside of the methods defined here, so just don't do
-	it.
-	 */
-
   /**
    * Registers the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toRegister The {@link PowerManageable} to register.
    * @return true if this set did not already contain the specified element
    */
-  synchronized boolean registerPowerManageable(PowerManageable toRegister) {
-    return powerManaged.add(toRegister);
+  boolean registerPowerManageable(PowerManageable toRegister) {
+    synchronized (powerLock) {
+      return powerManaged.add(toRegister);
+    }
   }
 
   /**
@@ -162,8 +156,10 @@ public class PowerManager extends Thread {
    *
    * @return true if this set contained the specified element
    */
-  synchronized boolean unregisterPowerManageable(PowerManageable toUnregister) {
-    return powerManaged.remove(toUnregister);
+  boolean unregisterPowerManageable(PowerManageable toUnregister) {
+    synchronized (powerLock) {
+      return powerManaged.remove(toUnregister);
+    }
   }
 
   public double getSpikePeak() {

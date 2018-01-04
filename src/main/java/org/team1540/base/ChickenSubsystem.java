@@ -16,6 +16,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   private double priority = 0.0;
   private final Set<CANTalon> motors = new HashSet<CANTalon>();
 
+  private final Object powerLock = new Object();
+
   public ChickenSubsystem(String name) {
     super(name);
   }
@@ -43,16 +45,20 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return sum;
   }
 
-  public synchronized void limitPower(double limit) {
-    for (CANTalon currentMotor : motors) {
-      currentMotor.EnableCurrentLimit(true);
-      currentMotor.setCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
+  public void limitPower(double limit) {
+    synchronized (powerLock) {
+      for (CANTalon currentMotor : motors) {
+        currentMotor.EnableCurrentLimit(true);
+        currentMotor.setCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
+      }
     }
   }
 
-  public synchronized void stopLimitingPower() {
-    for (CANTalon currentMotor : motors) {
-      currentMotor.EnableCurrentLimit(false);
+  public void stopLimitingPower() {
+    synchronized (powerLock) {
+      for (CANTalon currentMotor : motors) {
+        currentMotor.EnableCurrentLimit(false);
+      }
     }
   }
 }
