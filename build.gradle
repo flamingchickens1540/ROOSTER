@@ -58,8 +58,11 @@ deploy {
 }
 
 jar {
-    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+    if (!(hasProperty("JITPACK") && JITPACK)) {
+        // Since we're deploying to the RIO, create a "fat jar"
+        from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+    } // otherwise, default behavior
 }
 
 task wrapper(type: Wrapper) {
