@@ -58,7 +58,8 @@ deploy {
 }
 
 jar {
-    if (!(hasProperty("JITPACK") && JITPACK)) {
+    println "Using JitPack: " + JITPACK.toString()
+    if (!JITPACK) {
         // Since we're deploying to the RIO, create a "fat jar"
         from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
