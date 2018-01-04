@@ -64,18 +64,22 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public ChickenSubsystem() {
   }
 
+  @Override
   protected void initDefaultCommand() {
 
   }
 
+  @Override
   public double getPriority() {
     return priority;
   }
 
+  @Override
   public void setPriority(double priority) {
     this.priority = priority;
   }
 
+  @Override
   public double getCurrent() {
     double sum = 0;
     for (CANTalon currentMotor : motors) {
@@ -84,6 +88,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return sum;
   }
 
+  @Override
   public void limitPower(double limit) {
     synchronized (powerLock) {
       for (CANTalon currentMotor : motors) {
@@ -93,6 +98,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   }
 
+  @Override
   public void stopLimitingPower() {
     synchronized (powerLock) {
       for (CANTalon currentMotor : motors) {

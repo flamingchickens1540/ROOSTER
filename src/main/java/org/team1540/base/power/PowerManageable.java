@@ -34,6 +34,7 @@ public interface PowerManageable extends Comparable<PowerManageable> {
    * @param o PowerManageables to compare to.
    * @return (int) (getPriority() - o.getPriority())
    */
+  @Override
   default int compareTo(PowerManageable o) {
     return (int) (getPriority() - o.getPriority());
   }
