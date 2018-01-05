@@ -2,7 +2,9 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -142,7 +144,7 @@ public class PowerManager extends Thread {
    * Registers the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toRegister The {@link PowerManageable} to register.
-   * @return true if this set did not already contain the specified element
+   * @return true if the PowerManager did not already contain the specified element
    */
   public boolean registerPowerManageable(PowerManageable toRegister) {
     synchronized (powerLock) {
@@ -151,16 +153,48 @@ public class PowerManager extends Thread {
   }
 
   /**
+   * Registers a group of {@link PowerManageable}s. Calls registerPowerManager().
+   *
+   * @param toRegister The {@link PowerManageable}s to register.
+   * @return A map of PowerManageables with the key true if the PowerManager did not already contain
+   * the specified element
+   */
+  public Map<PowerManageable, Boolean> registerPowerManageables(
+      Collection<PowerManageable> toRegister) {
+    HashMap<PowerManageable, Boolean> success = new HashMap<>();
+    for (PowerManageable register : toRegister) {
+      success.put(register, registerPowerManageable(register));
+    }
+    return success;
+  }
+
+  /**
    * Unregisters the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toUnregister The {@link PowerManageable} to unregister.
    *
-   * @return true if this set contained the specified element
+   * @return true if the PowerManager contained the specified element
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
     synchronized (powerLock) {
       return powerManaged.remove(toUnregister);
     }
+  }
+
+  /**
+   * Unregisters a group of {@link PowerManageable}s. Calls unregisterPowerManager().
+   *
+   * @param toUnregister The {@link PowerManageable}s to unregister.
+   * @return A map of PowerManageables with the key true if the PowerManager contained the specified
+   * element
+   */
+  public Map<PowerManageable, Boolean> unregisterPowerManageables(
+      Collection<PowerManageable> toUnregister) {
+    HashMap<PowerManageable, Boolean> success = new HashMap<>();
+    for (PowerManageable unregister : toUnregister) {
+      success.put(unregister, unregisterPowerManageable(unregister));
+    }
+    return success;
   }
 
   public double getSpikePeak() {
