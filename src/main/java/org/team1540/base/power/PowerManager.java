@@ -144,7 +144,7 @@ public class PowerManager extends Thread {
    * @param toRegister The {@link PowerManageable} to register.
    * @return true if this set did not already contain the specified element
    */
-  boolean registerPowerManageable(PowerManageable toRegister) {
+  public boolean registerPowerManageable(PowerManageable toRegister) {
     synchronized (powerLock) {
       return powerManaged.add(toRegister);
     }
@@ -157,7 +157,7 @@ public class PowerManager extends Thread {
    *
    * @return true if this set contained the specified element
    */
-  boolean unregisterPowerManageable(PowerManageable toUnregister) {
+  public boolean unregisterPowerManageable(PowerManageable toUnregister) {
     synchronized (powerLock) {
       return powerManaged.remove(toUnregister);
     }
