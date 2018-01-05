@@ -24,6 +24,7 @@ public class ChickenTalon extends TalonSRX {
   ControlMode controlMode = ControlMode.PercentOutput;
   int defaultPidIdx = 0;
   int defaultTimeoutMs = 0;
+  double encoderCodesPerRev = 1;
 
   public ChickenTalon(int deviceNumber) {
     super(deviceNumber);
@@ -491,7 +492,9 @@ public class ChickenTalon extends TalonSRX {
    *     on the analog pin of the Talon. The upper 14 bits tracks the
    *     overflows and underflows (continuous sensor).
    */
-  public int getAnalogIn() {return getSensorCollection().getAnalogIn();}
+  public int getAnalogIn() {
+    return getSensorCollection().getAnalogIn();
+  }
 
   /**
    * Get the position of whatever is in the analog pin of the Talon,
@@ -499,7 +502,9 @@ public class ChickenTalon extends TalonSRX {
    *
    * @return the ADC (0 - 1023) on analog pin of the Talon.
    */
-  public int getAnalogInRaw() {return getSensorCollection().getAnalogInRaw();}
+  public int getAnalogInRaw() {
+    return getSensorCollection().getAnalogInRaw();
+  }
 
   /**
    * Get the position of whatever is in the analog pin of the Talon,
@@ -507,7 +512,9 @@ public class ChickenTalon extends TalonSRX {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
-  public int getAnalogInVel() {return getSensorCollection().getAnalogInVel();}
+  public int getAnalogInVel() {
+    return getSensorCollection().getAnalogInVel();
+  }
 
   /**
    * Gets the closed-loop error.
@@ -516,6 +523,20 @@ public class ChickenTalon extends TalonSRX {
    */
   public int getClosedLoopError() {
     return super.getClosedLoopError(defaultPidIdx);
+  }
+
+  /**
+   * Note that this does <i>not</i> return the currently set control mode in the talon wrapper and
+   * may be different than the control mode set using {@link #setControlMode(ControlMode)}.
+   *
+   * @return The current control mode in the motor controller.
+   */
+  public ControlMode getControlMode() {
+    return controlMode;
+  }
+
+  public void setControlMode(ControlMode controlMode) {
+    this.controlMode = controlMode;
   }
 
   public int getDefaultPidIdx() {
@@ -532,6 +553,14 @@ public class ChickenTalon extends TalonSRX {
 
   public void setDefaultTimeoutMs(int defaultTimeoutMs) {
     this.defaultTimeoutMs = defaultTimeoutMs;
+  }
+
+  public double getEncoderCodesPerRev() {
+    return encoderCodesPerRev;
+  }
+
+  public void setEncoderCodesPerRev(double encoderCodesPerRev) {
+    this.encoderCodesPerRev = encoderCodesPerRev;
   }
 
   /**
@@ -557,49 +586,63 @@ public class ChickenTalon extends TalonSRX {
    *
    * @return the pin state quad a.
    */
-  public boolean getPinStateQuadA() {return getSensorCollection().getPinStateQuadA();}
+  public boolean getPinStateQuadA() {
+    return getSensorCollection().getPinStateQuadA();
+  }
 
   /**
    * Gets pin state quad b.
    *
    * @return Digital level of QUADB pin.
    */
-  public boolean getPinStateQuadB() {return getSensorCollection().getPinStateQuadB();}
+  public boolean getPinStateQuadB() {
+    return getSensorCollection().getPinStateQuadB();
+  }
 
   /**
    * Gets pin state quad index.
    *
    * @return Digital level of QUAD Index pin.
    */
-  public boolean getPinStateQuadIdx() {return getSensorCollection().getPinStateQuadIdx();}
+  public boolean getPinStateQuadIdx() {
+    return getSensorCollection().getPinStateQuadIdx();
+  }
 
   /**
    * Gets pulse width position.
    *
    * @return the pulse width position.
    */
-  public int getPulseWidthPosition() {return getSensorCollection().getPulseWidthPosition();}
+  public int getPulseWidthPosition() {
+    return getSensorCollection().getPulseWidthPosition();
+  }
 
   /**
    * Gets pulse width rise to fall us.
    *
    * @return the pulse width rise to fall us.
    */
-  public int getPulseWidthRiseToFallUs() {return getSensorCollection().getPulseWidthRiseToFallUs();}
+  public int getPulseWidthRiseToFallUs() {
+    return getSensorCollection().getPulseWidthRiseToFallUs();
+  }
 
   /**
    * Gets pulse width rise to rise us.
    *
    * @return the pulse width rise to rise us.
    */
-  public int getPulseWidthRiseToRiseUs() {return getSensorCollection().getPulseWidthRiseToRiseUs();}
+  public int getPulseWidthRiseToRiseUs() {
+    return getSensorCollection().getPulseWidthRiseToRiseUs();
+  }
 
   /**
    * Gets pulse width velocity.
    *
    * @return the pulse width velocity.
    */
-  public int getPulseWidthVelocity() {return getSensorCollection().getPulseWidthVelocity();}
+  public int getPulseWidthVelocity() {
+    return getSensorCollection().getPulseWidthVelocity();
+  }
 
   /**
    * Get the position of whatever is in the analog pin of the Talon,
@@ -607,7 +650,9 @@ public class ChickenTalon extends TalonSRX {
    *
    * @return the Error code of the request.
    */
-  public int getQuadraturePosition() {return getSensorCollection().getQuadraturePosition();}
+  public int getQuadraturePosition() {
+    return getSensorCollection().getQuadraturePosition();
+  }
 
   /**
    * Get the position of whatever is in the analog pin of the Talon,
@@ -615,24 +660,28 @@ public class ChickenTalon extends TalonSRX {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
-  public int getQuadratureVelocity() {return getSensorCollection().getQuadratureVelocity();}
+  public int getQuadratureVelocity() {
+    return getSensorCollection().getQuadratureVelocity();
+  }
 
   /**
    * Get the selected sensor position.
    *
-   * @return Position of selected sensor (in Raw Sensor Units).
+   * @return Position of selected sensor (in revolutions if {@link #setEncoderCodesPerRev(double)}
+   * has been called, otherwise in raw sensor units).
    */
-  public int getSelectedSensorPosition() {
-    return super.getSelectedSensorPosition(defaultPidIdx);
+  public double getSelectedSensorPosition() {
+    return super.getSelectedSensorPosition(defaultPidIdx) / encoderCodesPerRev;
   }
 
   /**
    * Get the selected sensor velocity.
    *
-   * @return Velocity of selected sensor (in Raw Sensor Units per 100 ms).
+   * @return Velocity of selected sensor (In RPM if {@link #setEncoderCodesPerRev(double)}
+   * has been called}, otherwise in raw sensor units per minute).
    */
-  public int getSelectedSensorVelocity() {
-    return super.getSelectedSensorVelocity(defaultPidIdx);
+  public double getSelectedSensorVelocity() {
+    return (super.getSelectedSensorVelocity(defaultPidIdx) / encoderCodesPerRev) * 600;
   }
 
   public int getStatusFramePeriod(StatusFrameEnhanced frame) {
@@ -668,7 +717,9 @@ public class ChickenTalon extends TalonSRX {
    *     This function works regardless if limit switch feature is
    *     enabled.
    */
-  public boolean isFwdLimitSwitchClosed() {return getSensorCollection().isFwdLimitSwitchClosed();}
+  public boolean isFwdLimitSwitchClosed() {
+    return getSensorCollection().isFwdLimitSwitchClosed();
+  }
 
   /**
    * Is reverse limit switch closed.
@@ -677,7 +728,9 @@ public class ChickenTalon extends TalonSRX {
    *     This function works regardless if limit switch feature is
    *     enabled.
    */
-  public boolean isRevLimitSwitchClosed() {return getSensorCollection().isRevLimitSwitchClosed();}
+  public boolean isRevLimitSwitchClosed() {
+    return getSensorCollection().isRevLimitSwitchClosed();
+  }
 
   /**
    * Selects which profile slot to use for closed-loop control.
@@ -712,11 +765,12 @@ public class ChickenTalon extends TalonSRX {
    * Sets analog position.
    *
    * @param newPosition The new position.
-   * @param timeoutMs (Optional) The timeout in milliseconds.
    *
    * @return an ErrorCode.
    */
-  public ErrorCode setAnalogPosition(int newPosition, int timeoutMs) {return getSensorCollection().setAnalogPosition(newPosition, timeoutMs);}
+  public ErrorCode setAnalogPosition(int newPosition) {
+    return getSensorCollection().setAnalogPosition(newPosition, defaultTimeoutMs);
+  }
 
   /**
    * Sets the mode of operation during neutral throttle output.
@@ -725,10 +779,6 @@ public class ChickenTalon extends TalonSRX {
    **/
   public void setBrake(boolean brake) {
     super.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
-  }
-
-  public void setControlMode(ControlMode controlMode) {
-    this.controlMode = controlMode;
   }
 
   /**
@@ -757,12 +807,12 @@ public class ChickenTalon extends TalonSRX {
    * Sets pulse width position.
    *
    * @param newPosition The position value to apply to the sensor.
-   * @param timeoutMs (Optional) How long to wait for confirmation. Pass zero so
-   *     that call does not block.
    *
    * @return an ErrErrorCode
    */
-  public ErrorCode setPulseWidthPosition(int newPosition, int timeoutMs) {return getSensorCollection().setPulseWidthPosition(newPosition, timeoutMs);}
+  public ErrorCode setPulseWidthPosition(int newPosition) {
+    return getSensorCollection().setPulseWidthPosition(newPosition, defaultTimeoutMs);
+  }
 
   /**
    * Change the quadrature reported position. Typically this is used to "zero"
@@ -771,12 +821,12 @@ public class ChickenTalon extends TalonSRX {
    * SetSelectedSensorPosition in the motor controller class.
    *
    * @param newPosition The position value to apply to the sensor.
-   * @param timeoutMs (Optional) How long to wait for confirmation. Pass zero so
-   *     that call does not block.
    *
    * @return error code.
    */
-  public ErrorCode setQuadraturePosition(int newPosition, int timeoutMs) {return getSensorCollection().setQuadraturePosition(newPosition, timeoutMs);}
+  public ErrorCode setQuadraturePosition(int newPosition) {
+    return getSensorCollection().setQuadraturePosition(newPosition, defaultTimeoutMs);
+  }
 
   /**
    * Sets the sensor position to the given value.
