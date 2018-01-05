@@ -37,7 +37,7 @@ public class PowerManager extends Thread {
   /**
    * Gets the PowerManager.
    */
-  public PowerManager getInstance() {
+  public static PowerManager getInstance() {
     return theManager;
   }
 
