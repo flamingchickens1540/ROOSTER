@@ -30,6 +30,7 @@ artifacts {
 repositories {
     maven { url "http://first.wpi.edu/FRC/roborio/maven/release" }
     maven { url "http://dev.imjac.in/maven/" }
+    maven { url "https://raw.githubusercontent.com/Open-RIO/Maven-Mirror/master/m2" }
 }
 
 dependencies {
@@ -37,8 +38,8 @@ dependencies {
     compile 'edu.wpi.first.wpilib.networktables.java:NetworkTables:3.1.7'
     compile 'org.opencv:opencv-java:3.1.0'
     compile 'edu.wpi.cscore.java:cscore:1.0.1'
-    compile 'thirdparty.frc.kauai:Navx-Java:3.0.323'
-    compile 'thirdparty.frc.ctre:Toolsuite-Java:4.4.1.14'
+    compile 'openrio.mirror.third.kauailabs:navx-java:3.0.342'
+    compile 'openrio.mirror.third.ctre:CTRE-phoenix-java:5.1.2.1'
 }
 
 def TEAM = 1540
