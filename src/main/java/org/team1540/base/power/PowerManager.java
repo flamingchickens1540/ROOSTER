@@ -2,7 +2,6 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,7 +159,7 @@ public class PowerManager extends Thread {
    * the specified element
    */
   public Map<PowerManageable, Boolean> registerPowerManageables(
-      Collection<PowerManageable> toRegister) {
+      PowerManageable... toRegister) {
     HashMap<PowerManageable, Boolean> success = new HashMap<>();
     for (PowerManageable register : toRegister) {
       success.put(register, registerPowerManageable(register));
@@ -189,7 +188,7 @@ public class PowerManager extends Thread {
    * element
    */
   public Map<PowerManageable, Boolean> unregisterPowerManageables(
-      Collection<PowerManageable> toUnregister) {
+      PowerManageable... toUnregister) {
     HashMap<PowerManageable, Boolean> success = new HashMap<>();
     for (PowerManageable unregister : toUnregister) {
       success.put(unregister, unregisterPowerManageable(unregister));
