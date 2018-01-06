@@ -25,6 +25,7 @@ public class PowerManager extends Thread {
   private double spikeLength = 2.0;
   private double target = 40;
   private boolean running = true;
+  private boolean isLimiting = false;
 
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
@@ -76,6 +77,8 @@ public class PowerManager extends Thread {
    */
   private void scalePower() {
     synchronized (powerLock) {
+      isLimiting = true;
+
       Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
       // Find out what the highest priority is
@@ -100,6 +103,8 @@ public class PowerManager extends Thread {
       for (PowerManageable currentManageable : powerManaged) {
         currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
       }
+
+      isLimiting = false;
     }
   }
 
@@ -121,8 +126,17 @@ public class PowerManager extends Thread {
    *
    * @return Boolean representing if the voltage is spiking.
    */
-  private boolean isSpiking() {
+  public boolean isSpiking() {
     return pdp.getTotalCurrent() > spikePeak;
+  }
+
+  /**
+   * Determine if power limiting has kicked in.
+   *
+   * @return True if power limiting has kicked in, false otherwise
+   */
+  public boolean isLimiting() {
+    return isLimiting;
   }
 
   /**
