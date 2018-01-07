@@ -25,6 +25,8 @@ public class PowerManager extends Thread {
   private double spikePeak = 50;
   private double spikeLength = 2.0;
   private double target = 40;
+
+  private double margin = 5;
   private boolean running = true;
   private boolean isLimiting = false;
 
@@ -125,13 +127,18 @@ public class PowerManager extends Thread {
 
 
   /**
-   * Determines if the voltage is currently spiking. Literally just returns pdp.getTotalCurrent() &gt;
-   * spikePeak
+   * Determines if the voltage is currently spiking. If power limiting is not engaged,
+   * returns pdp.getTotalCurrent() &gt; spikePeak. If power limiting is engaged, returns
+   * target - pdp.getTotalCurrent() > margin.
    *
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
-    return pdp.getTotalCurrent() > spikePeak;
+    if (!isLimiting) {
+      return pdp.getTotalCurrent() > spikePeak;
+    } else {
+      return target - pdp.getTotalCurrent() > margin;
+    }
   }
 
   /**
@@ -278,5 +285,23 @@ public class PowerManager extends Thread {
    */
   public void setRunning(boolean running) {
     this.running = running;
+  }
+
+  /**
+   * Gets the margin below which, if power limiting has engaged, power management will remain
+   * engaged.
+   *
+   * @return Margin in amps (default 5)
+   */
+  public double getMargin() {
+    return margin;
+  }
+
+  /**
+   * Set the margin below which, if power limiting has engaged, power management will remain
+   * engaged.
+   */
+  public void setMargin(double margin) {
+    this.margin = margin;
   }
 }
