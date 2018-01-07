@@ -129,7 +129,7 @@ public class PowerManager extends Thread {
   /**
    * Determines if the voltage is currently spiking. If power limiting is not engaged,
    * returns pdp.getTotalCurrent() &gt; spikePeak. If power limiting is engaged, returns
-   * target - pdp.getTotalCurrent() > margin.
+   * target - pdp.getTotalCurrent() &gt; margin.
    *
    * @return Boolean representing if the voltage is spiking.
    */
