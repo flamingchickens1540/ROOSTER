@@ -52,7 +52,7 @@ public class PowerManager extends Thread {
       if (running) {
         SmartDashboard.putNumber("Power Timer: ", theTimer.get());
         if (isSpiking()) {
-          if (theTimer.get() < 0) {
+          if (theTimer.get() <= 0) {
             // Calling the timer when it's already started seems to reset it.
             theTimer.start();
           }
