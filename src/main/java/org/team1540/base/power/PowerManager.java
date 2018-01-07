@@ -2,6 +2,7 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,11 +48,12 @@ public class PowerManager extends Thread {
   public void run() {
     Timer theTimer = new Timer();
     while (true) {
+      // No whiles in here as that'd stop the last block from executing
       if (running) {
+        SmartDashboard.putNumber("Power Timer: ", theTimer.get());
         if (isSpiking()) {
           // Start a timer
           theTimer.start();
-
           if (theTimer.hasPeriodPassed(spikeLength)) {
             scalePower();
           }
