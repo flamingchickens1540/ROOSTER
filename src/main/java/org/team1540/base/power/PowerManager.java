@@ -59,9 +59,11 @@ public class PowerManager extends Thread {
             theTimer.start();
           }
           if (theTimer.hasPeriodPassed(spikeLength)) {
+            isLimiting = true;
             scalePower();
           }
         } else {
+          isLimiting = false;
           stopScaling();
           theTimer.stop();
           theTimer.reset();
@@ -83,7 +85,6 @@ public class PowerManager extends Thread {
    */
   private void scalePower() {
     synchronized (powerLock) {
-      isLimiting = true;
 
       Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
@@ -109,8 +110,6 @@ public class PowerManager extends Thread {
       for (PowerManageable currentManageable : powerManaged) {
         currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
       }
-
-      isLimiting = false;
     }
   }
 
