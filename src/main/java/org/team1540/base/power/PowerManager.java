@@ -58,7 +58,7 @@ public class PowerManager extends Thread {
             // Calling the timer when it's already started seems to reset it.
             theTimer.start();
           }
-          if (theTimer.get() > spikeLength) {
+          if (timeHasPassed()) {
 //            System.out.println("Timer passed");
             scalePower();
           }
@@ -133,7 +133,7 @@ public class PowerManager extends Thread {
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
-    if (theTimer.get() > spikeLength) {
+    if (!timeHasPassed()) {
       boolean b = pdp.getTotalCurrent() > spikePeak;
       if (!b) {
         System.out.println("not limiting: " + b);
@@ -148,13 +148,17 @@ public class PowerManager extends Thread {
     }
   }
 
+  private boolean timeHasPassed() {
+    return (theTimer.get() > spikeLength);
+  }
+
   /**
    * Determine if power limiting has kicked in.
    *
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return (theTimer.get() > spikeLength) && isSpiking();
+    return timeHasPassed() && isSpiking();
   }
 
   /**
