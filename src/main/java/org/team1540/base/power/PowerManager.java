@@ -28,7 +28,6 @@ public class PowerManager extends Thread {
 
   private double margin = 5;
   private boolean running = true;
-  private boolean isLimiting = false;
 
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
@@ -36,6 +35,7 @@ public class PowerManager extends Thread {
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+  private final Timer theTimer = new Timer();
 
   private PowerManager() {}
 
@@ -48,7 +48,6 @@ public class PowerManager extends Thread {
 
   @Override
   public void run() {
-    Timer theTimer = new Timer();
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
@@ -61,12 +60,10 @@ public class PowerManager extends Thread {
           }
           if (theTimer.get() > spikeLength) {
 //            System.out.println("Timer passed");
-            isLimiting = true;
             scalePower();
           }
         } else {
           System.out.println("Not spiking");
-          isLimiting = false;
           stopScaling();
           theTimer.stop();
           theTimer.reset();
@@ -136,7 +133,7 @@ public class PowerManager extends Thread {
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
-    if (!isLimiting) {
+    if (theTimer.get() > spikeLength) {
       boolean b = pdp.getTotalCurrent() > spikePeak;
       if (!b) {
         System.out.println("not limiting: " + b);
@@ -157,7 +154,7 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return isLimiting;
+    return (theTimer.get() > spikeLength) && isSpiking();
   }
 
   /**
