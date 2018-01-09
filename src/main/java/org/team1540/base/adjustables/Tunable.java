@@ -15,6 +15,8 @@ import java.lang.annotation.Target;
 public @interface Tunable {
   /**
    * Label for the entry on the SmartDashboard.
+   *
+   * @return the Smartdashboard label.
    */
   String value();
 }

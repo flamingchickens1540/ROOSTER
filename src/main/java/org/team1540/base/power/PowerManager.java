@@ -38,6 +38,8 @@ public class PowerManager extends Thread {
 
   /**
    * Gets the PowerManager.
+   *
+   * @return The singleton PowerManager instance.
    */
   public static PowerManager getInstance() {
     return theManager;

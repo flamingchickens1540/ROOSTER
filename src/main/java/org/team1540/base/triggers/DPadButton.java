@@ -38,13 +38,6 @@ public class DPadButton extends Button {
   public boolean get() {
     int pov = stick.getPOV(pad);
 
-    return process(pov, axis);
-  }
-
-  /**
-   * Helper function so that it can be properly unit-tested. Should not be called directly.
-   */
-  public static boolean process(int pov, DPadAxis axis) {
     switch (axis) {
       case UP:
         return pov == 315 || pov == 0 || pov == 45;

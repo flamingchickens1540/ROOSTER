@@ -5,11 +5,15 @@ public interface PowerManageable extends Comparable<PowerManageable> {
 
   /**
    * Get the priority of this PowerManageable. Used for power management.
+   *
+   * @return The priority of this PowerManageable.
    */
   double getPriority();
 
   /**
    * Sets the priority of this PowerManageable. Used for power management.
+   *
+   * @param priority The priority to set.
    */
   void setPriority(double priority);
 
