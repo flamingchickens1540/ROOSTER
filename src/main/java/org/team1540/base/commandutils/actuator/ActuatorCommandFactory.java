@@ -13,8 +13,7 @@ import org.team1540.base.templates.Actuator;
  * To create either of these commands, you first need a subsystem that implements the {@link
  * Actuator} interface. Then, create an ActuatorCommandFactory, and set up its core options (such
  * as movement speed, limits, and its behavior when jammed) using setters. Finally, create one or
- * more
- * {@link Command Commands} using the command creation methods.
+ * more {@link Command Commands} using the command creation methods.
  * <p>
  * All setters in this class use a builder pattern; that is, they return an instance of the class
  * they are called on. This can be used to chain method calls easily by calling another setter
