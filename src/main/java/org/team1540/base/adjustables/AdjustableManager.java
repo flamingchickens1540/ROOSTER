@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Class to manage creating and updating adjustables (tunables and telemetry values.) Add an object
  * containing fields marked with {@link Tunable} or {@link Telemetry} to have those values show up
- * on the SmartDashboard.
+ * on the SmartDashboard/Shuffleboard.
  */
 public class AdjustableManager {
 

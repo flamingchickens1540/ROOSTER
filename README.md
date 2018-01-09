@@ -33,7 +33,7 @@ Download the latest version from the [releases page](https://github.com/flamingc
 ### Adjustables 
 `org.team1540.adjustables`
 - A system for fields that need to be tuned on the fly.
-- Simply annotate a field as `Tunable`, pass the enclosing class to the `AdjustableManager`, and call `AdjustableManager.update()` in your main robot loop to have your field show up and be editable on the SmartDashboard.
+- Simply annotate a field as `Tunable`, pass the enclosing class to the `AdjustableManager`, and call `AdjustableManager.update()` in your main robot loop to have your field show up and be editable on the SmartDashboard and Shuffleboard.
 
 ### Triggers
 `org.team1540.triggers`
