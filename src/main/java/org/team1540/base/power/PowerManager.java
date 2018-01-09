@@ -136,8 +136,8 @@ public class PowerManager extends Thread {
     if (!isLimiting) {
       return pdp.getTotalCurrent() > spikePeak;
     } else {
-      System.out.println("spiked: " + (target - pdp.getTotalCurrent() > margin));
-      return target - pdp.getTotalCurrent() > margin;
+      System.out.println("spiked: " + (pdp.getTotalCurrent() > target - margin));
+      return pdp.getTotalCurrent() > target - margin;
     }
   }
 
