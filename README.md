@@ -1,4 +1,5 @@
-# Team 1540 Reference Libraries
+# ROOSTER
+Reusable Object-Oriented Systems, Templates, and Executables for Robots
 
 A common library of useful classes and systems intended to be used for all Team 1540 robots.
 
@@ -15,14 +16,14 @@ repositories {
 
 dependencies {
      // other dependencies
-     compile 'org.team1540:reference-libraries:master-SNAPSHOT'
+     compile 'org.team1540:rooster:master-SNAPSHOT'
 }
 ```
 
 We use [JitPack](https://jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files. 
 
 ### Manually
-Download [reference-libraries.jar](build/libs/reference-libraries.jar) and attach it to your project.
+Download the latest version from the [releases page](https://github.com/flamingchickens1540/ROOSTER/releases) and attach it to your project.
 
 ## Manifest
 

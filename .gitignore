@@ -2,7 +2,7 @@
 .gradle
 
 # Ignore temporary binaries
-build/tmp
+build/
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template
