@@ -47,6 +47,8 @@ public class DriveTestRobot extends IterativeRobot {
   public void robotPeriodic() {
     SmartDashboard.putNumber("Left", lMaster.getSelectedSensorPosition());
     SmartDashboard.putNumber("Right", rMaster.getSelectedSensorPosition());
+    SmartDashboard.putNumber("LeftVel", lMaster.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("RightVel", rMaster.getSelectedSensorVelocity());
     leftPneu.set(true);
     rightPneu.set(false);
   }
