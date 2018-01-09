@@ -9,9 +9,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:athena:2017.2.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.opencv:opencv-java:3.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: thirdparty.frc.kauai:Navx-Java:3.0.323" level="project" />
-    <orderEntry type="library" name="Gradle: thirdparty.frc.ctre:Toolsuite-Java:4.4.1.14" level="project" />
+    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:wpilibj-java:2018.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: edu.wpi.first.ntcore:ntcore-java:4.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: edu.wpi.first.wpiutil:wpiutil-java:3.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.opencv:opencv-java:3.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: edu.wpi.first.cscore:cscore-java:1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: openrio.mirror.third.ctre:CTRE-phoenix-java:5.1.2.1" level="project" />
+    <orderEntry type="library" name="Gradle: openrio.mirror.third.kauailabs:navx-java:3.0.342" level="project" />
   </component>
 </module>

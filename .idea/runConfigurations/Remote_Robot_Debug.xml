@@ -6,6 +6,10 @@
     <option name="SHMEM_ADDRESS" value="javadebug" />
     <option name="HOST" value="roborio-1540-frc.local" />
     <option name="PORT" value="8348" />
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="8348" />
+      <option name="LOCAL" value="false" />
+    </RunnerSettings>
     <method />
   </configuration>
 </component>
