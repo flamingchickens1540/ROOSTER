@@ -55,14 +55,17 @@ public class PowerManager extends Thread {
         SmartDashboard.putNumber("Power Timer: ", theTimer.get());
         if (isSpiking()) {
           if (theTimer.get() <= 0) {
+            System.out.println("Starting timer");
             // Calling the timer when it's already started seems to reset it.
             theTimer.start();
           }
           if (theTimer.hasPeriodPassed(spikeLength)) {
+            System.out.println("Timer passed");
             isLimiting = true;
             scalePower();
           }
         } else {
+          System.out.println("Not spiking");
           isLimiting = false;
           stopScaling();
           theTimer.stop();
