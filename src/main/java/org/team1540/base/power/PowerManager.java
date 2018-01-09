@@ -137,11 +137,10 @@ public class PowerManager extends Thread {
    */
   public boolean isSpiking() {
     if (!isLimiting) {
-      System.out.println("not limiting yet: " + (pdp.getTotalCurrent() > spikePeak));
-      return true;
-//      return pdp.getTotalCurrent() > spikePeak;
+      System.out.println("not limiting: " + (pdp.getTotalCurrent() > target - margin));
+      return pdp.getTotalCurrent() > spikePeak;
     } else {
-      System.out.println("spiked: " + (pdp.getTotalCurrent() > target - margin));
+      System.out.println("limting: " + (pdp.getTotalCurrent() > target - margin));
       return pdp.getTotalCurrent() > target - margin;
     }
   }
