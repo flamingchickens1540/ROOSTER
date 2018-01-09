@@ -144,7 +144,8 @@ public class PowerManager extends Thread {
       if (!b) {
         System.out.println("limiting: " + b);
       }
-      return pdp.getTotalCurrent() > target - margin;
+//      return pdp.getTotalCurrent() > target - margin;
+      return true;
     }
   }
 
