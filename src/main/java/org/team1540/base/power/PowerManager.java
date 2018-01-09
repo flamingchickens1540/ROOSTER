@@ -59,7 +59,7 @@ public class PowerManager extends Thread {
             // Calling the timer when it's already started seems to reset it.
             theTimer.start();
           }
-          if (theTimer.hasPeriodPassed(spikeLength)) {
+          if (theTimer.get() > spikeLength) {
             System.out.println("Timer passed");
             isLimiting = true;
             scalePower();
