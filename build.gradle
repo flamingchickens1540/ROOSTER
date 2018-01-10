@@ -57,12 +57,15 @@ deploy {
 }
 
 jar {
-    if (!(project.hasProperty('JITPACK') && JITPACK)) {
+    def jp = System.getenv("JITPACK")
+    if (jp == null || jp == "false") {
         // Since we're deploying to the RIO, create a "fat jar"
         println "Creating Fat Jar"
         from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
-    } // otherwise, default behavior
+    } else {
+        println "Using JitPack"
+    }
 }
 
 task wrapper(type: Wrapper) {
