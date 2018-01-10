@@ -47,8 +47,7 @@ public class AdjustableManager {
       if (tunable != null) {
         // check if the field is of a supported type
         TunableType tt = null;
-        for (TunableType type : TunableType
-            .values()) {
+        for (TunableType type : TunableType.values()) {
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
@@ -72,8 +71,7 @@ public class AdjustableManager {
       if (teleAnnotation != null) {
         // check if the field is of a supported type
         TelemetryType tt = null;
-        for (TelemetryType type : TelemetryType
-            .values()) {
+        for (TelemetryType type : TelemetryType.values()) {
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
