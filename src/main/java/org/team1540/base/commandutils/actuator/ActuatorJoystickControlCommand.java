@@ -21,7 +21,8 @@ class ActuatorJoystickControlCommand extends Command {
   ActuatorJoystickControlCommand(Actuator actuator, Joystick joystick,
       int joystickAxis, double multiplier, double upperLim, double lowerLim,
       int minConsecutiveSpikeTicks, double currentLimit) {
-    super("Control " + actuator.getSubsystem().getName() + " with joysticks");
+    super("Control " + actuator.getAttachedSubsystem().getName() + " with joysticks");
+    requires(actuator.getAttachedSubsystem());
     this.actuator = actuator;
     this.stick = joystick;
     this.axis = joystickAxis;

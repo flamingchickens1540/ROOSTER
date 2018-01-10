@@ -39,7 +39,7 @@ class DriveEvenedCommand extends Command {
       double increaseCoeff, double decreaseCoeff, double maxError, double confidenceCoeff,
       double minConfidence) {
 
-    requires(drive.getSubsystem());
+    requires(drive.getAttachedSubsystem());
 
     this.minConfidence = minConfidence;
     this.confidenceCoeff = confidenceCoeff;

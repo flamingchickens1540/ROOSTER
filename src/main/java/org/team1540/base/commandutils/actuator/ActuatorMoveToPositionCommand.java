@@ -18,8 +18,8 @@ class ActuatorMoveToPositionCommand extends Command {
 
   ActuatorMoveToPositionCommand(Actuator actuator, double endPos, double tolerance, double speed,
       double currentLimit, int minConsecutiveSpikeTicks) {
-    super("Move " + actuator.getSubsystem().getName() + " to " + endPos + " at " + speed);
-    requires(actuator.getSubsystem());
+    super("Move " + actuator.getAttachedSubsystem().getName() + " to " + endPos + " at " + speed);
+    requires(actuator.getAttachedSubsystem());
 
     this.actuator = actuator;
     this.endPos = endPos;

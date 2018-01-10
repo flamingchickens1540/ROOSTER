@@ -16,5 +16,5 @@ public interface SubsystemAttached {
    * @return A subsystem instance. The result of this method should be equal across all invocations
    *     of this method in one program. Or, in English, this should return a constant value.
    */
-  public Subsystem getSubsystem();
+  public Subsystem getAttachedSubsystem();
 }
