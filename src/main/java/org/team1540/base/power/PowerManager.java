@@ -54,16 +54,13 @@ public class PowerManager extends Thread {
         SmartDashboard.putNumber("Power Timer: ", theTimer.get());
         if (isSpiking()) {
           if (theTimer.get() <= 0) {
-//            System.out.println("Starting timer");
             // Calling the timer when it's already started seems to reset it.
             theTimer.start();
           }
           if (timeHasPassed()) {
-//            System.out.println("Timer passed");
             scalePower();
           }
         } else {
-          System.out.println("Not spiking");
           stopScaling();
           theTimer.stop();
           theTimer.reset();
@@ -134,18 +131,9 @@ public class PowerManager extends Thread {
    */
   public boolean isSpiking() {
     if (!timeHasPassed()) {
-      boolean b = pdp.getTotalCurrent() > spikePeak;
-      if (!b) {
-        System.out.println("not limiting: " + b);
-      }
       return pdp.getTotalCurrent() > spikePeak;
     } else {
-      boolean b = pdp.getTotalCurrent() > target - margin;
-      if (!b) {
-        System.out.println("limiting: " + b);
-      }
-//      return pdp.getTotalCurrent() > target - margin;
-      return true;
+      return pdp.getTotalCurrent() > target - margin;
     }
   }
 
