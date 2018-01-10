@@ -14,6 +14,8 @@ import java.util.List;
 public class AdjustableManager {
 
   private static AdjustableManager instance = new AdjustableManager();
+
+  private final Object lock = new Object();
   private List<TunableField> tunables = new LinkedList<>();
   private List<TelemetryField> telemetry = new LinkedList<>();
 
@@ -28,66 +30,68 @@ public class AdjustableManager {
    * {@link Telemetry} or {@link Tunable}.
    */
   public void add(Object object) {
-    // reflection time
-    Field[] fields = object.getClass().getFields();
+    synchronized (lock) {
+      // reflection time
+      Field[] fields = object.getClass().getFields();
 
-    boolean noneFound = true; // for logging to keep track if we have found at least one adjustable
-    for (Field field : fields) {
+      boolean noneFound = true; // for logging to keep track if we have found at least one adjustable
+      for (Field field : fields) {
 
-      // process tunables
-      Tunable tunable = field.getAnnotation(Tunable.class);
+        // process tunables
+        Tunable tunable = field.getAnnotation(Tunable.class);
 
-      if (tunable != null) {
-        // check if the field is of a supported type
-        TunableType tt = null;
-        for (TunableType type : TunableType.values()) {
-          //noinspection unchecked
-          if (type.cls.isAssignableFrom(field.getType())) {
-            tt = type;
-            break;
+        if (tunable != null) {
+          // check if the field is of a supported type
+          TunableType tt = null;
+          for (TunableType type : TunableType.values()) {
+            //noinspection unchecked
+            if (type.cls.isAssignableFrom(field.getType())) {
+              tt = type;
+              break;
+            }
           }
-        }
 
-        if (tt == null) {
-          DriverStation.reportError(
-              "Annotated tunable in class added to AdjustableManager is not of a supported type",
-              false);
-          continue;
-        }
-
-        tunables.add(new TunableField(object, field, tt, tunable.value()));
-        noneFound = false;
-      }
-
-      // process telemetry
-      Telemetry teleAnnotation = field.getAnnotation(Telemetry.class);
-
-      if (teleAnnotation != null) {
-        // check if the field is of a supported type
-        TelemetryType tt = null;
-        for (TelemetryType type : TelemetryType.values()) {
-          //noinspection unchecked
-          if (type.cls.isAssignableFrom(field.getType())) {
-            tt = type;
-            break;
+          if (tt == null) {
+            DriverStation.reportError(
+                "Annotated tunable in class added to AdjustableManager is not of a supported type",
+                false);
+            continue;
           }
+
+          tunables.add(new TunableField(object, field, tt, tunable.value()));
+          noneFound = false;
         }
 
-        if (tt == null) {
-          DriverStation.reportError(
-              "Annotated telemetry in class added to AdjustableManager is not of a supported type",
-              false);
-          continue;
-        }
+        // process telemetry
+        Telemetry teleAnnotation = field.getAnnotation(Telemetry.class);
 
-        telemetry.add(new TelemetryField(object, field, tt, teleAnnotation.value()));
-        noneFound = false;
+        if (teleAnnotation != null) {
+          // check if the field is of a supported type
+          TelemetryType tt = null;
+          for (TelemetryType type : TelemetryType.values()) {
+            //noinspection unchecked
+            if (type.cls.isAssignableFrom(field.getType())) {
+              tt = type;
+              break;
+            }
+          }
+
+          if (tt == null) {
+            DriverStation.reportError(
+                "Annotated telemetry in class added to AdjustableManager is not of a supported type",
+                false);
+            continue;
+          }
+
+          telemetry.add(new TelemetryField(object, field, tt, teleAnnotation.value()));
+          noneFound = false;
+        }
       }
-    }
-    if (noneFound) {
-      DriverStation.reportWarning(
-          "Object passed to AdjustableManager had no annotated adjustable fields",
-          false);
+      if (noneFound) {
+        DriverStation.reportWarning(
+            "Object passed to AdjustableManager had no annotated adjustable fields",
+            false);
+      }
     }
   }
 
@@ -96,28 +100,30 @@ public class AdjustableManager {
    * {@code Robot} class.
    */
   public void update() {
-    // Update tunables
-    for (TunableField tf : tunables) {
-      try {
-        if (SmartDashboard.containsKey(tf.label)) {
+    synchronized (lock) {
+      // Update tunables
+      for (TunableField tf : tunables) {
+        try {
+          if (SmartDashboard.containsKey(tf.label)) {
+            //noinspection unchecked
+            tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
+          } else {
+            //noinspection unchecked
+            tf.type.getFunction.get(tf.label, tf.field.get(tf.obj));
+          }
+        } catch (IllegalAccessException e) {
+          DriverStation.reportError(e.getMessage(), true);
+        }
+      }
+
+      // Update telemetry
+      for (TelemetryField tf : telemetry) {
+        try {
           //noinspection unchecked
           tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
-        } else {
-          //noinspection unchecked
-          tf.type.getFunction.get(tf.label, tf.field.get(tf.obj));
+        } catch (IllegalAccessException e) {
+          DriverStation.reportError(e.toString(), true);
         }
-      } catch (IllegalAccessException e) {
-        DriverStation.reportError(e.getMessage(), true);
-      }
-    }
-
-    // Update telemetry
-    for (TelemetryField tf : telemetry) {
-      try {
-        //noinspection unchecked
-        tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
-      } catch (IllegalAccessException e) {
-        DriverStation.reportError(e.toString(), true);
       }
     }
   }
