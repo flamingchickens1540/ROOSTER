@@ -1,12 +1,7 @@
 package org.team1540.base.adjustables;
 
-import edu.wpi.first.wpilibj.CounterBase;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.interfaces.Potentiometer;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -162,36 +157,8 @@ public class AdjustableManager {
           case BOOLEAN:
             SmartDashboard.putBoolean(tf.label, (Boolean) tf.field.get(tf.obj));
             break;
-          case GYRO:
-            Gyro gyro = (Gyro) tf.field.get(tf.obj);
-            SmartDashboard.putNumber(tf.label + " Angle", gyro.getAngle());
-            SmartDashboard.putNumber(tf.label + " Rate", gyro.getRate());
-            break;
-          case COUNTER:
-            CounterBase counter = (CounterBase) tf.field.get(tf.obj);
-            SmartDashboard.putNumber(tf.label + " Value", counter.get());
-            SmartDashboard.putNumber(tf.label + " Period", counter.getPeriod());
-            SmartDashboard.putBoolean(tf.label + " Direction", counter.getDirection());
-            SmartDashboard.putBoolean(tf.label + " Stopped", counter.getStopped());
-            break;
-          case SOLENOID:
-            Solenoid solenoid = (Solenoid) tf.field.get(tf.obj);
-            SmartDashboard.putBoolean(tf.label + " Enabled", solenoid.get());
-            break;
-          case ACCELEROMETER:
-            Accelerometer accelerometer = (Accelerometer) tf.field.get(tf.obj);
-            SmartDashboard.putNumber(tf.label + "X Accel", accelerometer.getX());
-            SmartDashboard.putNumber(tf.label + "Y Accel", accelerometer.getY());
-            SmartDashboard.putNumber(tf.label + "Z Accel", accelerometer.getZ());
-            break;
-          case POTENTIOMETER:
-            Potentiometer potentiometer = (Potentiometer) tf.field.get(tf.obj);
-            SmartDashboard.putNumber(tf.label + " Value", potentiometer.get());
-            break;
-          case SPEED_CONTROLLER:
-            SpeedController speedController = (SpeedController) tf.field.get(tf.obj);
-            SmartDashboard.putNumber(tf.label + " Throttle", speedController.get());
-            break;
+          case SENDABLE:
+            SmartDashboard.putData(tf.label, (Sendable) tf.field.get(tf.obj));
           default:
             break;
         }
