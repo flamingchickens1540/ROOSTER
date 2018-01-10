@@ -1,7 +1,6 @@
 package org.team1540.base.adjustables;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -14,8 +13,7 @@ import java.util.List;
  */
 public class AdjustableManager {
 
-  private static AdjustableManager
-      instance = new AdjustableManager();
+  private static AdjustableManager instance = new AdjustableManager();
   private List<TunableField> tunables = new LinkedList<>();
   private List<TelemetryField> telemetry = new LinkedList<>();
 
@@ -43,6 +41,7 @@ public class AdjustableManager {
         // check if the field is of a supported type
         TunableType tt = null;
         for (TunableType type : TunableType.values()) {
+          //noinspection unchecked
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
@@ -67,6 +66,7 @@ public class AdjustableManager {
         // check if the field is of a supported type
         TelemetryType tt = null;
         for (TelemetryType type : TelemetryType.values()) {
+          //noinspection unchecked
           if (type.cls.isAssignableFrom(field.getType())) {
             tt = type;
             break;
@@ -100,41 +100,11 @@ public class AdjustableManager {
     for (TunableField tf : tunables) {
       try {
         if (SmartDashboard.containsKey(tf.label)) {
-          switch (tf.type) {
-            case INT:
-              tf.field.set(tf.obj,
-                  (int) SmartDashboard.getNumber(tf.label, (Integer) tf.field.get(tf.obj)));
-              break;
-            case DOUBLE:
-              tf.field.set(tf.obj,
-                  SmartDashboard.getNumber(tf.label, (Double) tf.field.get(tf.obj)));
-              break;
-            case STRING:
-              tf.field.set(tf.obj,
-                  SmartDashboard.getString(tf.label, (String) tf.field.get(tf.obj)));
-              break;
-            case BOOLEAN:
-              tf.field.set(tf.obj,
-                  SmartDashboard.getBoolean(tf.label, (Boolean) tf.field.get(tf.obj)));
-              break;
-            default:
-              break;
-          }
+          //noinspection unchecked
+          tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
         } else {
-          switch (tf.type) {
-            case INT:
-              SmartDashboard.putNumber(tf.label, (Integer) tf.field.get(tf.obj));
-              break;
-            case DOUBLE:
-              SmartDashboard.putNumber(tf.label, (Double) tf.field.get(tf.obj));
-              break;
-            case STRING:
-              SmartDashboard.putString(tf.label, (String) tf.field.get(tf.obj));
-              break;
-            case BOOLEAN:
-              SmartDashboard.putBoolean(tf.label, (Boolean) tf.field.get(tf.obj));
-              break;
-          }
+          //noinspection unchecked
+          tf.type.getFunction.get(tf.label, tf.field.get(tf.obj));
         }
       } catch (IllegalAccessException e) {
         DriverStation.reportError(e.getMessage(), true);
@@ -144,24 +114,8 @@ public class AdjustableManager {
     // Update telemetry
     for (TelemetryField tf : telemetry) {
       try {
-        switch (tf.type) {
-          case INT:
-            SmartDashboard.putNumber(tf.label, (Integer) tf.field.get(tf.obj));
-            break;
-          case DOUBLE:
-            SmartDashboard.putNumber(tf.label, (Double) tf.field.get(tf.obj));
-            break;
-          case STRING:
-            SmartDashboard.putString(tf.label, (String) tf.field.get(tf.obj));
-            break;
-          case BOOLEAN:
-            SmartDashboard.putBoolean(tf.label, (Boolean) tf.field.get(tf.obj));
-            break;
-          case SENDABLE:
-            SmartDashboard.putData(tf.label, (Sendable) tf.field.get(tf.obj));
-          default:
-            break;
-        }
+        //noinspection unchecked
+        tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
       } catch (IllegalAccessException e) {
         DriverStation.reportError(e.toString(), true);
       }

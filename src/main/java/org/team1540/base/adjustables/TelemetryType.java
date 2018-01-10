@@ -1,15 +1,20 @@
 package org.team1540.base.adjustables;
 
 import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 enum TelemetryType {
-  STRING(String.class),
-  INT(Integer.TYPE),
-  DOUBLE(Double.TYPE),
-  BOOLEAN(Boolean.TYPE),
-  SENDABLE(Sendable.class);
+  STRING(String.class, SmartDashboard::putString),
+  INT(Integer.TYPE, (SmartDashboardPut<Integer>) SmartDashboard::putNumber),
+  DOUBLE(Double.TYPE, SmartDashboard::putNumber),
+  BOOLEAN(Boolean.TYPE, SmartDashboard::putBoolean),
+  SENDABLE(Sendable.class, SmartDashboard::putData);
 
-  final Class<?> cls;
+  final Class cls;
+  final SmartDashboardPut putFunction;
 
-  TelemetryType(Class<?> cls) {this.cls = cls;}
+  <T> TelemetryType(Class<T> cls, SmartDashboardPut<T> putFunction) {
+    this.cls = cls;
+    this.putFunction = putFunction;
+  }
 }
