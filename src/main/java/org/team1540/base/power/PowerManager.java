@@ -2,7 +2,6 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +50,6 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-        SmartDashboard.putNumber("Power Timer: ", theTimer.get());
         if (isSpiking()) {
           if (theTimer.get() <= 0) {
             // Calling the timer when it's already started seems to reset it.
@@ -303,5 +301,14 @@ public class PowerManager extends Thread {
    */
   public void setMargin(double margin) {
     this.margin = margin;
+  }
+
+  /**
+   * Gets the current time on the internal timer representing time from the most recent spike.
+   *
+   * @return Double representing time.
+   */
+  public double getPowerTime() {
+    return theTimer.get();
   }
 }
