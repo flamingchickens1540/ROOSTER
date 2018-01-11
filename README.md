@@ -1,4 +1,7 @@
 # ROOSTER
+[![Build Status](https://travis-ci.org/flamingchickens1540/ROOSTER.svg?branch=master)](https://travis-ci.org/flamingchickens1540/ROOSTER)
+[![JitPack](https://jitpack.io/v/org.team1540/rooster.svg)](https://jitpack.io/#org.team1540/rooster)
+
 Reusable Object-Oriented Systems, Templates, and Executables for Robots
 
 A common library of useful classes and systems intended to be used for all Team 1540 robots.
@@ -27,8 +30,8 @@ Download the latest version from the [releases page](https://github.com/flamingc
 
 ## Manifest
 
-### PowerManager
-- A flexible, dynamic power management system using `ChickenCommands` and `ChickenSubsystems`
+### Power Management
+- A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
 
 ### Adjustables 
 `org.team1540.adjustables`
