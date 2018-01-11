@@ -104,12 +104,12 @@ public class AdjustableManager {
       // Update tunables
       for (TunableField tf : tunables) {
         try {
-          if (SmartDashboard.containsKey(tf.label)) {
+          if (!SmartDashboard.containsKey(tf.label)) {
             //noinspection unchecked
             tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
           } else {
             //noinspection unchecked
-            tf.type.getFunction.get(tf.label, tf.field.get(tf.obj));
+            tf.field.set(tf.obj, tf.type.getFunction.get(tf.label, tf.field.get(tf.obj)));
           }
         } catch (IllegalAccessException e) {
           DriverStation.reportError(e.getMessage(), true);

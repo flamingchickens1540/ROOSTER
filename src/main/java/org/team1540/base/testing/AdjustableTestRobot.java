@@ -1,16 +1,17 @@
 package org.team1540.base.testing;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.Solenoid;
 import org.team1540.base.adjustables.AdjustableManager;
 import org.team1540.base.adjustables.Telemetry;
 import org.team1540.base.adjustables.Tunable;
+import org.team1540.base.power.PowerManager;
 
 public class AdjustableTestRobot extends IterativeRobot {
   @Tunable("A boolean")
   public boolean b;
-  @Telemetry("String")
+  @Tunable("A String")
   public String string = "String";
 
   @Tunable("A double")
@@ -24,16 +25,17 @@ public class AdjustableTestRobot extends IterativeRobot {
   public int iTimes2;
 
   @Telemetry("String plus \"Chickens\" is ")
-  public String stringPlusChickens = "";
+  public String stringPlusChickens = string + " Chickens";
   @Telemetry("NOT(boolean) is")
   public boolean notB;
 
-  @Telemetry("PDP")
-  public Sendable sendable = new PowerDistributionPanel();
+  @Telemetry("Solenoid")
+  public Sendable sendable = new Solenoid(1);
 
   @Override
   public void robotInit() {
     AdjustableManager.getInstance().add(this);
+    PowerManager.getInstance().interrupt();
   }
 
   @Override
