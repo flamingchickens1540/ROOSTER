@@ -5,5 +5,9 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+notifications:
+  slack:
+    secure: mQcOT4ItlsFdcaWZS8XHSzTVzaXbCGqLAbiVL5QqD6flzlrGfjw7Kcu+1W7TgbzYJLI2uN5Rk//Ej+4ZaHnPT/NKpQtxiDcr4JFV/bxnQOTCNG2YmTeLd0h++0JWjLvkUHOP4FreiJZfIonPwc0dHg4HQn4Z/gLVyDMKr7oLqrdkwbrdHUtmtJx3ljrvy1bEHkF1XxWYc47Unkj0dpLsQAdZLEng+OYOILxfOiBp2VKbZh6Dhe9Wc8fX5yt4xeXI/GqwxVfA8BMGHs+qEha5AZwzxH7itBTgHclU94iMGfLh0b1BoFDbsj1nsqsm4ot45rn4gdkm2opsezO48o78KRrFHO/i8g0g0Z5+oAac5lKCHx//i7rtgjG/BJnXJr2rSnf0fxcd0jvaIWNFnzkA/j4HoVRg76sS69KQPCjPeRUMko3ciJmWzEsoLqgkrtzKauWKgBdJfJDscMmJQNEIwuCzbZYi+O0Yyv6jdOr+PnBh5l0aTxjdTP6ZNWn1YoTrgRpkxfUpACjji9H4wQOzZ7jBlX9sVcFiIM35PnThzPe/YUZ/1Ij0ITcpo1Hk7t6gw/G12Ab+jL4pqMIjcKCbrTh/rv0MeMh6C8fc8RnEnM3EEJiEKMiYraoTCjHeTlZzYsEa6oPsZid79eH/y8ILwnVldUvqU0FFP2qDX8YGbmM=
+  email: false
