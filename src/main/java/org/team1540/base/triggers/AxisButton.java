@@ -27,13 +27,7 @@ public class AxisButton extends Button {
 
   @Override
   public boolean get() {
-    return process(stick.getRawAxis(axis), threshold);
-  }
-
-  /**
-   * Helper function so that it can be properly unit-tested. Should not be called directly.
-   */
-  public static boolean process(double axis, double threshold) {
-    return (Math.abs(axis) >= Math.abs(threshold) && Math.signum(axis) == Math.signum(threshold));
+    return (Math.abs(stick.getRawAxis(axis)) >= Math.abs(threshold)
+        && Math.signum(stick.getRawAxis(axis)) == Math.signum(threshold));
   }
 }

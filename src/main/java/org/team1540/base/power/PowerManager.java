@@ -24,8 +24,9 @@ public class PowerManager extends Thread {
   private double spikePeak = 50;
   private double spikeLength = 2.0;
   private double target = 40;
+
+  private double margin = 5;
   private boolean running = true;
-  private boolean isLimiting = false;
 
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
@@ -33,11 +34,14 @@ public class PowerManager extends Thread {
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+  private final Timer theTimer = new Timer();
 
   private PowerManager() {}
 
   /**
    * Gets the PowerManager.
+   *
+   * @return The singleton PowerManager instance.
    */
   public static PowerManager getInstance() {
     return theManager;
@@ -45,14 +49,15 @@ public class PowerManager extends Thread {
 
   @Override
   public void run() {
-    Timer theTimer = new Timer();
     while (true) {
+      // No whiles in here as that'd stop the last block from executing
       if (running) {
         if (isSpiking()) {
-          // Start a timer
-          theTimer.start();
-
-          if (theTimer.hasPeriodPassed(spikeLength)) {
+          if (theTimer.get() <= 0) {
+            // Calling the timer when it's already started seems to reset it.
+            theTimer.start();
+          }
+          if (timeHasPassed()) {
             scalePower();
           }
         } else {
@@ -77,7 +82,6 @@ public class PowerManager extends Thread {
    */
   private void scalePower() {
     synchronized (powerLock) {
-      isLimiting = true;
 
       Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
 
@@ -103,8 +107,6 @@ public class PowerManager extends Thread {
       for (PowerManageable currentManageable : powerManaged) {
         currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
       }
-
-      isLimiting = false;
     }
   }
 
@@ -121,13 +123,22 @@ public class PowerManager extends Thread {
 
 
   /**
-   * Determines if the voltage is currently spiking. Literally just returns pdp.getTotalCurrent() &gt;
-   * spikePeak
+   * Determines if the voltage is currently spiking. If power limiting is not engaged,
+   * returns pdp.getTotalCurrent() &gt; spikePeak. If power limiting is engaged, returns
+   * target - pdp.getTotalCurrent() &gt; margin.
    *
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
-    return pdp.getTotalCurrent() > spikePeak;
+    if (!timeHasPassed()) {
+      return pdp.getTotalCurrent() > spikePeak;
+    } else {
+      return pdp.getTotalCurrent() > target - margin;
+    }
+  }
+
+  private boolean timeHasPassed() {
+    return (theTimer.get() > spikeLength);
   }
 
   /**
@@ -136,7 +147,7 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return isLimiting;
+    return timeHasPassed() && isSpiking();
   }
 
   /**
@@ -274,5 +285,32 @@ public class PowerManager extends Thread {
    */
   public void setRunning(boolean running) {
     this.running = running;
+  }
+
+  /**
+   * Gets the margin below which, if power limiting has engaged, power management will remain
+   * engaged.
+   *
+   * @return Margin in amps (default 5)
+   */
+  public double getMargin() {
+    return margin;
+  }
+
+  /**
+   * Set the margin below which, if power limiting has engaged, power management will remain
+   * engaged.
+   */
+  public void setMargin(double margin) {
+    this.margin = margin;
+  }
+
+  /**
+   * Gets the current time on the internal timer representing time from the most recent spike.
+   *
+   * @return Double representing time.
+   */
+  public double getPowerTime() {
+    return theTimer.get();
   }
 }
