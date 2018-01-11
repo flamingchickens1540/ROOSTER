@@ -30,8 +30,8 @@ Download the latest version from the [releases page](https://github.com/flamingc
 
 ## Manifest
 
-### PowerManager
-- A flexible, dynamic power management system using `ChickenCommands` and `ChickenSubsystems`
+### Power Management
+- A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
 
 ### Adjustables 
 `org.team1540.adjustables`
