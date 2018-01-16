@@ -46,6 +46,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public boolean invertLeftSensor = false;
   @Tunable("Invert right sensor")
   public boolean invertRightSensor = false;
+  @Tunable("F")
+  public double f = 0.0;
 
   @Override
   public void robotInit() {
@@ -81,9 +83,11 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     lMaster.config_kP(0, p);
     lMaster.config_kI(0, i);
     lMaster.config_kD(0, d);
+    lMaster.config_kF(0, f);
     rMaster.config_kP(0, p);
     rMaster.config_kI(0, i);
     rMaster.config_kD(0, d);
+    rMaster.config_kF(0, f);
     SmartDashboard.putNumber("Left vel", lMaster.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Right vel", rMaster.getSelectedSensorVelocity());
     lMaster.setInverted(invertLeftMotor);
