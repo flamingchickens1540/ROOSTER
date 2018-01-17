@@ -19,11 +19,11 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   ChickenTalon lMaster;
   ChickenTalon lSlave1;
   ChickenTalon lSlave2;
-  Solenoid leftPneu = new Solenoid(1);
+  Solenoid leftPneu = new Solenoid(0);
   ChickenTalon rMaster;
   ChickenTalon rSlave1;
   ChickenTalon rSlave2;
-  Solenoid rightPneu = new Solenoid(2);
+  Solenoid rightPneu = new Solenoid(1);
 
   @Tunable("Left Shifter")
   public boolean leftPneuVal = false;
