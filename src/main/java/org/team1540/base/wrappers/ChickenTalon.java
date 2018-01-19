@@ -962,6 +962,17 @@ public class ChickenTalon extends TalonSRX {
   }
 
   /**
+   * Set the feedforward value of the currently selected profile.
+   *
+   * @param f Feedforward constant for the currently selected PID profile.
+   * @deprecated Use {@link #config_kF(int, double, int)}
+   */
+  @Deprecated
+  public void setF(double f) {
+    config_kF(defaultPidIdx, f);
+  }
+
+  /**
    * @deprecated Use {@link #setBrake(boolean)}
    */
   @Deprecated
@@ -1104,6 +1115,30 @@ public class ChickenTalon extends TalonSRX {
       return this.value;
     }
 
+  }
+
+  /**
+   * Flips the sign (multiplies by negative one) the throttle values going into the motor on the
+   * talon in closed loop modes.
+   *
+   * @param flip True if motor output should be flipped; False if not.
+   * @deprecated Use {@link #setInverted(boolean)}
+   */
+  @Deprecated
+  public void reverseOutput(boolean flip) {
+    setInverted(flip);
+  }
+
+  /**
+   * Flips the sign (multiplies by negative one) the sensor values going into the talon. This only
+   * affects position and velocity closed loop control. Allows for situations where you may have a
+   * sensor flipped and going in the wrong direction.
+   *
+   * @param flip True if sensor input should be flipped; False if not.
+   * @deprecated Use {@link #setSensorPhase(boolean)}
+   */
+  public void reverseSensor(boolean flip) {
+    setSensorPhase(flip);
   }
 
 }
