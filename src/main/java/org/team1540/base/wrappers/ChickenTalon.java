@@ -1024,7 +1024,7 @@ public class ChickenTalon extends TalonSRX {
    * Select which closed loop profile to use, and uses whatever PIDF gains and the such that are
    * already there.
    *
-   * @deprecated Use {@link #selectProfileSlot(int);}
+   * @deprecated Use {@link #selectProfileSlot(int)}
    */
   @Deprecated
   public void setProfile(int profile) {
