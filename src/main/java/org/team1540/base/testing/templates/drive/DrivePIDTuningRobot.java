@@ -90,6 +90,10 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     rMaster.config_kF(0, f);
     SmartDashboard.putNumber("Left vel", lMaster.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Right vel", rMaster.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Left throttle", lMaster.getMotorOutputPercent());
+    SmartDashboard.putNumber("Right throttle", rMaster.getMotorOutputPercent());
+    SmartDashboard.putNumber("Left error", lMaster.getClosedLoopError());
+    SmartDashboard.putNumber("Right error", rMaster.getClosedLoopError());
     lMaster.setInverted(invertLeftMotor);
     lMaster.setSensorPhase(invertLeftSensor);
     rMaster.setInverted(invertRightMotor);
