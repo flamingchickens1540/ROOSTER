@@ -36,6 +36,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public double i = 0.0;
   @Tunable("D")
   public double d = 0.0;
+  @Tunable("F")
+  public double f = 0.0;
   @Tunable("Velocity")
   public double velocity = 0.0;
 
@@ -47,8 +49,10 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public boolean invertLeftSensor = false;
   @Tunable("Invert right sensor")
   public boolean invertRightSensor = false;
-  @Tunable("F")
-  public double f = 0.0;
+  @Tunable("Invert left setpoint")
+  public boolean invertLeftSetpoint = false;
+  @Tunable("Invert right setpoint")
+  public boolean invertRightSetpoint = false;
 
   @Override
   public void robotInit() {
@@ -96,6 +100,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     SmartDashboard.putNumber("Right throttle", rMaster.getMotorOutputPercent());
     SmartDashboard.putNumber("Left error", lMaster.getClosedLoopError());
     SmartDashboard.putNumber("Right error", rMaster.getClosedLoopError());
+    SmartDashboard.putNumber("Left target", lMaster.getClosedLoopTarget(0));
+    SmartDashboard.putNumber("Right target", rMaster.getClosedLoopTarget(0));
     lMaster.setInverted(invertLeftMotor);
     lMaster.setSensorPhase(invertLeftSensor);
     rMaster.setInverted(invertRightMotor);
@@ -107,7 +113,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public void teleopPeriodic() {
     leftPneu.set(leftPneuVal);
     rightPneu.set(rightPneuVal);
-    lMaster.set(ControlMode.Velocity, velocity);
-    rMaster.set(ControlMode.Velocity, velocity);
+    lMaster.set(ControlMode.Velocity, invertLeftSetpoint ? -velocity : velocity);
+    rMaster.set(ControlMode.Velocity, invertRightSetpoint ? -velocity : velocity);
   }
 }
