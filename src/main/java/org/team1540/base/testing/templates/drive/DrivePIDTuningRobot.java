@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -23,7 +24,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   ChickenTalon rMaster;
   ChickenTalon rSlave1;
   ChickenTalon rSlave2;
-  Solenoid rightPneu = new Solenoid(1);
+  Solenoid rightPneu = new Solenoid(2);
 
   @Tunable("Left Shifter")
   public boolean leftPneuVal = false;
@@ -72,6 +73,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     camera.setResolution(640, 480);
     MjpegServer mjpegServer = new MjpegServer("Camera Server", 1181);
     mjpegServer.setSource(camera);
+    SmartDashboard.putData(new Compressor());
   }
 
   @Override
