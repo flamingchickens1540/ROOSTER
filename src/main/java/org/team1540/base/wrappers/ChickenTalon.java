@@ -897,23 +897,8 @@ public class ChickenTalon extends TalonSRX {
    */
   @Deprecated
   public void changeControlMode(TalonControlMode controlMode) {
-    switch (controlMode) {
-      case PercentVbus:
-        setControlMode(ControlMode.PercentOutput);
-      case Position:
-        setControlMode(ControlMode.Position);
-      case Speed:
-        setControlMode(ControlMode.Velocity);
-      case Current:
-        setControlMode(ControlMode.Current);
-      case Follower:
-        setControlMode(ControlMode.Follower);
-      case MotionProfile:
-        setControlMode(ControlMode.MotionProfile);
-      case MotionMagic:
-        setControlMode(ControlMode.MotionMagic);
-      case Disabled:
-        setControlMode(ControlMode.Disabled);
+    if (controlMode.ctrl != null) {
+      setControlMode(controlMode.ctrl);
     }
   }
 
@@ -1078,20 +1063,22 @@ public class ChickenTalon extends TalonSRX {
    */
   @Deprecated
   public enum TalonControlMode {
-    PercentVbus(0),
-    Position(1),
-    Speed(2),
-    Current(3),
-    Voltage(4),
-    Follower(5),
-    MotionProfile(6),
-    MotionMagic(7),
-    Disabled(15);
+    PercentVbus(0, ControlMode.PercentOutput),
+    Position(1, ControlMode.Position),
+    Speed(2, ControlMode.Velocity),
+    Current(3, ControlMode.Current),
+    Voltage(4, null),
+    Follower(5, ControlMode.Follower),
+    MotionProfile(6, ControlMode.MotionProfile),
+    MotionMagic(7, ControlMode.MotionMagic),
+    Disabled(15, ControlMode.Disabled);
 
     public final int value;
+    private final ControlMode ctrl;
 
-    TalonControlMode(int value) {
+    TalonControlMode(int value, ControlMode ctrl) {
       this.value = value;
+      this.ctrl = ctrl;
     }
 
     public static TalonControlMode valueOf(int value) {
