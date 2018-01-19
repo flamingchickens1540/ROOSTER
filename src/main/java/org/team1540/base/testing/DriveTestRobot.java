@@ -39,6 +39,8 @@ public class DriveTestRobot extends IterativeRobot {
     rSlave2 = new ChickenTalon(6);
     rSlave2.set(ControlMode.Follower, rMaster.getDeviceID());
 
+    SmartDashboard.putBoolean("Shifters", true);
+
     joystick = new Joystick(0);
     SmartDashboard.putData("Compressor", compressor);
   }
@@ -55,6 +57,8 @@ public class DriveTestRobot extends IterativeRobot {
 
   @Override
   public void teleopPeriodic() {
+    leftPneu.set(SmartDashboard.getBoolean("Shifters", false));
+    rightPneu.set(!SmartDashboard.getBoolean("Shifters", false));
     lMaster.set(joystick.getRawAxis(1));
     rMaster.set(joystick.getRawAxis(5));
   }
