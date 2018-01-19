@@ -748,18 +748,42 @@ public class ChickenTalon extends TalonSRX {
    * In PercentOutput, the output is between -1.0 and 1.0, with 0.0 as
    * stopped. In Voltage mode, output value is in volts. In Current mode,
    * output value is in amperes. In Speed mode, output value is in position
-   * change / 100ms. In Position mode, output value is in encoder ticks or an
-   * analog value, depending on the sensor. In Follower mode, the output value
-   * is the integer device ID of the talon to duplicate.
+   * change / 100ms. In Position mode, output value is in revolutions if
+   * {@link #setEncoderCodesPerRev(double)} has been called, otherwise it is in native sensor units.
+   * In Velocity mode, output value is in RPM if {@link #setEncoderCodesPerRev(double)} has been
+   * called, otherwise it is in native units per minute. In Follower mode, the output value is the
+   * integer device ID of the talon to duplicate.
    *
    * @param outputValue The setpoint value, as described above.
    */
   public void set(double outputValue) {
-    super.set(controlMode, outputValue);
+    set(controlMode, outputValue);
   }
 
-  public void set(double demand0, double demand1) {
-    super.set(controlMode, demand0, demand1);
+  /**
+   * Sets the appropriate output on the talon, depending on the mode. <p> In PercentOutput, the
+   * output is between -1.0 and 1.0, with 0.0 as stopped. In Voltage mode, output value is in volts.
+   * In Current mode, output value is in amperes. In Speed mode, output value is in position change
+   * / 100ms. In Position mode, output value is in revolutions if {@link
+   * #setEncoderCodesPerRev(double)} has been called, otherwise it is in native sensor units. In
+   * Velocity mode, output value is in RPM if {@link #setEncoderCodesPerRev(double)} has been
+   * called, otherwise it is in native units per minute. In Follower mode, the output value is the
+   * integer device ID of the talon to duplicate.
+   *
+   * @param outputValue The setpoint value, as described above.
+   * @param mode The mode to use. Note that while this overrides the mode set via {@link
+   * #setControlMode(ControlMode)}, it does not change it for subsequent calls to {@link
+   * #set(double)}.
+   */
+  @Override
+  public void set(ControlMode mode, double outputValue) {
+    if (mode == ControlMode.Position) {
+      outputValue *= encoderCodesPerRev;
+    } else if (mode == ControlMode.Velocity) {
+      outputValue /= 600;
+      outputValue *= encoderCodesPerRev;
+    }
+    super.set(mode, outputValue);
   }
 
   /**
