@@ -934,7 +934,7 @@ public class ChickenTalon extends TalonSRX {
   public void setPID(double p, double i, double d) {
     config_kP(defaultPidIdx, p);
     config_kI(defaultPidIdx, i);
-    config_kP(defaultPidIdx, d);
+    config_kD(defaultPidIdx, d);
   }
 
   /**
