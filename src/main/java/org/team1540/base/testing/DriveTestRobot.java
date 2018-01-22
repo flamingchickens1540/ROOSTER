@@ -29,10 +29,19 @@ public class DriveTestRobot extends IterativeRobot {
     lMaster.setBrake(true);
     lMaster.configOpenloopRamp(0);
     lMaster.configClosedloopRamp(0);
+
     lSlave1 = new ChickenTalon(2);
     lSlave1.set(ControlMode.Follower, lMaster.getDeviceID());
+    lSlave1.configOpenloopRamp(0);
+    lSlave1.configClosedloopRamp(0);
+    lSlave1.setBrake(true);
+
     lSlave2 = new ChickenTalon(3);
     lSlave2.set(ControlMode.Follower, lMaster.getDeviceID());
+    lSlave2.configClosedloopRamp(0);
+    lSlave2.configOpenloopRamp(0);
+    lSlave2.setBrake(true);
+
 
     rMaster = new ChickenTalon(4);
     rMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
@@ -40,10 +49,18 @@ public class DriveTestRobot extends IterativeRobot {
     rMaster.setBrake(true);
     rMaster.configOpenloopRamp(0);
     rMaster.configClosedloopRamp(0);
+
     rSlave1 = new ChickenTalon(5);
     rSlave1.set(ControlMode.Follower, rMaster.getDeviceID());
+    rSlave1.configOpenloopRamp(0);
+    rSlave1.configClosedloopRamp(0);
+    rSlave1.setBrake(true);
+
     rSlave2 = new ChickenTalon(6);
     rSlave2.set(ControlMode.Follower, rMaster.getDeviceID());
+    rSlave2.configClosedloopRamp(0);
+    rSlave2.configOpenloopRamp(0);
+    rSlave2.setBrake(true);
 
     SmartDashboard.putBoolean("Shifters", true);
 
