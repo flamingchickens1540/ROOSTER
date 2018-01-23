@@ -93,7 +93,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     synchronized (powerLock) {
       for (ChickenTalon currentMotor : motors) {
         currentMotor.enableCurrentLimit(true);
-        currentMotor.configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())), 0);
+        currentMotor
+            .configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
       }
     }
   }
