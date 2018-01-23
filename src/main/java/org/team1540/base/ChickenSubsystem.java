@@ -1,11 +1,11 @@
 package org.team1540.base;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.team1540.base.power.PowerManageable;
+import org.team1540.base.wrappers.ChickenTalon;
 
 
 /**
@@ -17,7 +17,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
 
-  private final Set<TalonSRX> motors = new HashSet<TalonSRX>();
+  private final Set<ChickenTalon> motors = new HashSet<>();
 
   public int size() {
     return motors.size();
@@ -27,27 +27,27 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return motors.isEmpty();
   }
 
-  public boolean contains(TalonSRX o) {
+  public boolean contains(ChickenTalon o) {
     return motors.contains(o);
   }
 
-  public boolean add(TalonSRX TalonSRX) {
-    return motors.add(TalonSRX);
+  public boolean add(ChickenTalon motor) {
+    return motors.add(motor);
   }
 
-  public boolean remove(TalonSRX o) {
+  public boolean remove(ChickenTalon o) {
     return motors.remove(o);
   }
 
-  public boolean containsAll(Collection<TalonSRX> c) {
+  public boolean containsAll(Collection<ChickenTalon> c) {
     return motors.containsAll(c);
   }
 
-  public boolean addAll(Collection<? extends TalonSRX> c) {
+  public boolean addAll(Collection<? extends ChickenTalon> c) {
     return motors.addAll(c);
   }
 
-  public boolean removeAll(Collection<TalonSRX> c) {
+  public boolean removeAll(Collection<ChickenTalon> c) {
     return motors.removeAll(c);
   }
 
@@ -82,7 +82,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public double getCurrent() {
     double sum = 0;
-    for (TalonSRX currentMotor : motors) {
+    for (ChickenTalon currentMotor : motors) {
       sum += currentMotor.getOutputCurrent();
     }
     return sum;
@@ -91,9 +91,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void limitPower(double limit) {
     synchronized (powerLock) {
-      for (TalonSRX currentMotor : motors) {
+      for (ChickenTalon currentMotor : motors) {
         currentMotor.enableCurrentLimit(true);
-        currentMotor.configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())), 0);
+        currentMotor
+            .configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
       }
     }
   }
@@ -101,7 +102,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void stopLimitingPower() {
     synchronized (powerLock) {
-      for (TalonSRX currentMotor : motors) {
+      for (ChickenTalon currentMotor : motors) {
         currentMotor.enableCurrentLimit(false);
       }
     }
