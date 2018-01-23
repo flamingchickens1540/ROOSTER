@@ -53,9 +53,13 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public boolean invertLeftSetpoint = false;
   @Tunable("Invert right setpoint")
   public boolean invertRightSetpoint = false;
+  @Tunable("Joystick control")
+  public boolean joystickControl = false;
 
   @Override
   public void robotInit() {
+    joystick = new Joystick(0);
+
     lMaster = new ChickenTalon(1);
     lMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
     lMaster.setEncoderCodesPerRev(1024);
@@ -113,7 +117,14 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public void teleopPeriodic() {
     leftPneu.set(leftPneuVal);
     rightPneu.set(rightPneuVal);
-    lMaster.set(ControlMode.Velocity, invertLeftSetpoint ? -velocity : velocity);
-    rMaster.set(ControlMode.Velocity, invertRightSetpoint ? -velocity : velocity);
+    if (joystickControl) {
+      lMaster.set(ControlMode.Velocity,
+          joystick.getRawAxis(5) * velocity * (invertLeftSetpoint ? -1 : 1));
+      rMaster.set(ControlMode.Velocity,
+          joystick.getRawAxis(1) * velocity * (invertRightSetpoint ? -1 : 1));
+    } else {
+      lMaster.set(ControlMode.Velocity, invertLeftSetpoint ? -velocity : velocity);
+      rMaster.set(ControlMode.Velocity, invertRightSetpoint ? -velocity : velocity);
+    }
   }
 }
