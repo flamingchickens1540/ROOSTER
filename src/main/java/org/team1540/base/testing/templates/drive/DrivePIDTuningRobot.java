@@ -108,8 +108,13 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     SmartDashboard.putNumber("Right target", rMaster.getClosedLoopTarget(0));
     lMaster.setInverted(invertLeftMotor);
     lMaster.setSensorPhase(invertLeftSensor);
+    lSlave1.setInverted(invertLeftMotor);
+    lSlave2.setInverted(invertLeftMotor);
     rMaster.setInverted(invertRightMotor);
     rMaster.setSensorPhase(invertRightSensor);
+    rSlave1.setInverted(invertLeftMotor);
+    rSlave2.setInverted(invertLeftMotor);
+
     AdjustableManager.getInstance().update();
   }
 
