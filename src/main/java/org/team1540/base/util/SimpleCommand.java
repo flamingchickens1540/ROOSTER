@@ -26,10 +26,13 @@ public class SimpleCommand extends InstantCommand {
   /**
    * Creates a new {@code SimpleCommand}.
    *
+   * @param name The name of the commmand. This is required to avoid everything being called
+   * SimpleCommand.
    * @param action The code to run when the command executes.
    * @param requirements The {@link Subsystem Subsystems} required by the command (if any).
    */
-  public SimpleCommand(Executable action, Subsystem... requirements) {
+  public SimpleCommand(String name, Executable action, Subsystem... requirements) {
+    super(name);
     executable = action;
 
     for (Subsystem requirement : requirements) {
