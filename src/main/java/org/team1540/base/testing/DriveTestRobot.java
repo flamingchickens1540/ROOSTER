@@ -25,7 +25,6 @@ public class DriveTestRobot extends IterativeRobot {
   public void robotInit() {
     lMaster = new ChickenTalon(1);
     lMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-    lMaster.setEncoderCodesPerRev(1024);
     lMaster.setBrake(true);
     lMaster.configOpenloopRamp(0);
     lMaster.configClosedloopRamp(0);
@@ -45,7 +44,6 @@ public class DriveTestRobot extends IterativeRobot {
 
     rMaster = new ChickenTalon(4);
     rMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-    rMaster.setEncoderCodesPerRev(1024);
     rMaster.setBrake(true);
     rMaster.configOpenloopRamp(0);
     rMaster.configClosedloopRamp(0);
