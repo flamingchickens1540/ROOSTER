@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * example, to create a {@link InstantCommand} that requires the {@code Robot.shifter} {@link
  * Subsystem}, simply write:
  * <pre>
- *   Command shift = new SimpleCommand(() -> Robot.shifter.shift(), Robot.shifter);
+ *   Command shift = new SimpleCommand(() -&gt; Robot.shifter.shift(), Robot.shifter);
  * </pre>
  *
  * Multiple {@code Subystems} can be added onto the end of the constructor to add multiple
