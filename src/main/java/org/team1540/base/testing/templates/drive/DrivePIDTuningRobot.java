@@ -36,8 +36,6 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public double i = 0.0;
   @Tunable("D")
   public double d = 0.0;
-  @Tunable("F")
-  public double f = 0.0;
   @Tunable("Velocity")
   public double velocity = 0.0;
 
@@ -90,6 +88,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
 
   @Override
   public void robotPeriodic() {
+    double f = 1023.0 / velocity;
     lMaster.config_kP(0, p);
     lMaster.config_kI(0, i);
     lMaster.config_kD(0, d);
@@ -124,12 +123,12 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     rightPneu.set(rightPneuVal);
     if (joystickControl) {
       lMaster.set(ControlMode.Velocity,
-          joystick.getRawAxis(5) * velocity * (invertLeftSetpoint ? -1 : 1));
+          joystick.getRawAxis(5) * velocity * (invertLeftSetpoint ? -1 : 1) * 600);
       rMaster.set(ControlMode.Velocity,
-          joystick.getRawAxis(1) * velocity * (invertRightSetpoint ? -1 : 1));
+          joystick.getRawAxis(1) * velocity * (invertRightSetpoint ? -1 : 1) * 600);
     } else {
-      lMaster.set(ControlMode.Velocity, invertLeftSetpoint ? -velocity : velocity);
-      rMaster.set(ControlMode.Velocity, invertRightSetpoint ? -velocity : velocity);
+      lMaster.set(ControlMode.Velocity, (invertLeftSetpoint ? -velocity : velocity) * 600);
+      rMaster.set(ControlMode.Velocity, (invertRightSetpoint ? -velocity : velocity) * 600);
     }
   }
 }
