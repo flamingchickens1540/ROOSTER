@@ -121,7 +121,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     rightPneu.set(rightPneuVal);
     if (joystickControl) {
       lMaster.set(ControlMode.Velocity,
-          joystick.getRawAxis(5) * velocity * (invertLeftSetpoint ? -1 : 1) * 600);
+          joystick.getRawAxis(5) * velocity * (invertLeftSetpoint ? -1 : 1));
       rMaster.set(ControlMode.Velocity,
           joystick.getRawAxis(1) * velocity * (invertRightSetpoint ? -1 : 1));
     } else {
