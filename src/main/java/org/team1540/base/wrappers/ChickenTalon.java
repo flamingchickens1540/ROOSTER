@@ -1173,4 +1173,68 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
     setSensorPhase(flip);
   }
 
+  /**
+   * @return The latest value set using set().
+   * @deprecated Use {@link #getClosedLoopTarget(int)}
+   */
+  @Deprecated
+  public double getSetpoint() {
+    return getClosedLoopTarget(defaultPidIdx);
+  }
+
+  /**
+   * Calls set(double).
+   *
+   * @deprecated Use {@link #set(double)}
+   */
+  @Deprecated
+  public void setSetpoint(double setpoint) {
+    set(setpoint);
+  }
+
+  /**
+   * @deprecated Use {@link #configNominalOutputForward(double)} and
+   * {@link #configNominalOutputReverse(double)}
+   */
+  @Deprecated
+  public void configNominalOutputVoltage(double forwardVoltage, double reverseVoltage) {
+    configNominalOutputForward(forwardVoltage / 12);
+    configNominalOutputReverse(reverseVoltage / 12);
+  }
+
+  /**
+   * @deprecated Use {@link #configPeakOutputForward(double) and
+   * {@link #configPeakOutputReverse(double)}}
+   */
+  @Deprecated
+  public void configPeakOutputVoltage(double forwardVoltage, double reverseVoltage) {
+    configPeakOutputForward(forwardVoltage / 12);
+    configPeakOutputReverse(reverseVoltage / 12);
+  }
+
+  /**
+   * @return The voltage being output by the Talon, in Volts.
+   * @deprecated Use {@link #getMotorOutputVoltage()}
+   */
+  @Deprecated
+  public double getOutputVoltage() {
+    return getMotorOutputVoltage();
+  }
+
+  /**
+   * The speed units will be in the sensor's native ticks per 100ms.
+   * For analog sensors, 3.3V corresponds to 1023 units. So a speed of 200 equates to ~0.645 dV per
+   * 100ms or 6.451 dV per second. If this is an analog encoder, that likely means 1.9548 rotations
+   * per sec. For quadrature encoders, each unit corresponds a quadrature edge (4X). So a 250 count
+   * encoder will produce 1000 edge events per rotation. An example speed of 200 would then equate
+   * to 20% of a rotation per 100ms, or 10 rotations per second.
+   *
+   * @return The speed of the sensor currently providing feedback.
+   * @deprecated Use {@link #getSelectedSensorVelocity()}
+   */
+  @Deprecated
+  public double getSpeed() {
+    return getSelectedSensorVelocity();
+  }
+
 }
