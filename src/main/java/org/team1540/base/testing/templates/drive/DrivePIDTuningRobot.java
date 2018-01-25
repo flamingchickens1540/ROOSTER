@@ -1,6 +1,7 @@
 package org.team1540.base.testing.templates.drive;
 
 import static org.team1540.base.Utilities.constrain;
+import static org.team1540.base.Utilities.processAxisDeadzone;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -122,13 +123,16 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     leftPneu.set(leftPneuVal);
     rightPneu.set(rightPneuVal);
     if (joystickControl) {
-      double trigVal = joystick.getRawAxis(3) - joystick.getRawAxis(2);
-      lMaster.set(ControlMode.Velocity,
-          constrain(joystick.getRawAxis(5) + trigVal, 1) * velocity * (invertLeftSetpoint ? -1
-              : 1));
-      rMaster.set(ControlMode.Velocity,
-          constrain(joystick.getRawAxis(1) + trigVal, 1) * velocity * (invertRightSetpoint ? -1
-              : 1));
+      double trigVal = processAxisDeadzone(joystick.getRawAxis(3), 0.1)
+          - processAxisDeadzone(joystick.getRawAxis(2), 0.1);
+      lMaster.set(
+          ControlMode.Velocity,
+          constrain(processAxisDeadzone(joystick.getRawAxis(5), 0.1) + trigVal, 1)
+              * velocity * (invertLeftSetpoint ? -1 : 1));
+      rMaster.set(
+          ControlMode.Velocity,
+          constrain(processAxisDeadzone(joystick.getRawAxis(1), 0.1) + trigVal, 1)
+              * velocity * (invertRightSetpoint ? -1 : 1));
     } else {
       lMaster.set(ControlMode.Velocity, (invertLeftSetpoint ? -velocity : velocity));
       rMaster.set(ControlMode.Velocity, (invertRightSetpoint ? -velocity : velocity));
