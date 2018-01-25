@@ -1,6 +1,7 @@
 package org.team1540.base;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,9 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
 
+  /**
+   * A set of all master motors to be power managed. Slaves (including ChickenVictors) will be power managed through that
+   */
   private final Set<ChickenTalon> motors = new HashSet<>();
 
   public int size() {
@@ -31,12 +35,20 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return motors.contains(o);
   }
 
-  public boolean add(ChickenTalon motor) {
-    return motors.add(motor);
+  public boolean add(ChickenTalon o) {
+    return motors.add(o);
+  }
+
+  public boolean add(ChickenTalon... os) {
+    return addAll(Arrays.asList(os));
   }
 
   public boolean remove(ChickenTalon o) {
     return motors.remove(o);
+  }
+
+  public boolean remove(ChickenTalon... os) {
+    return removeAll(Arrays.asList(os));
   }
 
   public boolean containsAll(Collection<ChickenTalon> c) {
