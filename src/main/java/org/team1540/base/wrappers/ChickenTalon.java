@@ -20,7 +20,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
  * Wrapper around a {@link TalonSRX} adding some features (that really should already be there) as
  * well as making functions easier to call.
  */
-public class ChickenTalon extends TalonSRX {
+public class ChickenTalon extends TalonSRX implements ChickenController {
 
   ControlMode controlMode = ControlMode.PercentOutput;
   int defaultPidIdx = 0;
