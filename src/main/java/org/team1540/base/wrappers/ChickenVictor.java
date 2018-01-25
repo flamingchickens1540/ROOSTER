@@ -363,7 +363,7 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
 
   @Override
   public double getSelectedSensorVelocity() {
-    return super.getSelectedSensorVelocity(defaultPidIdx) * 600;
+    return super.getSelectedSensorVelocity(defaultPidIdx);
   }
 
   @Override
