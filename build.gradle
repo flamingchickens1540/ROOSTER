@@ -6,7 +6,7 @@ plugins {
     id "java"
     id "idea"
     id "maven"
-    id "jaci.openrio.gradle.GradleRIO" version "2018.01.18"
+    id "jaci.openrio.gradle.GradleRIO" version "2018.01.22"
 }
 
 group = 'org.team1540'
