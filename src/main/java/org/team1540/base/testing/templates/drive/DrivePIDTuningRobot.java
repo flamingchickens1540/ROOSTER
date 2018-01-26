@@ -29,6 +29,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   ChickenTalon rSlave2;
   Solenoid rightPneu = new Solenoid(2);
 
+  ChickenTalon[] talons;
+
   @Tunable("Left Shifter")
   public boolean leftPneuVal = false;
   @Tunable("Right Shifter")
@@ -56,6 +58,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
   public boolean invertRightSetpoint = false;
   @Tunable("Joystick control")
   public boolean joystickControl = false;
+  @Tunable("Closed-loop ramp")
+  public double closedLoopRamp = 0.0;
 
   @Override
   public void robotInit() {
@@ -81,6 +85,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     MjpegServer mjpegServer = new MjpegServer("Camera Server", 1181);
     mjpegServer.setSource(camera);
     SmartDashboard.putData(new Compressor());
+    talons = new ChickenTalon[]{lMaster, lSlave1, lSlave2, rMaster, rSlave1, rSlave2};
   }
 
   @Override
@@ -120,6 +125,9 @@ public class DrivePIDTuningRobot extends IterativeRobot {
 
   @Override
   public void teleopPeriodic() {
+    for (ChickenTalon t : talons) {
+      t.configClosedloopRamp(closedLoopRamp);
+    }
     leftPneu.set(leftPneuVal);
     rightPneu.set(rightPneuVal);
     if (joystickControl) {
