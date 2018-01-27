@@ -10,7 +10,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ROOSTER_main" />
-    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:wpilibj-java:2018.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: edu.wpi.first.wpilibj:wpilibj-java:2018.2.2" level="project" />
     <orderEntry type="library" name="Gradle: edu.wpi.first.ntcore:ntcore-java:4.0.0" level="project" />
     <orderEntry type="library" name="Gradle: edu.wpi.first.wpiutil:wpiutil-java:3.0.0" level="project" />
     <orderEntry type="library" name="Gradle: org.opencv:opencv-java:3.2.0" level="project" />
