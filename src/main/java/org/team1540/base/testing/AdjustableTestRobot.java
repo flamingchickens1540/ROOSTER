@@ -44,7 +44,5 @@ public class AdjustableTestRobot extends IterativeRobot {
     iTimes2 = i * 2;
     stringPlusChickens = string + "Chickens";
     notB = !b;
-
-    AdjustableManager.getInstance().update();
   }
 }

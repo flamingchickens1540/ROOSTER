@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
+import org.team1540.base.util.SimpleLoopCommand;
 
 /**
  * Class to manage creating and updating adjustables (tunables and telemetry values.) Add an object
@@ -18,6 +19,12 @@ public class AdjustableManager {
   private final Object lock = new Object();
   private List<TunableField> tunables = new LinkedList<>();
   private List<TelemetryField> telemetry = new LinkedList<>();
+
+  private boolean enabled = true;
+
+  private AdjustableManager() {
+    new SimpleLoopCommand("AdjustableManager Update", this::run).start();
+  }
 
   public static AdjustableManager getInstance() {
     return instance;
@@ -95,40 +102,49 @@ public class AdjustableManager {
     }
   }
 
-  /**
-   * Updates adjustable values. This method should be called in {@code robotPeriodic()} in your main
-   * {@code Robot} class.
-   */
-  public void update() {
-    synchronized (lock) {
-      // Update tunables
-      for (TunableField tf : tunables) {
-        try {
-          if (!SmartDashboard.containsKey(tf.label)) {
+  private void run() {
+    if (enabled) {
+      synchronized (lock) {
+        // Update tunables
+        for (TunableField tf : tunables) {
+          try {
+            if (!SmartDashboard.containsKey(tf.label)) {
+              //noinspection unchecked
+              tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
+            } else {
+              //noinspection unchecked
+              tf.field.set(tf.obj, tf.type.getFunction.get(tf.label, tf.field.get(tf.obj)));
+            }
+          } catch (IllegalAccessException e) {
+            DriverStation.reportError(e.getMessage(), true);
+          }
+        }
+
+        // Update telemetry
+        for (TelemetryField tf : telemetry) {
+          try {
             //noinspection unchecked
             tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
-          } else {
-            //noinspection unchecked
-            tf.field.set(tf.obj, tf.type.getFunction.get(tf.label, tf.field.get(tf.obj)));
+          } catch (IllegalAccessException e) {
+            DriverStation.reportError(e.toString(), true);
           }
-        } catch (IllegalAccessException e) {
-          DriverStation.reportError(e.getMessage(), true);
-        }
-      }
-
-      // Update telemetry
-      for (TelemetryField tf : telemetry) {
-        try {
-          //noinspection unchecked
-          tf.type.putFunction.put(tf.label, tf.field.get(tf.obj));
-        } catch (IllegalAccessException e) {
-          DriverStation.reportError(e.toString(), true);
         }
       }
     }
   }
 
+  /**
+   * Updates adjustable values. This method should be called in {@code robotPeriodic()} in your main
+   * {@code Robot} class.
+   *
+   * @deprecated No longer necessary; now updates automatically.
+   */
+  public void update() {
+    run();
+  }
+
   private static class TunableField {
+
     Object obj;
     Field field;
     TunableType type;
@@ -143,6 +159,7 @@ public class AdjustableManager {
   }
 
   private static class TelemetryField {
+
     Object obj;
     Field field;
     TelemetryType type;
@@ -154,5 +171,13 @@ public class AdjustableManager {
       this.type = type;
       this.label = label;
     }
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 }
