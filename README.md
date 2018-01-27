@@ -1,8 +1,8 @@
-# ROOSTER
+# ROOSTER 
 [![Build Status](https://travis-ci.org/flamingchickens1540/ROOSTER.svg?branch=master)](https://travis-ci.org/flamingchickens1540/ROOSTER)
 [![JitPack](https://jitpack.io/v/org.team1540/rooster.svg)](https://jitpack.io/#org.team1540/rooster)
 
-Reusable Object-Oriented Systems, Templates, and Executables for Robots
+Reusable Object-Oriented Systems, Templates, and Executables for Robots 🐓
 
 A common library of useful classes and systems intended to be used for all Team 1540 robots.
 
@@ -53,6 +53,4 @@ Download the latest version from the [releases page](https://github.com/flamingc
 
 ## Building
 
-You'll need IntelliJ IDEA (Community or Ultimate editions) to develop ROOSTER. 
-
-On IntelliJ IDEA's main menu screen or from the `File > New` menu, select `Project from Version Control > GitHub`. Enter `https://github.com/flamingchickens1540/ROOSTER.git` as the Git Repository URL, and set the Parent Directory and Directory name functions according to your preference. The project should configure itself automatically.
+We recommend using IntelliJ IDEA to develop ROOSTER. To import the project, on IntelliJ IDEA's main menu screen or from the `File > New` menu, select `Project from Version Control > GitHub`. Enter `https://github.com/flamingchickens1540/ROOSTER.git` as the Git Repository URL, and set the Parent Directory and Directory name functions according to your preference. The project should configure itself automatically.
