@@ -40,7 +40,7 @@ public class ActuatorCommandFactory {
    * @param joystick The joystick to use when controlling the actuator.
    * @param axis The axis ID to use for control.
    */
-  public Command createJoystickControlCommand(Joystick joystick, int axis) {
+  public ActuatorJoystickControlCommand createJoystickControlCommand(Joystick joystick, int axis) {
     return new ActuatorJoystickControlCommand(actuator, joystick, axis, speed, upperLim, lowerLim,
         minConsecutiveSpikeTicks, currentLimit);
   }
@@ -59,7 +59,7 @@ public class ActuatorCommandFactory {
    *
    * @return A {@link Command} that moves the actuator to the provided position.
    */
-  public Command createMoveToPositionCommand(double position) {
+  public ActuatorMoveToPositionCommand createMoveToPositionCommand(double position) {
     return new ActuatorMoveToPositionCommand(actuator, position, endTolerance, speed, currentLimit,
         minConsecutiveSpikeTicks);
   }

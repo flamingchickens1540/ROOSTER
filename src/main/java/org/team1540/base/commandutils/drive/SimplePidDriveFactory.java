@@ -1,7 +1,6 @@
 package org.team1540.base.commandutils.drive;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.command.Command;
 import org.team1540.base.templates.Drive;
 
 public class SimplePidDriveFactory {
@@ -15,7 +14,7 @@ public class SimplePidDriveFactory {
   private boolean invertFwdTrigger = false;
   private boolean invertBackTrigger = false;
 
-  public Command createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
+  public SimplePidDrive createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
       int fwdTrigger, int backTrigger) {
     return new SimplePidDrive(drive, maxSetpoint, joystick, leftAxis, rightAxis, fwdTrigger,
         backTrigger, invertLeftAxis, invertRightAxis, invertLeftOutput, invertRightOutput,

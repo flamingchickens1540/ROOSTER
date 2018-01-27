@@ -5,18 +5,19 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.team1540.base.templates.Actuator;
 import org.team1540.base.triggers.VibrationManager;
 
-class ActuatorJoystickControlCommand extends Command {
-  final Actuator actuator;
-  final int axis;
-  final double currentLimit;
-  final double lowerLim;
-  final int minConsecutiveSpikeTicks;
-  final double multiplier;
-  final Joystick stick;
-  final double upperLim;
-  final Command vibrationCommand;
-  int consecutiveSpikeTicks;
-  double position;
+public class ActuatorJoystickControlCommand extends Command {
+
+  private final Actuator actuator;
+  private final int axis;
+  private final double currentLimit;
+  private final double lowerLim;
+  private final int minConsecutiveSpikeTicks;
+  private final double multiplier;
+  private final Joystick stick;
+  private final double upperLim;
+  private final Command vibrationCommand;
+  private int consecutiveSpikeTicks;
+  private double position;
 
   ActuatorJoystickControlCommand(Actuator actuator, Joystick joystick,
       int joystickAxis, double multiplier, double upperLim, double lowerLim,
@@ -74,5 +75,57 @@ class ActuatorJoystickControlCommand extends Command {
   @Override
   protected boolean isFinished() {
     return false;
+  }
+
+  public Actuator getActuator() {
+    return actuator;
+  }
+
+  public int getAxis() {
+    return axis;
+  }
+
+  public double getCurrentLimit() {
+    return currentLimit;
+  }
+
+  public double getLowerLim() {
+    return lowerLim;
+  }
+
+  public int getMinConsecutiveSpikeTicks() {
+    return minConsecutiveSpikeTicks;
+  }
+
+  public double getMultiplier() {
+    return multiplier;
+  }
+
+  public Joystick getStick() {
+    return stick;
+  }
+
+  public double getUpperLim() {
+    return upperLim;
+  }
+
+  public Command getVibrationCommand() {
+    return vibrationCommand;
+  }
+
+  public int getConsecutiveSpikeTicks() {
+    return consecutiveSpikeTicks;
+  }
+
+  public void setConsecutiveSpikeTicks(int consecutiveSpikeTicks) {
+    this.consecutiveSpikeTicks = consecutiveSpikeTicks;
+  }
+
+  public double getPosition() {
+    return position;
+  }
+
+  public void setPosition(double position) {
+    this.position = position;
   }
 }

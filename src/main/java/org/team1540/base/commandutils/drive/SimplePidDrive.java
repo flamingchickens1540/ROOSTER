@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import org.team1540.base.templates.Drive;
 
-class SimplePidDrive extends Command {
+public class SimplePidDrive extends Command {
 
   private final Drive drive;
   private final double maxSetpoint;
@@ -59,5 +59,57 @@ class SimplePidDrive extends Command {
   @Override
   protected boolean isFinished() {
     return false;
+  }
+
+  public Drive getDrive() {
+    return drive;
+  }
+
+  public double getMaxSetpoint() {
+    return maxSetpoint;
+  }
+
+  public Joystick getJoystick() {
+    return joystick;
+  }
+
+  public int getLeftAxis() {
+    return leftAxis;
+  }
+
+  public int getRightAxis() {
+    return rightAxis;
+  }
+
+  public int getFwdTrigger() {
+    return fwdTrigger;
+  }
+
+  public int getBackTrigger() {
+    return backTrigger;
+  }
+
+  public boolean isInvertLeftAxis() {
+    return invertLeftAxis;
+  }
+
+  public boolean isInvertRightAxis() {
+    return invertRightAxis;
+  }
+
+  public boolean isInvertLeftOutput() {
+    return invertLeftOutput;
+  }
+
+  public boolean isInvertRightOutput() {
+    return invertRightOutput;
+  }
+
+  public boolean isInvertFwdTrigger() {
+    return invertFwdTrigger;
+  }
+
+  public boolean isInvertBackTrigger() {
+    return invertBackTrigger;
   }
 }
