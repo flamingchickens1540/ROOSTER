@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import org.team1540.base.templates.Drive;
 
-public class SimplePidDrive extends Command {
+public class PidDrive extends Command {
 
   private Drive drive;
   private double maxSetpoint;
@@ -22,7 +22,7 @@ public class SimplePidDrive extends Command {
   private boolean invertFwdTrigger;
   private boolean invertBackTrigger;
 
-  public SimplePidDrive(Drive drive, double maxSetpoint, Joystick joystick, int leftAxis,
+  public PidDrive(Drive drive, double maxSetpoint, Joystick joystick, int leftAxis,
       int rightAxis, int fwdTrigger, int backTrigger, boolean invertLeftAxis,
       boolean invertRightAxis, boolean invertLeftOutput, boolean invertRightOutput,
       boolean invertFwdTrigger, boolean invertBackTrigger) {
@@ -114,67 +114,67 @@ public class SimplePidDrive extends Command {
     return invertBackTrigger;
   }
 
-  public SimplePidDrive setDrive(Drive drive) {
+  public PidDrive setDrive(Drive drive) {
     this.drive = drive;
     return this;
   }
 
-  public SimplePidDrive setMaxSetpoint(double maxSetpoint) {
+  public PidDrive setMaxSetpoint(double maxSetpoint) {
     this.maxSetpoint = maxSetpoint;
     return this;
   }
 
-  public SimplePidDrive setJoystick(Joystick joystick) {
+  public PidDrive setJoystick(Joystick joystick) {
     this.joystick = joystick;
     return this;
   }
 
-  public SimplePidDrive setLeftAxis(int leftAxis) {
+  public PidDrive setLeftAxis(int leftAxis) {
     this.leftAxis = leftAxis;
     return this;
   }
 
-  public SimplePidDrive setRightAxis(int rightAxis) {
+  public PidDrive setRightAxis(int rightAxis) {
     this.rightAxis = rightAxis;
     return this;
   }
 
-  public SimplePidDrive setFwdTrigger(int fwdTrigger) {
+  public PidDrive setFwdTrigger(int fwdTrigger) {
     this.fwdTrigger = fwdTrigger;
     return this;
   }
 
-  public SimplePidDrive setBackTrigger(int backTrigger) {
+  public PidDrive setBackTrigger(int backTrigger) {
     this.backTrigger = backTrigger;
     return this;
   }
 
-  public SimplePidDrive setInvertLeftAxis(boolean invertLeftAxis) {
+  public PidDrive setInvertLeftAxis(boolean invertLeftAxis) {
     this.invertLeftAxis = invertLeftAxis;
     return this;
   }
 
-  public SimplePidDrive setInvertRightAxis(boolean invertRightAxis) {
+  public PidDrive setInvertRightAxis(boolean invertRightAxis) {
     this.invertRightAxis = invertRightAxis;
     return this;
   }
 
-  public SimplePidDrive setInvertLeftOutput(boolean invertLeftOutput) {
+  public PidDrive setInvertLeftOutput(boolean invertLeftOutput) {
     this.invertLeftOutput = invertLeftOutput;
     return this;
   }
 
-  public SimplePidDrive setInvertRightOutput(boolean invertRightOutput) {
+  public PidDrive setInvertRightOutput(boolean invertRightOutput) {
     this.invertRightOutput = invertRightOutput;
     return this;
   }
 
-  public SimplePidDrive setInvertFwdTrigger(boolean invertFwdTrigger) {
+  public PidDrive setInvertFwdTrigger(boolean invertFwdTrigger) {
     this.invertFwdTrigger = invertFwdTrigger;
     return this;
   }
 
-  public SimplePidDrive setInvertBackTrigger(boolean invertBackTrigger) {
+  public PidDrive setInvertBackTrigger(boolean invertBackTrigger) {
     this.invertBackTrigger = invertBackTrigger;
     return this;
   }

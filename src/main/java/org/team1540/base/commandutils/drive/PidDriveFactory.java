@@ -3,7 +3,7 @@ package org.team1540.base.commandutils.drive;
 import edu.wpi.first.wpilibj.Joystick;
 import org.team1540.base.templates.Drive;
 
-public class SimplePidDriveFactory {
+public class PidDriveFactory {
 
   private Drive drive;
   private double maxSetpoint;
@@ -14,9 +14,9 @@ public class SimplePidDriveFactory {
   private boolean invertFwdTrigger = false;
   private boolean invertBackTrigger = false;
 
-  public SimplePidDrive createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
+  public PidDrive createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
       int fwdTrigger, int backTrigger) {
-    return new SimplePidDrive(drive, maxSetpoint, joystick, leftAxis, rightAxis, fwdTrigger,
+    return new PidDrive(drive, maxSetpoint, joystick, leftAxis, rightAxis, fwdTrigger,
         backTrigger, invertLeftAxis, invertRightAxis, invertLeftOutput, invertRightOutput,
         invertFwdTrigger, invertBackTrigger);
   }
@@ -25,7 +25,7 @@ public class SimplePidDriveFactory {
     return drive;
   }
 
-  public SimplePidDriveFactory setDrive(Drive drive) {
+  public PidDriveFactory setDrive(Drive drive) {
     this.drive = drive;
     return this;
   }
@@ -34,7 +34,7 @@ public class SimplePidDriveFactory {
     return maxSetpoint;
   }
 
-  public SimplePidDriveFactory setMaxSetpoint(double maxSetpoint) {
+  public PidDriveFactory setMaxSetpoint(double maxSetpoint) {
     this.maxSetpoint = maxSetpoint;
     return this;
   }
@@ -43,7 +43,7 @@ public class SimplePidDriveFactory {
     return invertLeftAxis;
   }
 
-  public SimplePidDriveFactory setInvertLeftAxis(boolean invertLeftAxis) {
+  public PidDriveFactory setInvertLeftAxis(boolean invertLeftAxis) {
     this.invertLeftAxis = invertLeftAxis;
     return this;
   }
@@ -52,7 +52,7 @@ public class SimplePidDriveFactory {
     return invertRightAxis;
   }
 
-  public SimplePidDriveFactory setInvertRightAxis(boolean invertRightAxis) {
+  public PidDriveFactory setInvertRightAxis(boolean invertRightAxis) {
     this.invertRightAxis = invertRightAxis;
     return this;
   }
@@ -61,7 +61,7 @@ public class SimplePidDriveFactory {
     return invertLeftOutput;
   }
 
-  public SimplePidDriveFactory setInvertLeftOutput(boolean invertLeftOutput) {
+  public PidDriveFactory setInvertLeftOutput(boolean invertLeftOutput) {
     this.invertLeftOutput = invertLeftOutput;
     return this;
   }
@@ -70,7 +70,7 @@ public class SimplePidDriveFactory {
     return invertRightOutput;
   }
 
-  public SimplePidDriveFactory setInvertRightOutput(boolean invertRightOutput) {
+  public PidDriveFactory setInvertRightOutput(boolean invertRightOutput) {
     this.invertRightOutput = invertRightOutput;
     return this;
   }
@@ -79,7 +79,7 @@ public class SimplePidDriveFactory {
     return invertFwdTrigger;
   }
 
-  public SimplePidDriveFactory setInvertFwdTrigger(boolean invertFwdTrigger) {
+  public PidDriveFactory setInvertFwdTrigger(boolean invertFwdTrigger) {
     this.invertFwdTrigger = invertFwdTrigger;
     return this;
   }
@@ -88,7 +88,7 @@ public class SimplePidDriveFactory {
     return invertBackTrigger;
   }
 
-  public SimplePidDriveFactory setInvertBackTrigger(boolean invertBackTrigger) {
+  public PidDriveFactory setInvertBackTrigger(boolean invertBackTrigger) {
     this.invertBackTrigger = invertBackTrigger;
     return this;
   }

@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.team1540.base.adjustables.AdjustableManager;
 import org.team1540.base.adjustables.Tunable;
-import org.team1540.base.commandutils.drive.SimplePidDrive;
-import org.team1540.base.commandutils.drive.SimplePidDriveFactory;
+import org.team1540.base.commandutils.drive.PidDrive;
+import org.team1540.base.commandutils.drive.PidDriveFactory;
 import org.team1540.base.templates.Drive;
 import org.team1540.base.wrappers.ChickenTalon;
 
-public class SimplePidDriveTestRobot extends IterativeRobot {
+public class PidDriveTestRobot extends IterativeRobot {
 
-  private SimplePidDrive pidDriveCommand;
+  private PidDrive pidDriveCommand;
   private DriveTrain drive;
   private Joystick joystick;
 
@@ -45,7 +45,7 @@ public class SimplePidDriveTestRobot extends IterativeRobot {
 
   @Override
   public void robotInit() {
-    SimplePidDriveFactory factory = new SimplePidDriveFactory()
+    PidDriveFactory factory = new PidDriveFactory()
         .setDrive(drive)
         .setInvertLeftAxis(invertLeftSetpoint)
         .setInvertRightAxis(invertRightSetpoint)
