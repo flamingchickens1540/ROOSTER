@@ -20,4 +20,76 @@ public class SimplePidDriveFactory {
         backTrigger, invertLeftAxis, invertRightAxis, invertLeftOutput, invertRightOutput,
         invertFwdTrigger, invertBackTrigger);
   }
+
+  public Drive getDrive() {
+    return drive;
+  }
+
+  public SimplePidDriveFactory setDrive(Drive drive) {
+    this.drive = drive;
+    return this;
+  }
+
+  public double getMaxSetpoint() {
+    return maxSetpoint;
+  }
+
+  public SimplePidDriveFactory setMaxSetpoint(double maxSetpoint) {
+    this.maxSetpoint = maxSetpoint;
+    return this;
+  }
+
+  public boolean isInvertLeftAxis() {
+    return invertLeftAxis;
+  }
+
+  public SimplePidDriveFactory setInvertLeftAxis(boolean invertLeftAxis) {
+    this.invertLeftAxis = invertLeftAxis;
+    return this;
+  }
+
+  public boolean isInvertRightAxis() {
+    return invertRightAxis;
+  }
+
+  public SimplePidDriveFactory setInvertRightAxis(boolean invertRightAxis) {
+    this.invertRightAxis = invertRightAxis;
+    return this;
+  }
+
+  public boolean isInvertLeftOutput() {
+    return invertLeftOutput;
+  }
+
+  public SimplePidDriveFactory setInvertLeftOutput(boolean invertLeftOutput) {
+    this.invertLeftOutput = invertLeftOutput;
+    return this;
+  }
+
+  public boolean isInvertRightOutput() {
+    return invertRightOutput;
+  }
+
+  public SimplePidDriveFactory setInvertRightOutput(boolean invertRightOutput) {
+    this.invertRightOutput = invertRightOutput;
+    return this;
+  }
+
+  public boolean isInvertFwdTrigger() {
+    return invertFwdTrigger;
+  }
+
+  public SimplePidDriveFactory setInvertFwdTrigger(boolean invertFwdTrigger) {
+    this.invertFwdTrigger = invertFwdTrigger;
+    return this;
+  }
+
+  public boolean isInvertBackTrigger() {
+    return invertBackTrigger;
+  }
+
+  public SimplePidDriveFactory setInvertBackTrigger(boolean invertBackTrigger) {
+    this.invertBackTrigger = invertBackTrigger;
+    return this;
+  }
 }
