@@ -1,5 +1,6 @@
 package org.team1540.base.commandutils.drive;
 
+import static java.lang.Math.abs;
 import static org.team1540.base.Utilities.constrain;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -56,18 +57,41 @@ public class AdvancedPidDrive extends Command {
 
     // prevent backdriving above a configured brake amount
 
-    // first figure out which way is "backdriving"
-    boolean leftGoingForward = left.getSelectedSensorVelocity() > (maxSetpoint * deadzone);
-    boolean rightGoingForward = right.getSelectedSensorVelocity() > (maxSetpoint * deadzone);
-
-    // limit motor output
-    left.configPeakOutputForward(leftGoingForward ? 1.00 : maxBrakePct);
-    left.configPeakOutputReverse(leftGoingForward ? maxBrakePct : 1.00);
-    right.configPeakOutputForward(rightGoingForward ? 1.00 : maxBrakePct);
-    right.configPeakOutputReverse(rightGoingForward ? maxBrakePct : 1.00);
+    // figure out if there is any motor movement
+    processPeakOutput(left);
+    processPeakOutput(right);
 
     left.set(ControlMode.Velocity, constrain(leftSetpoint, 1));
     right.set(ControlMode.Velocity, constrain(rightSetpoint, 1));
+  }
+
+  private void processPeakOutput(ChickenController controller) {
+    if (abs(controller.getSelectedSensorVelocity()) < abs(maxSetpoint * deadzone)) {
+      /* We are moving at a non-negligible rate, so don't allow the motors to run full backwards,
+      that stalls the motors and eats power */
+
+      // figure out which way is "braking"
+      boolean goingForward = controller.getSelectedSensorVelocity() > 0;
+
+      // if "braking" is running motors forward limit the forward throttle; if not, limit the back
+      controller.configPeakOutputForward(goingForward ? 1.00 : maxBrakePct);
+      controller.configPeakOutputReverse(goingForward ? maxBrakePct : 1.00);
+    } else {
+      /* Since we aren't going to be stalling the motors for an extended period of time as velocity
+      goes to zero, the motors can go to maximum in either direction */
+      controller.configPeakOutputForward(1.00);
+      controller.configPeakOutputReverse(1.00);
+    }
+  }
+
+  @Override
+  protected void end() {
+    // reset peak output
+    drive.getLeftMaster().configPeakOutputForward(1.00);
+    drive.getLeftMaster().configPeakOutputReverse(1.00);
+    drive.getRightMaster().configPeakOutputForward(1.00);
+    drive.getRightMaster().configPeakOutputReverse(1.00);
+
   }
 
   @Override
