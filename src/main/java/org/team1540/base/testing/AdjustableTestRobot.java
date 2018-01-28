@@ -3,6 +3,7 @@ package org.team1540.base.testing;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import org.team1540.base.adjustables.AdjustableManager;
 import org.team1540.base.adjustables.Telemetry;
 import org.team1540.base.adjustables.Tunable;
@@ -44,7 +45,6 @@ public class AdjustableTestRobot extends IterativeRobot {
     iTimes2 = i * 2;
     stringPlusChickens = string + "Chickens";
     notB = !b;
-
-    AdjustableManager.getInstance().update();
+    Scheduler.getInstance().run();
   }
 }
