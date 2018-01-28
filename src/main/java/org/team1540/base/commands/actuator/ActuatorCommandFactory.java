@@ -1,4 +1,4 @@
-package org.team1540.base.commandutils.actuator;
+package org.team1540.base.commands.actuator;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;

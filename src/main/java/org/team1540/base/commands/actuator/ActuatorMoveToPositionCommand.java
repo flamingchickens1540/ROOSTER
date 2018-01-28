@@ -1,4 +1,4 @@
-package org.team1540.base.commandutils.actuator;
+package org.team1540.base.commands.actuator;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
