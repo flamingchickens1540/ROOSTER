@@ -63,7 +63,6 @@ public class PidDriveTestRobot extends IterativeRobot {
   @Override
   public void robotPeriodic() {
     Scheduler.getInstance().run();
-    AdjustableManager.getInstance().update();
 
     pidDriveCommand.setInvertLeftAxis(invertLeftSetpoint);
     pidDriveCommand.setInvertRightAxis(invertRightSetpoint);
