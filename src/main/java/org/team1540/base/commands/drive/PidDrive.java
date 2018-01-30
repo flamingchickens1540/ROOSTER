@@ -36,6 +36,7 @@ public class PidDrive extends Command {
     this.invertRightOutput = config.invertRightOutput;
     this.invertFwdTrigger = config.invertFwdTrigger;
     this.invertBackTrigger = config.invertBackTrigger;
+    requires(drive.getAttachedSubsystem());
   }
 
   @Override

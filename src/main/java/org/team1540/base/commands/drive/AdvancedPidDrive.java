@@ -68,6 +68,8 @@ public class AdvancedPidDrive extends Command {
     this.usingBrownoutAlert = config.usingBrownoutAlert;
     this.maxBrownoutCooldown = config.maxBrownoutCooldown;
 
+    requires(drive.getAttachedSubsystem());
+
     rumbleCommand = VibrationManager.getVibrationCommand(joystick, maxBrownoutCooldown, 1);
     pdp = new PowerDistributionPanel();
 
