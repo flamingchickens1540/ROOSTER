@@ -1,7 +1,6 @@
 package org.team1540.base.commands.drive;
 
 import edu.wpi.first.wpilibj.Joystick;
-import org.team1540.base.commands.drive.PidDrive.Configuration;
 import org.team1540.base.templates.Drive;
 
 public class PidDriveFactory {
@@ -18,7 +17,7 @@ public class PidDriveFactory {
   public PidDrive createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
       int fwdTrigger, int backTrigger) {
 
-    Configuration configuration = new Configuration();
+    PidDrive.Configuration configuration = new PidDrive.Configuration();
 
     configuration.drive = drive;
     configuration.maxSetpoint = maxSetpoint;

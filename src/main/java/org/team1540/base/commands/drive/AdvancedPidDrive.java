@@ -39,7 +39,6 @@ public class AdvancedPidDrive extends Command {
   private boolean invertBackTrigger;
 
   private double maxBrakePct;
-  private boolean minMotorOutput;
 
   private double deadzone;
 
@@ -50,7 +49,7 @@ public class AdvancedPidDrive extends Command {
   private boolean inBrownoutCooldown;
   private Timer brownoutCooldownTimer;
 
-  public AdvancedPidDrive(Configuration config) {
+  AdvancedPidDrive(Configuration config) {
     this.drive = config.drive;
     this.maxSetpoint = config.maxSetpoint;
     this.joystick = config.joystick;
@@ -65,7 +64,6 @@ public class AdvancedPidDrive extends Command {
     this.invertFwdTrigger = config.invertFwdTrigger;
     this.invertBackTrigger = config.invertBackTrigger;
     this.maxBrakePct = config.maxBrakePct;
-    this.minMotorOutput = config.minMotorOutput;
     this.deadzone = config.deadzone;
     this.usingBrownoutAlert = config.usingBrownoutAlert;
     this.maxBrownoutCooldown = config.maxBrownoutCooldown;
@@ -172,7 +170,6 @@ public class AdvancedPidDrive extends Command {
 
     CtreDrive drive;
     double maxBrakePct;
-    boolean minMotorOutput;
     double deadzone;
     boolean usingBrownoutAlert;
     double maxBrownoutCooldown;
