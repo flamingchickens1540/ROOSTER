@@ -175,4 +175,140 @@ public class AdvancedPidDrive extends Command {
     double maxBrownoutCooldown;
 
   }
+
+  public CtreDrive getDrive() {
+    return drive;
+  }
+
+  public void setDrive(CtreDrive drive) {
+    this.drive = drive;
+  }
+
+  public double getMaxSetpoint() {
+    return maxSetpoint;
+  }
+
+  public void setMaxSetpoint(double maxSetpoint) {
+    this.maxSetpoint = maxSetpoint;
+  }
+
+  public Joystick getJoystick() {
+    return joystick;
+  }
+
+  public void setJoystick(Joystick joystick) {
+    this.joystick = joystick;
+  }
+
+  public int getLeftAxis() {
+    return leftAxis;
+  }
+
+  public void setLeftAxis(int leftAxis) {
+    this.leftAxis = leftAxis;
+  }
+
+  public int getRightAxis() {
+    return rightAxis;
+  }
+
+  public void setRightAxis(int rightAxis) {
+    this.rightAxis = rightAxis;
+  }
+
+  public int getFwdTrigger() {
+    return fwdTrigger;
+  }
+
+  public void setFwdTrigger(int fwdTrigger) {
+    this.fwdTrigger = fwdTrigger;
+  }
+
+  public int getBackTrigger() {
+    return backTrigger;
+  }
+
+  public void setBackTrigger(int backTrigger) {
+    this.backTrigger = backTrigger;
+  }
+
+  public boolean isInvertLeftAxis() {
+    return invertLeftAxis;
+  }
+
+  public void setInvertLeftAxis(boolean invertLeftAxis) {
+    this.invertLeftAxis = invertLeftAxis;
+  }
+
+  public boolean isInvertRightAxis() {
+    return invertRightAxis;
+  }
+
+  public void setInvertRightAxis(boolean invertRightAxis) {
+    this.invertRightAxis = invertRightAxis;
+  }
+
+  public boolean isInvertLeftOutput() {
+    return invertLeftOutput;
+  }
+
+  public void setInvertLeftOutput(boolean invertLeftOutput) {
+    this.invertLeftOutput = invertLeftOutput;
+  }
+
+  public boolean isInvertRightOutput() {
+    return invertRightOutput;
+  }
+
+  public void setInvertRightOutput(boolean invertRightOutput) {
+    this.invertRightOutput = invertRightOutput;
+  }
+
+  public boolean isInvertFwdTrigger() {
+    return invertFwdTrigger;
+  }
+
+  public void setInvertFwdTrigger(boolean invertFwdTrigger) {
+    this.invertFwdTrigger = invertFwdTrigger;
+  }
+
+  public boolean isInvertBackTrigger() {
+    return invertBackTrigger;
+  }
+
+  public void setInvertBackTrigger(boolean invertBackTrigger) {
+    this.invertBackTrigger = invertBackTrigger;
+  }
+
+  public double getMaxBrakePct() {
+    return maxBrakePct;
+  }
+
+  public void setMaxBrakePct(double maxBrakePct) {
+    this.maxBrakePct = maxBrakePct;
+  }
+
+  public double getDeadzone() {
+    return deadzone;
+  }
+
+  public void setDeadzone(double deadzone) {
+    this.deadzone = deadzone;
+  }
+
+  public boolean isUsingBrownoutAlert() {
+    return usingBrownoutAlert;
+  }
+
+  public void setUsingBrownoutAlert(boolean usingBrownoutAlert) {
+    this.usingBrownoutAlert = usingBrownoutAlert;
+  }
+
+  public double getMaxBrownoutCooldown() {
+    return maxBrownoutCooldown;
+  }
+
+  public void setMaxBrownoutCooldown(double maxBrownoutCooldown) {
+    this.maxBrownoutCooldown = maxBrownoutCooldown;
+  }
 }
