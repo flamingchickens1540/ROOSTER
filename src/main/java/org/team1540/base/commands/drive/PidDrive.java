@@ -22,23 +22,20 @@ public class PidDrive extends Command {
   private boolean invertFwdTrigger;
   private boolean invertBackTrigger;
 
-  public PidDrive(Drive drive, double maxSetpoint, Joystick joystick, int leftAxis,
-      int rightAxis, int fwdTrigger, int backTrigger, boolean invertLeftAxis,
-      boolean invertRightAxis, boolean invertLeftOutput, boolean invertRightOutput,
-      boolean invertFwdTrigger, boolean invertBackTrigger) {
-    this.drive = drive;
-    this.maxSetpoint = maxSetpoint;
-    this.joystick = joystick;
-    this.leftAxis = leftAxis;
-    this.rightAxis = rightAxis;
-    this.fwdTrigger = fwdTrigger;
-    this.backTrigger = backTrigger;
-    this.invertLeftAxis = invertLeftAxis;
-    this.invertRightAxis = invertRightAxis;
-    this.invertLeftOutput = invertLeftOutput;
-    this.invertRightOutput = invertRightOutput;
-    this.invertFwdTrigger = invertFwdTrigger;
-    this.invertBackTrigger = invertBackTrigger;
+  public PidDrive(Configuration config) {
+    this.drive = config.drive;
+    this.maxSetpoint = config.maxSetpoint;
+    this.joystick = config.joystick;
+    this.leftAxis = config.leftAxis;
+    this.rightAxis = config.rightAxis;
+    this.fwdTrigger = config.fwdTrigger;
+    this.backTrigger = config.backTrigger;
+    this.invertLeftAxis = config.invertLeftAxis;
+    this.invertRightAxis = config.invertRightAxis;
+    this.invertLeftOutput = config.invertLeftOutput;
+    this.invertRightOutput = config.invertRightOutput;
+    this.invertFwdTrigger = config.invertFwdTrigger;
+    this.invertBackTrigger = config.invertBackTrigger;
   }
 
   @Override
@@ -66,57 +63,13 @@ public class PidDrive extends Command {
     return drive;
   }
 
-  public double getMaxSetpoint() {
-    return maxSetpoint;
-  }
-
-  public Joystick getJoystick() {
-    return joystick;
-  }
-
-  public int getLeftAxis() {
-    return leftAxis;
-  }
-
-  public int getRightAxis() {
-    return rightAxis;
-  }
-
-  public int getFwdTrigger() {
-    return fwdTrigger;
-  }
-
-  public int getBackTrigger() {
-    return backTrigger;
-  }
-
-  public boolean isInvertLeftAxis() {
-    return invertLeftAxis;
-  }
-
-  public boolean isInvertRightAxis() {
-    return invertRightAxis;
-  }
-
-  public boolean isInvertLeftOutput() {
-    return invertLeftOutput;
-  }
-
-  public boolean isInvertRightOutput() {
-    return invertRightOutput;
-  }
-
-  public boolean isInvertFwdTrigger() {
-    return invertFwdTrigger;
-  }
-
-  public boolean isInvertBackTrigger() {
-    return invertBackTrigger;
-  }
-
   public PidDrive setDrive(Drive drive) {
     this.drive = drive;
     return this;
+  }
+
+  public double getMaxSetpoint() {
+    return maxSetpoint;
   }
 
   public PidDrive setMaxSetpoint(double maxSetpoint) {
@@ -124,9 +77,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public Joystick getJoystick() {
+    return joystick;
+  }
+
   public PidDrive setJoystick(Joystick joystick) {
     this.joystick = joystick;
     return this;
+  }
+
+  public int getLeftAxis() {
+    return leftAxis;
   }
 
   public PidDrive setLeftAxis(int leftAxis) {
@@ -134,9 +95,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public int getRightAxis() {
+    return rightAxis;
+  }
+
   public PidDrive setRightAxis(int rightAxis) {
     this.rightAxis = rightAxis;
     return this;
+  }
+
+  public int getFwdTrigger() {
+    return fwdTrigger;
   }
 
   public PidDrive setFwdTrigger(int fwdTrigger) {
@@ -144,9 +113,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public int getBackTrigger() {
+    return backTrigger;
+  }
+
   public PidDrive setBackTrigger(int backTrigger) {
     this.backTrigger = backTrigger;
     return this;
+  }
+
+  public boolean isInvertLeftAxis() {
+    return invertLeftAxis;
   }
 
   public PidDrive setInvertLeftAxis(boolean invertLeftAxis) {
@@ -154,9 +131,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public boolean isInvertRightAxis() {
+    return invertRightAxis;
+  }
+
   public PidDrive setInvertRightAxis(boolean invertRightAxis) {
     this.invertRightAxis = invertRightAxis;
     return this;
+  }
+
+  public boolean isInvertLeftOutput() {
+    return invertLeftOutput;
   }
 
   public PidDrive setInvertLeftOutput(boolean invertLeftOutput) {
@@ -164,9 +149,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public boolean isInvertRightOutput() {
+    return invertRightOutput;
+  }
+
   public PidDrive setInvertRightOutput(boolean invertRightOutput) {
     this.invertRightOutput = invertRightOutput;
     return this;
+  }
+
+  public boolean isInvertFwdTrigger() {
+    return invertFwdTrigger;
   }
 
   public PidDrive setInvertFwdTrigger(boolean invertFwdTrigger) {
@@ -174,8 +167,17 @@ public class PidDrive extends Command {
     return this;
   }
 
+  public boolean isInvertBackTrigger() {
+    return invertBackTrigger;
+  }
+
   public PidDrive setInvertBackTrigger(boolean invertBackTrigger) {
     this.invertBackTrigger = invertBackTrigger;
     return this;
+  }
+
+  static class Configuration extends PidDriveConfiguration {
+
+    Drive drive;
   }
 }

@@ -1,6 +1,7 @@
 package org.team1540.base.commands.drive;
 
 import edu.wpi.first.wpilibj.Joystick;
+import org.team1540.base.commands.drive.PidDrive.Configuration;
 import org.team1540.base.templates.Drive;
 
 public class PidDriveFactory {
@@ -16,9 +17,22 @@ public class PidDriveFactory {
 
   public PidDrive createSimplePidDrive(Joystick joystick, int leftAxis, int rightAxis,
       int fwdTrigger, int backTrigger) {
-    return new PidDrive(drive, maxSetpoint, joystick, leftAxis, rightAxis, fwdTrigger,
-        backTrigger, invertLeftAxis, invertRightAxis, invertLeftOutput, invertRightOutput,
-        invertFwdTrigger, invertBackTrigger);
+
+    Configuration configuration = new Configuration();
+
+    configuration.drive = drive;
+    configuration.maxSetpoint = maxSetpoint;
+    configuration.joystick = joystick;
+    configuration.leftAxis = leftAxis;
+    configuration.rightAxis = rightAxis;
+    configuration.fwdTrigger = fwdTrigger;
+    configuration.backTrigger = backTrigger;
+    configuration.invertLeftAxis = invertLeftAxis;
+    configuration.invertRightAxis = invertRightAxis;
+    configuration.invertFwdTrigger = invertFwdTrigger;
+    configuration.invertBackTrigger = invertBackTrigger;
+
+    return new PidDrive(configuration);
   }
 
   public Drive getDrive() {

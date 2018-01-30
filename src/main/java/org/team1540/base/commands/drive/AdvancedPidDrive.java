@@ -16,7 +16,7 @@ import org.team1540.base.wrappers.ChickenController;
 public class AdvancedPidDrive extends Command {
 
   // pdp object for easy access
-  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+  private final PowerDistributionPanel pdp;
 
   // rumble command
   private final Command rumbleCommand;
@@ -47,34 +47,34 @@ public class AdvancedPidDrive extends Command {
   private double maxBrownoutCooldown;
 
   // algo fields
-  private boolean inBrownoutCooldown = false;
-  private Timer brownoutCooldownTimer = new Timer();
+  private boolean inBrownoutCooldown;
+  private Timer brownoutCooldownTimer;
 
-  public AdvancedPidDrive(CtreDrive drive, double maxSetpoint,
-      Joystick joystick, int leftAxis, int rightAxis, int fwdTrigger, int backTrigger,
-      boolean invertLeftAxis, boolean invertRightAxis, boolean invertLeftOutput,
-      boolean invertRightOutput, boolean invertFwdTrigger, boolean invertBackTrigger,
-      double maxBrakePct, boolean minMotorOutput, double deadzone, boolean usingBrownoutAlert,
-      double maxBrownoutCooldown) {
-    this.drive = drive;
-    this.maxSetpoint = maxSetpoint;
-    this.joystick = joystick;
-    this.leftAxis = leftAxis;
-    this.rightAxis = rightAxis;
-    this.fwdTrigger = fwdTrigger;
-    this.backTrigger = backTrigger;
-    this.invertLeftAxis = invertLeftAxis;
-    this.invertRightAxis = invertRightAxis;
-    this.invertLeftOutput = invertLeftOutput;
-    this.invertRightOutput = invertRightOutput;
-    this.invertFwdTrigger = invertFwdTrigger;
-    this.invertBackTrigger = invertBackTrigger;
-    this.maxBrakePct = maxBrakePct;
-    this.minMotorOutput = minMotorOutput;
-    this.deadzone = deadzone;
-    this.usingBrownoutAlert = usingBrownoutAlert;
-    this.maxBrownoutCooldown = maxBrownoutCooldown;
+  public AdvancedPidDrive(Configuration config) {
+    this.drive = config.drive;
+    this.maxSetpoint = config.maxSetpoint;
+    this.joystick = config.joystick;
+    this.leftAxis = config.leftAxis;
+    this.rightAxis = config.rightAxis;
+    this.fwdTrigger = config.fwdTrigger;
+    this.backTrigger = config.backTrigger;
+    this.invertLeftAxis = config.invertLeftAxis;
+    this.invertRightAxis = config.invertRightAxis;
+    this.invertLeftOutput = config.invertLeftOutput;
+    this.invertRightOutput = config.invertRightOutput;
+    this.invertFwdTrigger = config.invertFwdTrigger;
+    this.invertBackTrigger = config.invertBackTrigger;
+    this.maxBrakePct = config.maxBrakePct;
+    this.minMotorOutput = config.minMotorOutput;
+    this.deadzone = config.deadzone;
+    this.usingBrownoutAlert = config.usingBrownoutAlert;
+    this.maxBrownoutCooldown = config.maxBrownoutCooldown;
+
     rumbleCommand = VibrationManager.getVibrationCommand(joystick, maxBrownoutCooldown, 1);
+    pdp = new PowerDistributionPanel();
+
+    brownoutCooldownTimer = new Timer();
+    inBrownoutCooldown = false;
   }
 
   @Override
@@ -166,5 +166,16 @@ public class AdvancedPidDrive extends Command {
   @Override
   protected boolean isFinished() {
     return false;
+  }
+
+  static class Configuration extends PidDriveConfiguration {
+
+    CtreDrive drive;
+    double maxBrakePct;
+    boolean minMotorOutput;
+    double deadzone;
+    boolean usingBrownoutAlert;
+    double maxBrownoutCooldown;
+
   }
 }
