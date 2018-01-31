@@ -23,7 +23,10 @@ public class AdjustableManager {
   private boolean enabled = true;
 
   private AdjustableManager() {
-    new SimpleLoopCommand("AdjustableManager Update", this::run).start();
+    SimpleLoopCommand managerUpdate = new SimpleLoopCommand("AdjustableManager Update",
+        this::run);
+    managerUpdate.setRunWhenDisabled(true);
+    managerUpdate.start();
   }
 
   public static AdjustableManager getInstance() {
