@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.adjustables.AdjustableManager;
 import org.team1540.base.adjustables.Tunable;
@@ -67,17 +68,29 @@ public class DrivePIDTuningRobot extends IterativeRobot {
 
     lMaster = new ChickenTalon(1);
     lMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    lMaster.configPeakOutputForward(1);
+    lMaster.configPeakOutputReverse(-1);
     lSlave1 = new ChickenTalon(2);
     lSlave1.set(ControlMode.Follower, lMaster.getDeviceID());
+    lSlave1.configPeakOutputForward(1);
+    lSlave1.configPeakOutputReverse(-1);
     lSlave2 = new ChickenTalon(3);
     lSlave2.set(ControlMode.Follower, lMaster.getDeviceID());
+    lSlave2.configPeakOutputForward(1);
+    lSlave2.configPeakOutputReverse(-1);
 
     rMaster = new ChickenTalon(4);
     rMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    rMaster.configPeakOutputForward(1);
+    rMaster.configPeakOutputReverse(-1);
     rSlave1 = new ChickenTalon(5);
     rSlave1.set(ControlMode.Follower, rMaster.getDeviceID());
+    rSlave1.configPeakOutputForward(1);
+    rSlave1.configPeakOutputReverse(-1);
     rSlave2 = new ChickenTalon(6);
     rSlave2.set(ControlMode.Follower, rMaster.getDeviceID());
+    rSlave2.configPeakOutputForward(1);
+    rSlave2.configPeakOutputReverse(-1);
 
     AdjustableManager.getInstance().add(this);
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("Camera", 0);
@@ -120,7 +133,7 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     rSlave1.setInverted(invertLeftMotor);
     rSlave2.setInverted(invertLeftMotor);
 
-    AdjustableManager.getInstance().update();
+    Scheduler.getInstance().run();
   }
 
   @Override
@@ -131,8 +144,8 @@ public class DrivePIDTuningRobot extends IterativeRobot {
     leftPneu.set(leftPneuVal);
     rightPneu.set(rightPneuVal);
     if (joystickControl) {
-      double trigVal = processAxisDeadzone(joystick.getRawAxis(3), 0.1)
-          - processAxisDeadzone(joystick.getRawAxis(2), 0.1);
+      double trigVal = processAxisDeadzone(joystick.getRawAxis(2), 0.1)
+          - processAxisDeadzone(joystick.getRawAxis(3), 0.1);
       lMaster.set(
           ControlMode.Velocity,
           constrain(processAxisDeadzone(joystick.getRawAxis(5), 0.1) + trigVal, 1)
