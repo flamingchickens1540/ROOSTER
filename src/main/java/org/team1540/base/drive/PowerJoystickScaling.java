@@ -25,7 +25,7 @@ public class PowerJoystickScaling implements JoystickScaling {
    */
   @Override
   public double scale(double input) {
-    return Math.pow(input, pow);
+    return Math.copySign(Math.pow(input, pow), input);
   }
 
   public double getPow() {
