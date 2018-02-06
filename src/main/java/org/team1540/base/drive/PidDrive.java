@@ -29,19 +29,19 @@ public class PidDrive extends Command {
   private int forwardTrigger;
   private int backTrigger;
   private double deadzone;
+  private double brakeOverrideThresh;
 
   PidDrive(Subsystem subsystem, ChickenController left, ChickenController right) {
     requires(subsystem);
     this.left = left;
     this.right = right;
-
   }
 
   public PidDrive(Subsystem subsystem, ChickenController left, ChickenController right,
       double maxVel, JoystickScaling scaling, double maxBrakePct, boolean invertLeftBrakeDirection,
       boolean invertRightBrakeDirection, double brakingStopZone, Joystick joystick, int leftAxis,
       boolean invertLeft, int rightAxis, boolean invertRight, int forwardTrigger, int backTrigger,
-      double deadzone) {
+      double deadzone, double brakeOverrideThresh) {
     requires(subsystem);
     this.left = left;
     this.right = right;
@@ -59,6 +59,7 @@ public class PidDrive extends Command {
     this.forwardTrigger = forwardTrigger;
     this.backTrigger = backTrigger;
     this.deadzone = deadzone;
+    this.brakeOverrideThresh = brakeOverrideThresh;
   }
 
   @Override
@@ -95,31 +96,8 @@ public class PidDrive extends Command {
     double leftSetpoint = Utilities.constrain(leftInput + triggerInput, 1);
     double rightSetpoint = Utilities.constrain(rightInput + triggerInput, 1);
 
-    boolean lStopped = abs(left.getSelectedSensorVelocity()) < abs(brakingStopZone * maxVel);
-    boolean rStopped = abs(right.getSelectedSensorVelocity()) < abs(brakingStopZone * maxVel);
-
-    if (!lStopped) {
-      // process braking
-      boolean leftGoingForward =
-          Utilities.invertIf(invertLeftBrakeDirection, left.getSelectedSensorVelocity()) > 0;
-
-      left.configPeakOutputForward(leftGoingForward ? 1 : maxBrakePct);
-      left.configPeakOutputReverse(leftGoingForward ? -maxBrakePct : -1);
-    } else {
-      left.configPeakOutputForward(1);
-      left.configPeakOutputReverse(-1);
-    }
-
-    if (!rStopped) {
-      boolean rightGoingForward =
-          Utilities.invertIf(invertRightBrakeDirection, right.getSelectedSensorVelocity()) > 0;
-
-      right.configPeakOutputForward(rightGoingForward ? 1 : maxBrakePct);
-      right.configPeakOutputReverse(rightGoingForward ? -maxBrakePct : -1);
-    } else {
-      right.configPeakOutputForward(1);
-      right.configPeakOutputReverse(-1);
-    }
+    doPeakOutput(left, leftSetpoint);
+    doPeakOutput(right, rightSetpoint);
 
     left.set(ControlMode.Velocity, leftSetpoint * maxVel);
     right.set(ControlMode.Velocity, rightSetpoint * maxVel);
@@ -261,5 +239,29 @@ public class PidDrive extends Command {
 
   public void setDeadzone(double deadzone) {
     this.deadzone = deadzone;
+  }
+
+  public double getBrakeOverrideThresh() {
+    return brakeOverrideThresh;
+  }
+
+  public void setBrakeOverrideThresh(double brakeOverrideThresh) {
+    this.brakeOverrideThresh = brakeOverrideThresh;
+  }
+
+  private void doPeakOutput(ChickenController controller, double setpoint) {
+    boolean stopped = abs(controller.getSelectedSensorVelocity()) < abs(brakingStopZone * maxVel);
+
+    if (!stopped && setpoint < brakeOverrideThresh) {
+      // process braking
+      boolean goingForward =
+          Utilities.invertIf(invertLeftBrakeDirection, left.getSelectedSensorVelocity()) > 0;
+
+      controller.configPeakOutputForward(goingForward ? 1 : maxBrakePct);
+      controller.configPeakOutputReverse(goingForward ? -maxBrakePct : -1);
+    } else {
+      controller.configPeakOutputForward(1);
+      controller.configPeakOutputReverse(-1);
+    }
   }
 }
