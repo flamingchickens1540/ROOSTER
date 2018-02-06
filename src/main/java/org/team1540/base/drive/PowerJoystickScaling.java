@@ -17,15 +17,16 @@ public class PowerJoystickScaling implements JoystickScaling {
   }
 
   /**
-   * Scales the provided input using the equation {@code input}<sup>{@code pow}</sup>, where {@code
-   * pow} is the power set via constructor or using {@link #setPow(double) setPow()}.
+   * Scales the provided input using the equation {@code |input|}<sup>{@code pow}</sup>, where
+   * {@code pow} is the power set via constructor or using {@link #setPow(double) setPow()}.
    *
    * @param input The input to scale.
-   * @return The input raised to a specified power.
+   * @return The absolute value of the input, raised to a specified power, with the sign (positive
+   * or negative) of the original input.
    */
   @Override
   public double scale(double input) {
-    return Math.copySign(Math.pow(input, pow), input);
+    return Math.copySign(Math.pow(Math.abs(input), pow), input);
   }
 
   public double getPow() {
