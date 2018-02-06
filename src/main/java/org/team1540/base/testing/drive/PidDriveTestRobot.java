@@ -72,9 +72,6 @@ public class PidDriveTestRobot extends IterativeRobot {
   public void robotInit() {
     AdjustableManager.getInstance().add(this);
     SmartDashboard.putData(new Compressor());
-    talons = new ChickenTalon[]{lMaster, lSlave1, lSlave2, rMaster, rSlave1, rSlave2};
-    lefts = new ChickenTalon[]{lMaster, lSlave1, lSlave2};
-    rights = new ChickenTalon[]{rMaster, rSlave1, rSlave2};
     joystick = new Joystick(0);
 
     lMaster = new ChickenTalon(1);
@@ -91,6 +88,9 @@ public class PidDriveTestRobot extends IterativeRobot {
     rSlave2 = new ChickenTalon(6);
     rSlave2.set(ControlMode.Follower, rMaster.getDeviceID());
 
+    talons = new ChickenTalon[]{lMaster, lSlave1, lSlave2, rMaster, rSlave1, rSlave2};
+    lefts = new ChickenTalon[]{lMaster, lSlave1, lSlave2};
+    rights = new ChickenTalon[]{rMaster, rSlave1, rSlave2};
     for (ChickenTalon talon : talons) {
       talon.configPeakOutputForward(1);
       talon.configPeakOutputReverse(-1);
@@ -113,7 +113,6 @@ public class PidDriveTestRobot extends IterativeRobot {
 
   @Override
   public void autonomousInit() {
-
   }
 
   @Override
@@ -133,6 +132,7 @@ public class PidDriveTestRobot extends IterativeRobot {
       talon.config_kD(0, d);
       talon.config_kF(0, (double) 1023 / velocity);
       talon.configClosedloopRamp(closedLoopRamp);
+      talon.setBrake(true);
     }
     for (ChickenTalon talon : lefts) {
       talon.setInverted(invertLeftMotor);
@@ -150,6 +150,9 @@ public class PidDriveTestRobot extends IterativeRobot {
     drive.setMaxBrakePct(brakePct);
     drive.setMaxVel(velocity);
 
+    SmartDashboard.putNumber("Left Out", lMaster.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Right Out", rMaster.getMotorOutputVoltage());
+
     scaling.setPow(joystickExp);
     Scheduler.getInstance().run();
   }
@@ -164,6 +167,7 @@ public class PidDriveTestRobot extends IterativeRobot {
 
   @Override
   public void teleopPeriodic() {
-
+    leftPneu.set(leftPneuVal);
+    rightPneu.set(rightPneuVal);
   }
 }
