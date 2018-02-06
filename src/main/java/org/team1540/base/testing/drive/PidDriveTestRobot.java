@@ -104,7 +104,7 @@ public class PidDriveTestRobot extends IterativeRobot {
         },
         lMaster, rMaster, velocity, scaling, brakePct,
         iLeftBrake, iRightBrake, 0.1, joystick,
-        1, invertLeftSetpoint, 5, invertRightSetpoint, 3, 2, 0.1);
+        1, invertLeftSetpoint, 5, invertRightSetpoint, 3, 2, 0.1, 0.9);
   }
 
   @Override
