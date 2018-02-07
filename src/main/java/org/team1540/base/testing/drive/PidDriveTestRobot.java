@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.adjustables.AdjustableManager;
 import org.team1540.base.adjustables.Tunable;
 import org.team1540.base.drive.PidDrive;
+import org.team1540.base.drive.PidDriveFactory;
 import org.team1540.base.drive.PowerJoystickScaling;
 import org.team1540.base.wrappers.ChickenTalon;
 
@@ -50,7 +51,9 @@ public class PidDriveTestRobot extends IterativeRobot {
   @Tunable("Joystick exponent")
   public double joystickExp = 2.0;
   @Tunable("Max brake pct")
-  public double brakePct;
+  public double brakePct = 0.1;
+  @Tunable("Brake Override Threshold")
+  public double brakeOverThresh = 0.9;
 
   private Compressor compressor = new Compressor();
   private Joystick joystick;
@@ -96,15 +99,33 @@ public class PidDriveTestRobot extends IterativeRobot {
       talon.configPeakOutputReverse(-1);
     }
     scaling = new PowerJoystickScaling(joystickExp);
-    drive = new PidDrive(
-        new Subsystem() {
-          @Override
-          protected void initDefaultCommand() {
-          }
-        },
-        lMaster, rMaster, velocity, scaling, brakePct,
-        iLeftBrake, iRightBrake, 0.1, joystick,
-        1, invertLeftSetpoint, 5, invertRightSetpoint, 3, 2, 0.1, 0.9);
+    Subsystem dummy = new Subsystem() {
+      @Override
+      protected void initDefaultCommand() {
+
+      }
+    };
+
+    drive = new PidDriveFactory()
+        .setSubsystem(dummy)
+        .setLeft(lMaster)
+        .setRight(rMaster)
+        .setMaxVel(velocity)
+        .setScaling(scaling)
+        .setMaxBrakePct(brakePct)
+        .setInvertLeftBrakeDirection(iLeftBrake)
+        .setInvertRightBrakeDirection(iRightBrake)
+        .setBrakingStopZone(0.1)
+        .setJoystick(joystick)
+        .setLeftAxis(1)
+        .setInvertLeft(invertLeftSetpoint)
+        .setRightAxis(5)
+        .setInvertRight(invertRightSetpoint)
+        .setForwardTrigger(3)
+        .setBackTrigger(2)
+        .setDeadzone(0.1)
+        .setBrakeOverrideThresh(brakeOverThresh)
+        .createPidDrive();
   }
 
   @Override
@@ -149,6 +170,7 @@ public class PidDriveTestRobot extends IterativeRobot {
     drive.setInvertRightBrakeDirection(iRightBrake);
     drive.setMaxBrakePct(brakePct);
     drive.setMaxVel(velocity);
+    drive.setBrakeOverrideThresh(brakeOverThresh);
 
     SmartDashboard.putNumber("Left Out", lMaster.getMotorOutputVoltage());
     SmartDashboard.putNumber("Right Out", rMaster.getMotorOutputVoltage());

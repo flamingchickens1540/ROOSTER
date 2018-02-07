@@ -5,7 +5,6 @@ import static java.lang.Math.abs;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Subsystem;
 import org.team1540.base.Utilities;
 import org.team1540.base.wrappers.ChickenController;
 
@@ -31,35 +30,25 @@ public class PidDrive extends Command {
   private double deadzone;
   private double brakeOverrideThresh;
 
-  PidDrive(Subsystem subsystem, ChickenController left, ChickenController right) {
-    requires(subsystem);
-    this.left = left;
-    this.right = right;
-  }
-
-  public PidDrive(Subsystem subsystem, ChickenController left, ChickenController right,
-      double maxVel, JoystickScaling scaling, double maxBrakePct, boolean invertLeftBrakeDirection,
-      boolean invertRightBrakeDirection, double brakingStopZone, Joystick joystick, int leftAxis,
-      boolean invertLeft, int rightAxis, boolean invertRight, int forwardTrigger, int backTrigger,
-      double deadzone, double brakeOverrideThresh) {
-    requires(subsystem);
-    this.left = left;
-    this.right = right;
-    this.maxVel = maxVel;
-    this.scaling = scaling;
-    this.maxBrakePct = maxBrakePct;
-    this.invertLeftBrakeDirection = invertLeftBrakeDirection;
-    this.invertRightBrakeDirection = invertRightBrakeDirection;
-    this.brakingStopZone = brakingStopZone;
-    this.joystick = joystick;
-    this.leftAxis = leftAxis;
-    this.invertLeft = invertLeft;
-    this.rightAxis = rightAxis;
-    this.invertRight = invertRight;
-    this.forwardTrigger = forwardTrigger;
-    this.backTrigger = backTrigger;
-    this.deadzone = deadzone;
-    this.brakeOverrideThresh = brakeOverrideThresh;
+  PidDrive(PidDriveConfiguration pidDriveConfiguration) {
+    requires(pidDriveConfiguration.subsystem);
+    this.left = pidDriveConfiguration.left;
+    this.right = pidDriveConfiguration.right;
+    this.maxVel = pidDriveConfiguration.maxVel;
+    this.scaling = pidDriveConfiguration.scaling;
+    this.maxBrakePct = pidDriveConfiguration.maxBrakePct;
+    this.invertLeftBrakeDirection = pidDriveConfiguration.invertLeftBrakeDirection;
+    this.invertRightBrakeDirection = pidDriveConfiguration.invertRightBrakeDirection;
+    this.brakingStopZone = pidDriveConfiguration.brakingStopZone;
+    this.joystick = pidDriveConfiguration.joystick;
+    this.leftAxis = pidDriveConfiguration.leftAxis;
+    this.invertLeft = pidDriveConfiguration.invertLeft;
+    this.rightAxis = pidDriveConfiguration.rightAxis;
+    this.invertRight = pidDriveConfiguration.invertRight;
+    this.forwardTrigger = pidDriveConfiguration.forwardTrigger;
+    this.backTrigger = pidDriveConfiguration.backTrigger;
+    this.deadzone = pidDriveConfiguration.deadzone;
+    this.brakeOverrideThresh = pidDriveConfiguration.brakeOverrideThresh;
   }
 
   @Override
