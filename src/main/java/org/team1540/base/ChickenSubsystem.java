@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.team1540.base.power.PowerManageable;
+import org.team1540.base.wrappers.ChickenController;
 import org.team1540.base.wrappers.ChickenTalon;
 
 
@@ -21,7 +22,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   /**
    * A set of all master motors to be power managed. Slaves (including ChickenVictors) will be power managed through that
    */
-  private final Set<ChickenTalon> motors = new HashSet<>();
+  private final Set<ChickenController> motors = new HashSet<>();
 
   public int size() {
     return motors.size();
@@ -31,35 +32,35 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return motors.isEmpty();
   }
 
-  public boolean contains(ChickenTalon o) {
+  public boolean contains(ChickenController o) {
     return motors.contains(o);
   }
 
-  public boolean add(ChickenTalon o) {
+  public boolean add(ChickenController o) {
     return motors.add(o);
   }
 
-  public boolean add(ChickenTalon... os) {
+  public boolean add(ChickenController... os) {
     return addAll(Arrays.asList(os));
   }
 
-  public boolean remove(ChickenTalon o) {
+  public boolean remove(ChickenController o) {
     return motors.remove(o);
   }
 
-  public boolean remove(ChickenTalon... os) {
+  public boolean remove(ChickenController... os) {
     return removeAll(Arrays.asList(os));
   }
 
-  public boolean containsAll(Collection<ChickenTalon> c) {
+  public boolean containsAll(Collection<ChickenController> c) {
     return motors.containsAll(c);
   }
 
-  public boolean addAll(Collection<? extends ChickenTalon> c) {
+  public boolean addAll(Collection<? extends ChickenController> c) {
     return motors.addAll(c);
   }
 
-  public boolean removeAll(Collection<ChickenTalon> c) {
+  public boolean removeAll(Collection<ChickenController> c) {
     return motors.removeAll(c);
   }
 
@@ -94,7 +95,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public double getCurrent() {
     double sum = 0;
-    for (ChickenTalon currentMotor : motors) {
+    for (ChickenController currentMotor : motors) {
       sum += currentMotor.getOutputCurrent();
     }
     return sum;
@@ -103,10 +104,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void limitPower(double limit) {
     synchronized (powerLock) {
-      for (ChickenTalon currentMotor : motors) {
-        currentMotor.enableCurrentLimit(true);
-        currentMotor
-            .configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
+      for (ChickenController currentMotor : motors) {
+        if (currentMotor instanceof ChickenTalon) {
+          ((ChickenTalon) currentMotor).enableCurrentLimit(true);
+          ((ChickenTalon) currentMotor)
+              .configContinuousCurrentLimit(Math.toIntExact(Math.round(limit / motors.size())));
+        }
       }
     }
   }
@@ -114,8 +117,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void stopLimitingPower() {
     synchronized (powerLock) {
-      for (ChickenTalon currentMotor : motors) {
-        currentMotor.enableCurrentLimit(false);
+      for (ChickenController currentMotor : motors) {
+        if (currentMotor instanceof ChickenTalon) {
+          ((ChickenTalon) currentMotor).enableCurrentLimit(false);
+        }
       }
     }
   }
