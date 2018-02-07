@@ -58,28 +58,34 @@ public class PidDrive extends Command {
   @Override
   protected void execute() {
     // inputs
-    double fwdTriggerInput = scaling.scale(
-        (Utilities.processAxisDeadzone(joystick.getRawAxis(forwardTrigger), deadzone)
-            - Math.copySign(deadzone, joystick.getRawAxis(forwardTrigger))
-        ) * (1 / (1 - deadzone)));
+    double fwdTriggerInput = scaling
+        .scale((Utilities.processAxisDeadzone(joystick.getRawAxis(forwardTrigger), deadzone)
+                - Math.copySign(
+            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(forwardTrigger), deadzone)
+            )) * (1 / (1 - deadzone))
+        );
 
-    double backTriggerInput = scaling.scale(
-        (Utilities.processAxisDeadzone(joystick.getRawAxis(backTrigger), deadzone)
-            - Math.copySign(deadzone, joystick.getRawAxis(backTrigger))
-        ) * (1 / (1 - deadzone)));
+    double backTriggerInput = scaling
+        .scale((Utilities.processAxisDeadzone(joystick.getRawAxis(backTrigger), deadzone)
+                - Math.copySign(
+            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(backTrigger), deadzone)
+            )) * (1 / (1 - deadzone))
+        );
 
     double triggerInput = fwdTriggerInput - backTriggerInput;
 
     double leftInput = Utilities.invertIf(invertLeft,
         scaling.scale((Utilities.processAxisDeadzone(joystick.getRawAxis(leftAxis), deadzone)
-            - Math.copySign(deadzone, joystick.getRawAxis(leftAxis))
-        ) * (1 / (1 - deadzone)))
+            - Math.copySign(deadzone,
+            Utilities.processAxisDeadzone(joystick.getRawAxis(leftAxis), deadzone)
+        )) * (1 / (1 - deadzone)))
     );
 
     double rightInput = Utilities.invertIf(invertRight,
         scaling.scale((Utilities.processAxisDeadzone(joystick.getRawAxis(rightAxis), deadzone)
-            - Math.copySign(deadzone, joystick.getRawAxis(rightAxis))
-        ) * (1 / (1 - deadzone)))
+            - Math.copySign(
+            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(rightAxis), deadzone)
+        )) * (1 / (1 - deadzone)))
     );
 
     double leftSetpoint = Utilities.constrain(leftInput + triggerInput, 1);
