@@ -9,6 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/*
+A word on language: Management is if this is running, scaling is if the power is actually being set to be something different.
+ */
+
 // Reminder that everything will need to be thread safe
 @SuppressWarnings("unused")
 public class PowerManager extends Thread {
@@ -21,11 +25,18 @@ public class PowerManager extends Thread {
   }
 
   private int updateDelay = 5;
-  private double spikePeak = 50;
-  private double spikeLength = 2.0;
-  private double target = 40;
 
-  private double margin = 5;
+  private double currentSpikePeak = 50;
+  private double currentSpikeLength = 2.0;
+  private double currentTarget = 40;
+  private double currentMargin = 5;
+  /**
+   * Default to be a little higher than brownouts.
+   */
+  private double voltageSpikePeak = 7.2;
+  private double voltageSpikeLength = 0;
+  private double voltageMargin = 0.5;
+
   private boolean running = true;
 
   // Store the currently running PowerManageables
@@ -99,8 +110,8 @@ public class PowerManager extends Thread {
         totalScaledCurrent += scaledCurrent;
       }
 
-      // Find a factor such that the new total equals the target
-      double factor = target / totalScaledCurrent;
+      // Find a factor such that the new total equals the currentTarget
+      double factor = currentTarget / totalScaledCurrent;
 
       // Multiply that factor by the ratio between the new power and the actual power and pass that
       // back to the PowerManageable
@@ -124,21 +135,23 @@ public class PowerManager extends Thread {
 
   /**
    * Determines if the voltage is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; spikePeak. If power limiting is engaged, returns
-   * target - pdp.getTotalCurrent() &gt; margin.
+   * returns pdp.getTotalCurrent() &gt; currentSpikePeak || pdp.getVoltage() &gt; voltageSpikePeak.
+   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin
+   * || pdp.getVoltage() &gt; voltageSpikePeak - voltageMargin;.
    *
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
     if (!timeHasPassed()) {
-      return pdp.getTotalCurrent() > spikePeak;
+      return pdp.getTotalCurrent() > currentSpikePeak || pdp.getVoltage() > voltageSpikePeak;
     } else {
-      return pdp.getTotalCurrent() > target - margin;
+      return pdp.getTotalCurrent() > currentTarget - currentMargin ||
+          pdp.getVoltage() > voltageSpikePeak - voltageMargin;
     }
   }
 
   private boolean timeHasPassed() {
-    return (theTimer.get() > spikeLength);
+    return (theTimer.get() > currentSpikeLength);
   }
 
   /**
@@ -221,43 +234,43 @@ public class PowerManager extends Thread {
     return success;
   }
 
-  public double getSpikePeak() {
-    return spikePeak;
+  public double getCurrentSpikePeak() {
+    return currentSpikePeak;
   }
 
   /**
    * Sets the required current value for the robot to be considered spiking. Defaults to 50A.
    *
-   * @param spikePeak The minimum spike value, in amps.
+   * @param currentSpikePeak The minimum spike value, in amps.
    */
-  public void setSpikePeak(double spikePeak) {
-    this.spikePeak = spikePeak;
+  public void setCurrentSpikePeak(double currentSpikePeak) {
+    this.currentSpikePeak = currentSpikePeak;
   }
 
-  public double getSpikeLength() {
-    return spikeLength;
+  public double getCurrentSpikeLength() {
+    return currentSpikeLength;
   }
 
   /**
-   * Sets how long the spike must spike for before doing anything. Defaults to 2 seconds.
+   * Sets how long the current must spike for before doing anything. Defaults to 2 seconds.
    *
-   * @param spikeLength The minimum actionable spike length, in seconds.
+   * @param currentSpikeLength The minimum actionable spike length, in seconds.
    */
-  public void setSpikeLength(double spikeLength) {
-    this.spikeLength = spikeLength;
+  public void setCurrentSpikeLength(double currentSpikeLength) {
+    this.currentSpikeLength = currentSpikeLength;
   }
 
-  public double getTarget() {
-    return target;
+  public double getCurrentTarget() {
+    return currentTarget;
   }
 
   /**
-   * Sets the target value we want when starting to power-manage. Defaults to 40A.
+   * Sets the currentTarget value we want when starting to power-manage. Defaults to 40A.
    *
-   * @param target The target value, in amps.
+   * @param currentTarget The currentTarget value, in amps.
    */
-  public void setTarget(double target) {
-    this.target = target;
+  public void setCurrentTarget(double currentTarget) {
+    this.currentTarget = currentTarget;
   }
 
   public int getUpdateDelay() {
@@ -288,21 +301,23 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the margin below which, if power limiting has engaged, power management will remain
-   * engaged.
+   * Gets the currentMargin below which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 5A.
    *
-   * @return Margin in amps (default 5)
+   * @return currentMargin in amps.
    */
-  public double getMargin() {
-    return margin;
+  public double getCurrentMargin() {
+    return currentMargin;
   }
 
   /**
-   * Set the margin below which, if power limiting has engaged, power management will remain
-   * engaged.
+   * Set the currentMargin within which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 5A.
+   *
+   * @param currentMargin currentMargin in amps.
    */
-  public void setMargin(double margin) {
-    this.margin = margin;
+  public void setCurrentMargin(double currentMargin) {
+    this.currentMargin = currentMargin;
   }
 
   /**
@@ -312,5 +327,61 @@ public class PowerManager extends Thread {
    */
   public double getPowerTime() {
     return theTimer.get();
+  }
+
+  /**
+   * Gets the required voltage value for the robot to be considered spiking. Defaults to 7.2V.
+   *
+   * @return voltageSpikePeak The minimum spike value, in volts.
+   */
+  public double getVoltageSpikePeak() {
+    return voltageSpikePeak;
+  }
+
+  /**
+   * Sets the required voltage value for the robot to be considered spiking. Defaults to 7.2V.
+   *
+   * @param voltageSpikePeak The minimum spike value, in volts.
+   */
+  public void setVoltageSpikePeak(double voltageSpikePeak) {
+    this.voltageSpikePeak = voltageSpikePeak;
+  }
+
+  /**
+   * Gets how long the voltage must spike for before doing anything. Defaults to 0 seconds.
+   *
+   * @return voltageSpikeLength The minimum actionable spike length, in seconds.
+   */
+  public double getVoltageSpikeLength() {
+    return voltageSpikeLength;
+  }
+
+  /**
+   * Sets how long the voltage must spike for before doing anything. Defaults to 0 seconds.
+   *
+   * @param voltageSpikeLength The minimum actionable spike length, in seconds.
+   */
+  public void setVoltageSpikeLength(double voltageSpikeLength) {
+    this.voltageSpikeLength = voltageSpikeLength;
+  }
+
+  /**
+   * Gets the voltageMargin below which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 0.5V.
+   *
+   * @return voltageMargin in volts.
+   */
+  public double getVoltageMargin() {
+    return voltageMargin;
+  }
+
+  /**
+   * Sets the voltageMargin below which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 0.5V.
+   *
+   * @param voltageMargin in volts.
+   */
+  public void setVoltageMargin(double voltageMargin) {
+    this.voltageMargin = voltageMargin;
   }
 }
