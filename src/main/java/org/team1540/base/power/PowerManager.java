@@ -1,6 +1,7 @@
 package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class PowerManager extends Thread {
   /**
    * Default to be a little higher than brownouts.
    */
-  private double voltageSpikePeak = 7.2;
+  private double voltageLow = 7.2;
   private double voltageSpikeLength = 0;
   private double voltageMargin = 0.5;
 
@@ -135,18 +136,20 @@ public class PowerManager extends Thread {
 
   /**
    * Determines if the voltage is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; currentSpikePeak || pdp.getVoltage() &gt; voltageSpikePeak.
+   * returns pdp.getTotalCurrent() &gt; currentSpikePeak || RobotController.getBatteryVoltage() &lt;
+   * voltageLow || RobotController.isBrownedOut();
    * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin
-   * || pdp.getVoltage() &gt; voltageSpikePeak - voltageMargin;.
+   * || pdp.getVoltage() &lt; voltageLow + voltageMargin || RobotController.isBrownedOut();.
    *
    * @return Boolean representing if the voltage is spiking.
    */
   public boolean isSpiking() {
     if (!timeHasPassed()) {
-      return pdp.getTotalCurrent() > currentSpikePeak || pdp.getVoltage() > voltageSpikePeak;
+      return pdp.getTotalCurrent() > currentSpikePeak || RobotController.getBatteryVoltage() <
+          voltageLow || RobotController.isBrownedOut();
     } else {
-      return pdp.getTotalCurrent() > currentTarget - currentMargin ||
-          pdp.getVoltage() > voltageSpikePeak - voltageMargin;
+      return pdp.getTotalCurrent() > currentTarget - currentMargin || RobotController.
+          getBatteryVoltage() < voltageLow + voltageMargin || RobotController.isBrownedOut();
     }
   }
 
@@ -321,7 +324,8 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the current time on the internal timer representing time from the most recent spike.
+   * Gets the current time on the internal timer representing time from the most recent spike
+   * or dip.
    *
    * @return Double representing time.
    */
@@ -330,25 +334,25 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the required voltage value for the robot to be considered spiking. Defaults to 7.2V.
+   * Gets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
-   * @return voltageSpikePeak The minimum spike value, in volts.
+   * @return voltageLow The minimum dip value, in volts.
    */
-  public double getVoltageSpikePeak() {
-    return voltageSpikePeak;
+  public double getVoltageLow() {
+    return voltageLow;
   }
 
   /**
-   * Sets the required voltage value for the robot to be considered spiking. Defaults to 7.2V.
+   * Sets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
-   * @param voltageSpikePeak The minimum spike value, in volts.
+   * @param voltageLow The minimum dip value, in volts.
    */
-  public void setVoltageSpikePeak(double voltageSpikePeak) {
-    this.voltageSpikePeak = voltageSpikePeak;
+  public void setVoltageLow(double voltageLow) {
+    this.voltageLow = voltageLow;
   }
 
   /**
-   * Gets how long the voltage must spike for before doing anything. Defaults to 0 seconds.
+   * Gets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
    *
    * @return voltageSpikeLength The minimum actionable spike length, in seconds.
    */
@@ -357,7 +361,7 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Sets how long the voltage must spike for before doing anything. Defaults to 0 seconds.
+   * Sets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
    *
    * @param voltageSpikeLength The minimum actionable spike length, in seconds.
    */
@@ -366,7 +370,7 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the voltageMargin below which, if power limiting has engaged, power management will remain
+   * Gets the voltageMargin within which, if power limiting has engaged, power management will remain
    * engaged. Defaults to 0.5V.
    *
    * @return voltageMargin in volts.
@@ -376,7 +380,7 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Sets the voltageMargin below which, if power limiting has engaged, power management will remain
+   * Sets the voltageMargin within which, if power limiting has engaged, power management will remain
    * engaged. Defaults to 0.5V.
    *
    * @param voltageMargin in volts.
