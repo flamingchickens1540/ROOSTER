@@ -31,12 +31,14 @@ public class PowerManager extends Thread {
   private double currentSpikeLength = 2.0;
   private double currentTarget = 40;
   private double currentMargin = 5;
+  private final Timer currentTimer = new Timer();
+  private final Timer voltageTimer = new Timer();
   /**
    * Default to be a little higher than brownouts.
    */
-  private double voltageLow = 7.2;
-  private double voltageSpikeLength = 0;
+  private double voltageDipLow = 7.2;
   private double voltageMargin = 0.5;
+  private double voltageDipLength = 0;
 
   private boolean running = true;
 
@@ -46,7 +48,6 @@ public class PowerManager extends Thread {
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
-  private final Timer theTimer = new Timer();
 
   private PowerManager() {}
 
@@ -64,18 +65,10 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-        if (isSpiking()) {
-          if (theTimer.get() <= 0) {
-            // Calling the timer when it's already started seems to reset it.
-            theTimer.start();
-          }
-          if (timeHasPassed()) {
-            scalePower();
-          }
-        } else {
+        // ***EWWWW*** bad coding
+        if (!(checkPowerStatus(currentIsSpiking(), currentTimeHasPassed(), currentTimer) &&
+            checkPowerStatus(voltageIsDipping(), voltageTimeHasPassed(), voltageTimer))) {
           stopScaling();
-          theTimer.stop();
-          theTimer.reset();
         }
       }
 
@@ -86,6 +79,30 @@ public class PowerManager extends Thread {
         return;
       }
     }
+  }
+
+  /**
+   * Checks and runs power scaling based on parameters.
+   *
+   * @param shouldRun Boolean indicating if power scaling should be tested
+   * @param shouldScale Boolean indicating if the timer has exceeded the running time.
+   * @param timer The timer object clocking the time.
+   * @return shouldRun
+   */
+  private boolean checkPowerStatus(boolean shouldRun, boolean shouldScale, Timer timer) {
+    if (shouldRun) {
+      if (timer.get() <= 0) {
+        // Calling the timer when it's already started seems to reset it.
+        timer.start();
+      }
+      if (shouldScale) {
+        scalePower();
+      }
+    } else {
+      timer.stop();
+      timer.reset();
+    }
+    return shouldRun;
   }
 
   /**
@@ -135,26 +152,43 @@ public class PowerManager extends Thread {
 
 
   /**
-   * Determines if the voltage is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; currentSpikePeak || RobotController.getBatteryVoltage() &lt;
-   * voltageLow || RobotController.isBrownedOut();
-   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin
-   * || pdp.getVoltage() &lt; voltageLow + voltageMargin || RobotController.isBrownedOut();.
+   * Determines if the current is currently spiking. If power limiting is not engaged,
+   * returns pdp.getTotalCurrent() &gt; currentSpikePeak.
+   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin.
    *
-   * @return Boolean representing if the voltage is spiking.
+   * @return Boolean representing if the current is spiking.
    */
-  public boolean isSpiking() {
-    if (!timeHasPassed()) {
-      return pdp.getTotalCurrent() > currentSpikePeak || RobotController.getBatteryVoltage() <
-          voltageLow || RobotController.isBrownedOut();
+  public boolean currentIsSpiking() {
+    if (!currentTimeHasPassed()) {
+      return pdp.getTotalCurrent() > currentSpikePeak;
     } else {
-      return pdp.getTotalCurrent() > currentTarget - currentMargin || RobotController.
-          getBatteryVoltage() < voltageLow + voltageMargin || RobotController.isBrownedOut();
+      return pdp.getTotalCurrent() > currentTarget - currentMargin;
     }
   }
 
-  private boolean timeHasPassed() {
-    return (theTimer.get() > currentSpikeLength);
+  /**
+   * Determines if the voltage is currently spiking. If power limiting is not engaged,
+   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.isBrownedOut();
+   * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
+   * RobotController.isBrownedOut();.
+   *
+   * @return Boolean representing if the voltage is spiking.
+   */
+  public boolean voltageIsDipping() {
+    if (!voltageTimeHasPassed()) {
+      return RobotController.getBatteryVoltage() < voltageDipLow || RobotController.isBrownedOut();
+    } else {
+      return RobotController.getBatteryVoltage() < voltageDipLow + voltageMargin || RobotController
+          .isBrownedOut();
+    }
+  }
+
+  private boolean currentTimeHasPassed() {
+    return (currentTimer.get() > currentSpikeLength);
+  }
+
+  private boolean voltageTimeHasPassed() {
+    return (voltageTimer.get() > voltageDipLength);
   }
 
   /**
@@ -163,7 +197,8 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return timeHasPassed() && isSpiking();
+    return (currentTimeHasPassed() && currentIsSpiking()) || (voltageTimeHasPassed()
+        && voltageIsDipping());
   }
 
   /**
@@ -324,49 +359,49 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the current time on the internal timer representing time from the most recent spike
-   * or dip.
+   * Gets the highest current time on any of the internal timers representing time from the most
+   * recent spike or dip.
    *
    * @return Double representing time.
    */
   public double getPowerTime() {
-    return theTimer.get();
+    return currentTimer.get() > voltageTimer.get() ? currentTimer.get() : voltageTimer.get();
   }
 
   /**
    * Gets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
-   * @return voltageLow The minimum dip value, in volts.
+   * @return voltageDipLow The minimum dip value, in volts.
    */
-  public double getVoltageLow() {
-    return voltageLow;
+  public double getVoltageDipLow() {
+    return voltageDipLow;
   }
 
   /**
    * Sets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
-   * @param voltageLow The minimum dip value, in volts.
+   * @param voltageDipLow The minimum dip value, in volts.
    */
-  public void setVoltageLow(double voltageLow) {
-    this.voltageLow = voltageLow;
+  public void setVoltageDipLow(double voltageDipLow) {
+    this.voltageDipLow = voltageDipLow;
   }
 
   /**
    * Gets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
    *
-   * @return voltageSpikeLength The minimum actionable spike length, in seconds.
+   * @return voltageDipLength The minimum actionable spike length, in seconds.
    */
-  public double getVoltageSpikeLength() {
-    return voltageSpikeLength;
+  public double getVoltageDipLength() {
+    return voltageDipLength;
   }
 
   /**
    * Sets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
    *
-   * @param voltageSpikeLength The minimum actionable spike length, in seconds.
+   * @param voltageDipLength The minimum actionable spike length, in seconds.
    */
-  public void setVoltageSpikeLength(double voltageSpikeLength) {
-    this.voltageSpikeLength = voltageSpikeLength;
+  public void setVoltageDipLength(double voltageDipLength) {
+    this.voltageDipLength = voltageDipLength;
   }
 
   /**
