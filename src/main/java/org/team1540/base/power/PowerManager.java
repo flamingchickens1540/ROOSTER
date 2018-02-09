@@ -66,8 +66,8 @@ public class PowerManager extends Thread {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
         // ***EWWWW*** bad coding
-        if (!(checkPowerStatus(currentIsSpiking(), currentTimeHasPassed(), currentTimer) &&
-            checkPowerStatus(voltageIsDipping(), voltageTimeHasPassed(), voltageTimer))) {
+        if (!(checkPowerStatus(isCurrentSpiking(), hasTimePassedCurrent(), currentTimer) &&
+            checkPowerStatus(isVoltageDipping(), hasTimePassedVoltage(), voltageTimer))) {
           stopScaling();
         }
       }
@@ -158,8 +158,8 @@ public class PowerManager extends Thread {
    *
    * @return Boolean representing if the current is spiking.
    */
-  public boolean currentIsSpiking() {
-    if (!currentTimeHasPassed()) {
+  public boolean isCurrentSpiking() {
+    if (!hasTimePassedCurrent()) {
       return pdp.getTotalCurrent() > currentSpikePeak;
     } else {
       return pdp.getTotalCurrent() > currentTarget - currentMargin;
@@ -174,8 +174,8 @@ public class PowerManager extends Thread {
    *
    * @return Boolean representing if the voltage is spiking.
    */
-  public boolean voltageIsDipping() {
-    if (!voltageTimeHasPassed()) {
+  public boolean isVoltageDipping() {
+    if (!hasTimePassedVoltage()) {
       return RobotController.getBatteryVoltage() < voltageDipLow || RobotController.isBrownedOut();
     } else {
       return RobotController.getBatteryVoltage() < voltageDipLow + voltageMargin || RobotController
@@ -183,11 +183,11 @@ public class PowerManager extends Thread {
     }
   }
 
-  private boolean currentTimeHasPassed() {
+  private boolean hasTimePassedCurrent() {
     return (currentTimer.get() > currentSpikeLength);
   }
 
-  private boolean voltageTimeHasPassed() {
+  private boolean hasTimePassedVoltage() {
     return (voltageTimer.get() > voltageDipLength);
   }
 
@@ -197,8 +197,8 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return (currentTimeHasPassed() && currentIsSpiking()) || (voltageTimeHasPassed()
-        && voltageIsDipping());
+    return (hasTimePassedCurrent() && isCurrentSpiking()) || (hasTimePassedVoltage()
+        && isVoltageDipping());
   }
 
   /**
