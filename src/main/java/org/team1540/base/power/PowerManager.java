@@ -1,6 +1,7 @@
 package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+/*
+A word on language: Management is if this is running, scaling is if the power is actually being set to be something different.
+ */
 
 // Reminder that everything will need to be thread safe
 @SuppressWarnings("unused")
@@ -21,11 +26,20 @@ public class PowerManager extends Thread {
   }
 
   private int updateDelay = 5;
-  private double spikePeak = 50;
-  private double spikeLength = 2.0;
-  private double target = 40;
 
-  private double margin = 5;
+  private double currentSpikePeak = 50;
+  private double currentSpikeLength = 2.0;
+  private double currentTarget = 40;
+  private double currentMargin = 5;
+  private final Timer currentTimer = new Timer();
+  private final Timer voltageTimer = new Timer();
+  /**
+   * Default to be a little higher than brownouts.
+   */
+  private double voltageDipLow = 7.2;
+  private double voltageMargin = 0.5;
+  private double voltageDipLength = 0;
+
   private boolean running = true;
 
   // Store the currently running PowerManageables
@@ -34,9 +48,9 @@ public class PowerManager extends Thread {
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
-  private final Timer theTimer = new Timer();
 
-  private PowerManager() {}
+  private PowerManager() {
+  }
 
   /**
    * Gets the PowerManager.
@@ -52,19 +66,41 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-        if (isSpiking()) {
-          if (theTimer.get() <= 0) {
+
+        // Zach says don't break out into method. I don't care that much.
+
+        boolean stopScaling = true;
+
+        if (isCurrentSpiking()) {
+          if (currentTimer.get() <= 0) {
             // Calling the timer when it's already started seems to reset it.
-            theTimer.start();
+            currentTimer.start();
           }
-          if (timeHasPassed()) {
-            scalePower();
-          }
+          stopScaling = false;
         } else {
-          stopScaling();
-          theTimer.stop();
-          theTimer.reset();
+          currentTimer.stop();
+          currentTimer.reset();
         }
+
+        if (isVoltageDipping()) {
+          if (voltageTimer.get() <= 0) {
+            // Calling the timer when it's already started seems to reset it.
+            voltageTimer.start();
+          }
+          stopScaling = false;
+        } else {
+          voltageTimer.stop();
+          voltageTimer.reset();
+        }
+
+        if (hasTimePassedVoltage() || hasTimePassedCurrent()) {
+          scalePower();
+        }
+
+        if (stopScaling) {
+          stopScaling();
+        }
+
       }
 
       try {
@@ -99,8 +135,8 @@ public class PowerManager extends Thread {
         totalScaledCurrent += scaledCurrent;
       }
 
-      // Find a factor such that the new total equals the target
-      double factor = target / totalScaledCurrent;
+      // Find a factor such that the new total equals the currentTarget
+      double factor = currentTarget / totalScaledCurrent;
 
       // Multiply that factor by the ratio between the new power and the actual power and pass that
       // back to the PowerManageable
@@ -123,22 +159,43 @@ public class PowerManager extends Thread {
 
 
   /**
-   * Determines if the voltage is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; spikePeak. If power limiting is engaged, returns
-   * target - pdp.getTotalCurrent() &gt; margin.
+   * Determines if the current is currently spiking. If power limiting is not engaged,
+   * returns pdp.getTotalCurrent() &gt; currentSpikePeak.
+   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin.
    *
-   * @return Boolean representing if the voltage is spiking.
+   * @return Boolean representing if the current is spiking.
    */
-  public boolean isSpiking() {
-    if (!timeHasPassed()) {
-      return pdp.getTotalCurrent() > spikePeak;
+  public boolean isCurrentSpiking() {
+    if (!hasTimePassedCurrent()) {
+      return pdp.getTotalCurrent() > currentSpikePeak;
     } else {
-      return pdp.getTotalCurrent() > target - margin;
+      return pdp.getTotalCurrent() > currentTarget - currentMargin;
     }
   }
 
-  private boolean timeHasPassed() {
-    return (theTimer.get() > spikeLength);
+  /**
+   * Determines if the voltage is currently dipping. If power limiting is not engaged,
+   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.isBrownedOut();
+   * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
+   * RobotController.isBrownedOut();.
+   *
+   * @return Boolean representing if the voltage is dipping.
+   */
+  public boolean isVoltageDipping() {
+    if (!hasTimePassedVoltage()) {
+      return RobotController.getBatteryVoltage() < voltageDipLow || RobotController.isBrownedOut();
+    } else {
+      return RobotController.getBatteryVoltage() < voltageDipLow + voltageMargin || RobotController
+          .isBrownedOut();
+    }
+  }
+
+  private boolean hasTimePassedCurrent() {
+    return (currentTimer.get() > currentSpikeLength);
+  }
+
+  private boolean hasTimePassedVoltage() {
+    return (voltageTimer.get() > voltageDipLength);
   }
 
   /**
@@ -147,7 +204,8 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return timeHasPassed() && isSpiking();
+    return (hasTimePassedCurrent() && isCurrentSpiking()) || (hasTimePassedVoltage()
+        && isVoltageDipping());
   }
 
   /**
@@ -157,7 +215,6 @@ public class PowerManager extends Thread {
    *
    * @param highestPriority The priority of the highest priority {@link PowerManageable} currently running.
    * @param priority The priority of this {@link PowerManageable}.
-   *
    * @return The scale factor for this {@link PowerManageable}.
    */
   private double scaleExponential(double highestPriority, double priority) {
@@ -196,7 +253,6 @@ public class PowerManager extends Thread {
    * Unregisters the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toUnregister The {@link PowerManageable} to unregister.
-   *
    * @return true if the PowerManager contained the specified element
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
@@ -221,43 +277,43 @@ public class PowerManager extends Thread {
     return success;
   }
 
-  public double getSpikePeak() {
-    return spikePeak;
+  public double getCurrentSpikePeak() {
+    return currentSpikePeak;
   }
 
   /**
    * Sets the required current value for the robot to be considered spiking. Defaults to 50A.
    *
-   * @param spikePeak The minimum spike value, in amps.
+   * @param currentSpikePeak The minimum spike value, in amps.
    */
-  public void setSpikePeak(double spikePeak) {
-    this.spikePeak = spikePeak;
+  public void setCurrentSpikePeak(double currentSpikePeak) {
+    this.currentSpikePeak = currentSpikePeak;
   }
 
-  public double getSpikeLength() {
-    return spikeLength;
+  public double getCurrentSpikeLength() {
+    return currentSpikeLength;
   }
 
   /**
-   * Sets how long the spike must spike for before doing anything. Defaults to 2 seconds.
+   * Sets how long the current must spike for before doing anything. Defaults to 2 seconds.
    *
-   * @param spikeLength The minimum actionable spike length, in seconds.
+   * @param currentSpikeLength The minimum actionable spike length, in seconds.
    */
-  public void setSpikeLength(double spikeLength) {
-    this.spikeLength = spikeLength;
+  public void setCurrentSpikeLength(double currentSpikeLength) {
+    this.currentSpikeLength = currentSpikeLength;
   }
 
-  public double getTarget() {
-    return target;
+  public double getCurrentTarget() {
+    return currentTarget;
   }
 
   /**
-   * Sets the target value we want when starting to power-manage. Defaults to 40A.
+   * Sets the currentTarget value we want when starting to power-manage. Defaults to 40A.
    *
-   * @param target The target value, in amps.
+   * @param currentTarget The currentTarget value, in amps.
    */
-  public void setTarget(double target) {
-    this.target = target;
+  public void setCurrentTarget(double currentTarget) {
+    this.currentTarget = currentTarget;
   }
 
   public int getUpdateDelay() {
@@ -288,29 +344,88 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the margin below which, if power limiting has engaged, power management will remain
-   * engaged.
+   * Gets the currentMargin below which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 5A.
    *
-   * @return Margin in amps (default 5)
+   * @return currentMargin in amps.
    */
-  public double getMargin() {
-    return margin;
+  public double getCurrentMargin() {
+    return currentMargin;
   }
 
   /**
-   * Set the margin below which, if power limiting has engaged, power management will remain
-   * engaged.
+   * Set the currentMargin within which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 5A.
+   *
+   * @param currentMargin currentMargin in amps.
    */
-  public void setMargin(double margin) {
-    this.margin = margin;
+  public void setCurrentMargin(double currentMargin) {
+    this.currentMargin = currentMargin;
   }
 
   /**
-   * Gets the current time on the internal timer representing time from the most recent spike.
+   * Gets the highest current time on any of the internal timers representing time from the most
+   * recent spike or dip.
    *
    * @return Double representing time.
    */
   public double getPowerTime() {
-    return theTimer.get();
+    return currentTimer.get() > voltageTimer.get() ? currentTimer.get() : voltageTimer.get();
+  }
+
+  /**
+   * Gets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
+   *
+   * @return voltageDipLow The minimum dip value, in volts.
+   */
+  public double getVoltageDipLow() {
+    return voltageDipLow;
+  }
+
+  /**
+   * Sets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
+   *
+   * @param voltageDipLow The minimum dip value, in volts.
+   */
+  public void setVoltageDipLow(double voltageDipLow) {
+    this.voltageDipLow = voltageDipLow;
+  }
+
+  /**
+   * Gets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
+   *
+   * @return voltageDipLength The minimum actionable spike length, in seconds.
+   */
+  public double getVoltageDipLength() {
+    return voltageDipLength;
+  }
+
+  /**
+   * Sets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
+   *
+   * @param voltageDipLength The minimum actionable spike length, in seconds.
+   */
+  public void setVoltageDipLength(double voltageDipLength) {
+    this.voltageDipLength = voltageDipLength;
+  }
+
+  /**
+   * Gets the voltageMargin within which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 0.5V.
+   *
+   * @return voltageMargin in volts.
+   */
+  public double getVoltageMargin() {
+    return voltageMargin;
+  }
+
+  /**
+   * Sets the voltageMargin within which, if power limiting has engaged, power management will remain
+   * engaged. Defaults to 0.5V.
+   *
+   * @param voltageMargin in volts.
+   */
+  public void setVoltageMargin(double voltageMargin) {
+    this.voltageMargin = voltageMargin;
   }
 }

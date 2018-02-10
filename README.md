@@ -38,15 +38,16 @@ Download the latest version from the [releases page](https://github.com/flamingc
 ## Manifest
 
 ### Power Management
+`org.team1540.base.power`
 - A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
 
 ### Adjustables 
-`org.team1540.adjustables`
+`org.team1540.base.adjustables`
 - A system for fields that need to be tuned on the fly.
 - Simply annotate a field as `Tunable`, pass the enclosing class to the `AdjustableManager`, and call `AdjustableManager.update()` in your main robot loop to have your field show up and be editable on the SmartDashboard and Shuffleboard.
 
 ### Triggers
-`org.team1540.triggers`
+`org.team1540.base.triggers`
 - Simple triggers that extend WPILib's joystick binding functionality. 
 - `AxisButton` allows using a joystick axis (triggers or joysticks) as a button–the button will trigger when the axis passes a user-defined threshold.
 - `DPadButton` allows using any axis of a controller D-Pad as a button.
