@@ -175,12 +175,12 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Determines if the voltage is currently spiking. If power limiting is not engaged,
+   * Determines if the voltage is currently dipping. If power limiting is not engaged,
    * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.isBrownedOut();
    * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
    * RobotController.isBrownedOut();.
    *
-   * @return Boolean representing if the voltage is spiking.
+   * @return Boolean representing if the voltage is dipping.
    */
   public boolean isVoltageDipping() {
     if (!hasTimePassedVoltage()) {
