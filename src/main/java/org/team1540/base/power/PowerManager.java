@@ -49,7 +49,8 @@ public class PowerManager extends Thread {
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
 
-  private PowerManager() {}
+  private PowerManager() {
+  }
 
   /**
    * Gets the PowerManager.
@@ -70,28 +71,28 @@ public class PowerManager extends Thread {
 
         boolean stopScaling = true;
 
-          if (isCurrentSpiking()) {
-            if (currentTimer.get() <= 0) {
-              // Calling the timer when it's already started seems to reset it.
-              currentTimer.start();
-            }
-            if (hasTimePassedCurrent()) {
-              scalePower();
-            }
-            stopScaling = false;
+        if (isCurrentSpiking()) {
+          if (currentTimer.get() <= 0) {
+            // Calling the timer when it's already started seems to reset it.
+            currentTimer.start();
+          }
+          if (hasTimePassedCurrent()) {
+            scalePower();
+          }
+          stopScaling = false;
         } else {
           currentTimer.stop();
           currentTimer.reset();
         }
 
-          if (isVoltageDipping()) {
-            if (voltageTimer.get() <= 0) {
-              // Calling the timer when it's already started seems to reset it.
-              voltageTimer.start();
-            }
-            if (hasTimePassedVoltage()) {
-              scalePower();
-            }
+        if (isVoltageDipping()) {
+          if (voltageTimer.get() <= 0) {
+            // Calling the timer when it's already started seems to reset it.
+            voltageTimer.start();
+          }
+          if (hasTimePassedVoltage()) {
+            scalePower();
+          }
           stopScaling = false;
         } else {
           voltageTimer.stop();
@@ -216,7 +217,6 @@ public class PowerManager extends Thread {
    *
    * @param highestPriority The priority of the highest priority {@link PowerManageable} currently running.
    * @param priority The priority of this {@link PowerManageable}.
-   *
    * @return The scale factor for this {@link PowerManageable}.
    */
   private double scaleExponential(double highestPriority, double priority) {
@@ -255,7 +255,6 @@ public class PowerManager extends Thread {
    * Unregisters the {@link PowerManageable} as being used. Blocks power scaling.
    *
    * @param toUnregister The {@link PowerManageable} to unregister.
-   *
    * @return true if the PowerManager contained the specified element
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
