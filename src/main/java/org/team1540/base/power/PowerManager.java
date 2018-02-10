@@ -76,9 +76,6 @@ public class PowerManager extends Thread {
             // Calling the timer when it's already started seems to reset it.
             currentTimer.start();
           }
-          if (hasTimePassedCurrent()) {
-            scalePower();
-          }
           stopScaling = false;
         } else {
           currentTimer.stop();
@@ -90,13 +87,14 @@ public class PowerManager extends Thread {
             // Calling the timer when it's already started seems to reset it.
             voltageTimer.start();
           }
-          if (hasTimePassedVoltage()) {
-            scalePower();
-          }
           stopScaling = false;
         } else {
           voltageTimer.stop();
           voltageTimer.reset();
+        }
+
+        if (hasTimePassedVoltage() || hasTimePassedCurrent()) {
+          scalePower();
         }
 
         if (stopScaling) {
