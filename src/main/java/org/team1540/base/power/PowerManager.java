@@ -65,11 +65,53 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-        // ***EWWWW*** bad coding
-        if (!(checkPowerStatus(isCurrentSpiking(), hasTimePassedCurrent(), currentTimer) &&
-            checkPowerStatus(isVoltageDipping(), hasTimePassedVoltage(), voltageTimer))) {
+
+        // Zach says don't break out into method. I don't care that much.
+
+        boolean stopScaling = true;
+
+        if (isCurrentSpiking()) {
+          if (isCurrentSpiking()) {
+            if (currentTimer.get() <= 0) {
+              // Calling the timer when it's already started seems to reset it.
+              currentTimer.start();
+            }
+            if (hasTimePassedCurrent()) {
+              scalePower();
+            }
+          } else {
+            currentTimer.stop();
+            currentTimer.reset();
+          }
+          stopScaling = false;
+        } else {
+          currentTimer.stop();
+          currentTimer.reset();
+        }
+
+        if (isVoltageDipping()) {
+          if (isVoltageDipping()) {
+            if (voltageTimer.get() <= 0) {
+              // Calling the timer when it's already started seems to reset it.
+              voltageTimer.start();
+            }
+            if (hasTimePassedVoltage()) {
+              scalePower();
+            }
+          } else {
+            voltageTimer.stop();
+            voltageTimer.reset();
+          }
+          stopScaling = false;
+        } else {
+          voltageTimer.stop();
+          voltageTimer.reset();
+        }
+
+        if (stopScaling) {
           stopScaling();
         }
+
       }
 
       try {
@@ -79,30 +121,6 @@ public class PowerManager extends Thread {
         return;
       }
     }
-  }
-
-  /**
-   * Checks and runs power scaling based on parameters.
-   *
-   * @param shouldRun Boolean indicating if power scaling should be tested
-   * @param shouldScale Boolean indicating if the timer has exceeded the running time.
-   * @param timer The timer object clocking the time.
-   * @return shouldRun
-   */
-  private boolean checkPowerStatus(boolean shouldRun, boolean shouldScale, Timer timer) {
-    if (shouldRun) {
-      if (timer.get() <= 0) {
-        // Calling the timer when it's already started seems to reset it.
-        timer.start();
-      }
-      if (shouldScale) {
-        scalePower();
-      }
-    } else {
-      timer.stop();
-      timer.reset();
-    }
-    return shouldRun;
   }
 
   /**
