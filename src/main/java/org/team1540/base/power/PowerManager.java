@@ -70,7 +70,6 @@ public class PowerManager extends Thread {
 
         boolean stopScaling = true;
 
-        if (isCurrentSpiking()) {
           if (isCurrentSpiking()) {
             if (currentTimer.get() <= 0) {
               // Calling the timer when it's already started seems to reset it.
@@ -79,17 +78,12 @@ public class PowerManager extends Thread {
             if (hasTimePassedCurrent()) {
               scalePower();
             }
-          } else {
-            currentTimer.stop();
-            currentTimer.reset();
-          }
-          stopScaling = false;
+            stopScaling = false;
         } else {
           currentTimer.stop();
           currentTimer.reset();
         }
 
-        if (isVoltageDipping()) {
           if (isVoltageDipping()) {
             if (voltageTimer.get() <= 0) {
               // Calling the timer when it's already started seems to reset it.
@@ -98,10 +92,6 @@ public class PowerManager extends Thread {
             if (hasTimePassedVoltage()) {
               scalePower();
             }
-          } else {
-            voltageTimer.stop();
-            voltageTimer.reset();
-          }
           stopScaling = false;
         } else {
           voltageTimer.stop();
