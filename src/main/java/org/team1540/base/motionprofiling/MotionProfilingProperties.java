@@ -4,7 +4,7 @@ import jaci.pathfinder.Trajectory;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
-public class Properties {
+public class MotionProfilingProperties {
 
   private double encoderTicksPerRev = 1023;
 
@@ -22,7 +22,7 @@ public class Properties {
 
   private double currentTime = 0;
 
-  public Properties(DoubleSupplier getEncoderVelocityFunction,
+  public MotionProfilingProperties(DoubleSupplier getEncoderVelocityFunction,
       DoubleConsumer setMotorVelocityFunction, DoubleSupplier getEncoderPositionFunction,
       Trajectory trajectory) {
     this.getEncoderVelocityFunction = getEncoderVelocityFunction;
@@ -31,7 +31,7 @@ public class Properties {
     this.trajectory = trajectory;
   }
 
-  public Properties(double encoderTicksPerRev,
+  public MotionProfilingProperties(double encoderTicksPerRev,
       double wheelDiameter, double secondsFromNeutralToFull,
       DoubleSupplier getEncoderVelocityFunction,
       DoubleConsumer setMotorVelocityFunction, DoubleSupplier getEncoderPositionFunction,

@@ -8,12 +8,12 @@ import java.util.Set;
 public class MotionProfile extends Command {
 
   private int slotId = 0;
-  private Set<Properties> motionProfiles;
+  private Set<MotionProfilingProperties> motionProfiles;
   private Timer timer = new Timer();
   private double lastTime;
   private boolean isFinished = false;
 
-  public MotionProfile(Set<Properties> motionProfiles) {
+  public MotionProfile(Set<MotionProfilingProperties> motionProfiles) {
     this.motionProfiles = motionProfiles;
   }
 
@@ -25,12 +25,12 @@ public class MotionProfile extends Command {
     this.slotId = slotId;
   }
 
-  public Set<Properties> getMotionProfiles() {
+  public Set<MotionProfilingProperties> getMotionProfiles() {
     return motionProfiles;
   }
 
   public void setMotionProfiles(
-      Set<Properties> motionProfiles) {
+      Set<MotionProfilingProperties> motionProfiles) {
     this.motionProfiles = motionProfiles;
   }
 
@@ -41,7 +41,7 @@ public class MotionProfile extends Command {
   }
 
   protected void execute() {
-    for (Properties currentProperty : motionProfiles) {
+    for (MotionProfilingProperties currentProperty : motionProfiles) {
       // Each controller's setpoint is calculated at a slightly different time, but this doesn't
       // matter, since the motion profile is "continuous."
       double velocity = getVelocitySetpoint(currentProperty, timer.get(), lastTime);
@@ -51,7 +51,7 @@ public class MotionProfile extends Command {
     lastTime = timer.get();
   }
 
-  private double getVelocitySetpoint(Properties currentProperty, double currentTime,
+  private double getVelocitySetpoint(MotionProfilingProperties currentProperty, double currentTime,
       double lastTime) {
 
     /*
