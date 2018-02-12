@@ -2,7 +2,6 @@ package org.team1540.base.motionprofiling;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jaci.pathfinder.Trajectory;
 import java.util.Set;
 
@@ -46,7 +45,6 @@ public class MotionProfile extends Command {
       // Each controller's setpoint is calculated at a slightly different time, but this doesn't
       // matter, since the motion profile is "continuous."
       double velocity = getVelocitySetpoint(currentProperty, timer.get(), lastTime);
-      SmartDashboard.putNumber("calculatedVelocity", velocity);
       currentProperty.getSetMotorVelocityFunction().accept(velocity);
     }
 
@@ -75,8 +73,6 @@ public class MotionProfile extends Command {
     // Start from the current time and find the closest point.
     int startIndex = Math.toIntExact(Math.round(currentTime / dt));
 
-    SmartDashboard.putNumber("startIndex", startIndex);
-
     // Moved away from this because of the additional complexity and unsolved problems
     // Maybe we can take this back up later
     /*
@@ -92,7 +88,6 @@ public class MotionProfile extends Command {
         break;
       }
 
-      SmartDashboard.putNumber("sIndexDelta", d);
       // Set it either to the correct place or first item
       Segment loSegment = (startIndex - d >= 0 ? thisTrajectory.segments[startIndex - d]
           : thisTrajectory.segments[0]);
