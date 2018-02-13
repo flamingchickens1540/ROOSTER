@@ -2,7 +2,9 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +18,9 @@ A word on language: Management is if this is running, scaling is if the power is
 
 // Reminder that everything will need to be thread safe
 @SuppressWarnings("unused")
-public class PowerManager extends Thread {
+public class PowerManager extends Thread implements Sendable {
+
+  private static String name = "PowerManager";
 
   // Singleton
   private static PowerManager theManager = new PowerManager();
@@ -32,10 +36,11 @@ public class PowerManager extends Thread {
    */
   private double voltageDipLow = 7.2;
   private double voltageMargin = 0.5;
-  private final Timer voltageTimer = new Timer();
   private double voltageDipLength = 0;
+
   private double voltageTarget = 7.5;
 
+  private final Timer voltageTimer = new Timer();
   private boolean running = true;
 
   // Store the currently running PowerManageables
@@ -322,5 +327,39 @@ public class PowerManager extends Thread {
    */
   public void setVoltageMargin(double voltageMargin) {
     this.voltageMargin = voltageMargin;
+  }
+
+  public double getVoltageTarget() {
+    return voltageTarget;
+  }
+
+  public void setVoltageTarget(double voltageTarget) {
+    this.voltageTarget = voltageTarget;
+  }
+
+  @Override
+  public String getSubsystem() {
+    return name;
+  }
+
+  @Override
+  public void setSubsystem(String subsystem) {
+    name = subsystem;
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.addBooleanProperty("isVoltageDipping", this::isVoltageDipping, null);
+    builder.addBooleanProperty("isLimiting", this::isLimiting, null);
+    builder.addDoubleProperty("powerTime", this::getPowerTime, null);
+    builder.addBooleanProperty("running", this::isRunning, this::setRunning);
+    builder.addDoubleProperty("updateDelay", this::getUpdateDelay,
+        value -> setUpdateDelay(Math.toIntExact(Math.round(value))));
+    builder.addDoubleProperty("voltageDipLow", this::getVoltageDipLow, this::setVoltageDipLow);
+    builder.addDoubleProperty("voltageMargin", this::getVoltageMargin, this::setVoltageMargin);
+    builder.addDoubleProperty("voltageDipLength", this::getVoltageDipLength,
+        this::setVoltageDipLength);
+    builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
+    // Maybe add all the registered PowerManageables later?
   }
 }
