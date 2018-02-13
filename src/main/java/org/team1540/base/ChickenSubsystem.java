@@ -104,12 +104,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public void setLimit(double limit) {
     synchronized (powerLock) {
       for (ChickenController currentMotor : motors) {
-        currentMotor.configForwardSoftLimitEnable(true);
-        currentMotor.configReverseSoftLimitEnable(true);
         currentMotor
             .configPeakOutputForward(Math.toIntExact(Math.round(limit / motors.size())));
         currentMotor
             .configPeakOutputReverse(-Math.toIntExact(Math.round(limit / motors.size())));
+        currentMotor.configForwardSoftLimitEnable(true);
+        currentMotor.configReverseSoftLimitEnable(true);
       }
     }
   }
