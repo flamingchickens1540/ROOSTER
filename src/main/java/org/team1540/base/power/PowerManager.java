@@ -27,18 +27,14 @@ public class PowerManager extends Thread {
 
   private int updateDelay = 5;
 
-  private double currentSpikePeak = 50;
-  private double currentSpikeLength = 2.0;
-  private double currentTarget = 40;
-  private double currentMargin = 5;
-  private final Timer currentTimer = new Timer();
-  private final Timer voltageTimer = new Timer();
   /**
    * Default to be a little higher than brownouts.
    */
   private double voltageDipLow = 7.2;
   private double voltageMargin = 0.5;
+  private final Timer voltageTimer = new Timer();
   private double voltageDipLength = 0;
+  private double voltageTarget = 7.5;
 
   private boolean running = true;
 
@@ -66,41 +62,20 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-
-        // Zach says don't break out into method. I don't care that much.
-
-        boolean stopScaling = true;
-
-        if (isCurrentSpiking()) {
-          if (currentTimer.get() <= 0) {
-            // Calling the timer when it's already started seems to reset it.
-            currentTimer.start();
-          }
-          stopScaling = false;
-        } else {
-          currentTimer.stop();
-          currentTimer.reset();
-        }
-
         if (isVoltageDipping()) {
           if (voltageTimer.get() <= 0) {
             // Calling the timer when it's already started seems to reset it.
             voltageTimer.start();
           }
-          stopScaling = false;
         } else {
           voltageTimer.stop();
           voltageTimer.reset();
-        }
-
-        if (hasTimePassedVoltage() || hasTimePassedCurrent()) {
-          scalePower();
-        }
-
-        if (stopScaling) {
           stopScaling();
         }
 
+        if (hasTimePassedVoltage()) {
+          scalePower();
+        }
       }
 
       try {
@@ -119,29 +94,29 @@ public class PowerManager extends Thread {
   private void scalePower() {
     synchronized (powerLock) {
 
-      Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
+      Map<PowerManageable, Double> powerManageableScales = new LinkedHashMap<>();
 
       // Find out what the highest priority is
       double highestPriority = Collections.max(powerManaged).getPriority();
 
-      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
-      // actual current draw, and store it in a map along with a running tally of the total
-      double totalScaledCurrent = 0;
-      for (PowerManageable currentManageable : powerManaged) {
-        double scaledCurrent =
-            scaleExponential(highestPriority, currentManageable.getPriority()) * currentManageable
-                .getCurrent();
-        powerManageableCurrents.put(currentManageable, scaledCurrent);
-        totalScaledCurrent += scaledCurrent;
+      // For each PowerManageable, pass the priority into an arbitrary function and store that value
+      // in a map
+      // Meanwhile, keep a running total of the real voltages
+      double totalScaledVoltage = 0;
+      for (PowerManageable manageable : powerManaged) {
+        double scaledOutput =
+            scaleExponential(highestPriority, manageable.getPriority());
+        powerManageableScales.put(manageable, scaledOutput);
+        totalScaledVoltage += scaledOutput * manageable.getVoltage();
       }
 
-      // Find a factor such that the new total equals the currentTarget
-      double factor = currentTarget / totalScaledCurrent;
+      // Find a factor such that the new total equals the voltageTarget
+      double factor = voltageTarget / totalScaledVoltage;
 
-      // Multiply that factor by the ratio between the new power and the actual power and pass that
-      // back to the PowerManageable
+      // Multiply that factor by the original calculated scale and pass that back into the power
+      // manageable
       for (PowerManageable currentManageable : powerManaged) {
-        currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
+        currentManageable.setLimit(powerManageableScales.get(currentManageable) * factor);
       }
     }
   }
@@ -154,22 +129,6 @@ public class PowerManager extends Thread {
       for (PowerManageable currentManageable : powerManaged) {
         currentManageable.stopLimitingPower();
       }
-    }
-  }
-
-
-  /**
-   * Determines if the current is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; currentSpikePeak.
-   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin.
-   *
-   * @return Boolean representing if the current is spiking.
-   */
-  public boolean isCurrentSpiking() {
-    if (!hasTimePassedCurrent()) {
-      return pdp.getTotalCurrent() > currentSpikePeak;
-    } else {
-      return pdp.getTotalCurrent() > currentTarget - currentMargin;
     }
   }
 
@@ -190,10 +149,6 @@ public class PowerManager extends Thread {
     }
   }
 
-  private boolean hasTimePassedCurrent() {
-    return (currentTimer.get() > currentSpikeLength);
-  }
-
   private boolean hasTimePassedVoltage() {
     return (voltageTimer.get() > voltageDipLength);
   }
@@ -204,8 +159,7 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return (hasTimePassedCurrent() && isCurrentSpiking()) || (hasTimePassedVoltage()
-        && isVoltageDipping());
+    return hasTimePassedVoltage() && isVoltageDipping();
   }
 
   /**
@@ -277,45 +231,6 @@ public class PowerManager extends Thread {
     return success;
   }
 
-  public double getCurrentSpikePeak() {
-    return currentSpikePeak;
-  }
-
-  /**
-   * Sets the required current value for the robot to be considered spiking. Defaults to 50A.
-   *
-   * @param currentSpikePeak The minimum spike value, in amps.
-   */
-  public void setCurrentSpikePeak(double currentSpikePeak) {
-    this.currentSpikePeak = currentSpikePeak;
-  }
-
-  public double getCurrentSpikeLength() {
-    return currentSpikeLength;
-  }
-
-  /**
-   * Sets how long the current must spike for before doing anything. Defaults to 2 seconds.
-   *
-   * @param currentSpikeLength The minimum actionable spike length, in seconds.
-   */
-  public void setCurrentSpikeLength(double currentSpikeLength) {
-    this.currentSpikeLength = currentSpikeLength;
-  }
-
-  public double getCurrentTarget() {
-    return currentTarget;
-  }
-
-  /**
-   * Sets the currentTarget value we want when starting to power-manage. Defaults to 40A.
-   *
-   * @param currentTarget The currentTarget value, in amps.
-   */
-  public void setCurrentTarget(double currentTarget) {
-    this.currentTarget = currentTarget;
-  }
-
   public int getUpdateDelay() {
     return updateDelay;
   }
@@ -344,33 +259,13 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the currentMargin below which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 5A.
-   *
-   * @return currentMargin in amps.
-   */
-  public double getCurrentMargin() {
-    return currentMargin;
-  }
-
-  /**
-   * Set the currentMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 5A.
-   *
-   * @param currentMargin currentMargin in amps.
-   */
-  public void setCurrentMargin(double currentMargin) {
-    this.currentMargin = currentMargin;
-  }
-
-  /**
    * Gets the highest current time on any of the internal timers representing time from the most
    * recent spike or dip.
    *
    * @return Double representing time.
    */
   public double getPowerTime() {
-    return currentTimer.get() > voltageTimer.get() ? currentTimer.get() : voltageTimer.get();
+    return voltageTimer.get();
   }
 
   /**

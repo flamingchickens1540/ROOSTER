@@ -17,14 +17,14 @@ public interface PowerManageable extends Comparable<PowerManageable> {
    */
   void setPriority(double priority);
 
-  double getCurrent();
+  double getVoltage();
 
   /**
-   * Set a power limit for this PowerManageable.
+   * Set a percent output limit for this PowerManageable.
    *
-   * @param limit The power limit in amps.
+   * @param limit The percent output limit, from 0 to 1 (inclusive.)
    */
-  void limitPower(double limit);
+  void setLimit(double limit);
 
   /**
    * Stop limiting the power.
