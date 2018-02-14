@@ -1,9 +1,6 @@
 
 package org.team1540.base.testing.zuko;
 
-import edu.wpi.cscore.MjpegServer;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -12,13 +9,11 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.power.PowerManager;
-import org.team1540.base.testing.zuko.commands.ArcadeDrive;
 import org.team1540.base.testing.zuko.commands.CancelShooter;
 import org.team1540.base.testing.zuko.commands.Eject;
 import org.team1540.base.testing.zuko.commands.FireShooter;
 import org.team1540.base.testing.zuko.commands.Intake;
 import org.team1540.base.testing.zuko.commands.SpinupFlywheel;
-import org.team1540.base.testing.zuko.commands.TankDrive;
 import org.team1540.base.testing.zuko.subsystems.DriveTrain;
 import org.team1540.base.testing.zuko.subsystems.IntakeArm;
 import org.team1540.base.testing.zuko.subsystems.IntakeRollers;
@@ -58,10 +53,10 @@ public class Robot extends IterativeRobot {
   public void robotInit() {
     tuning = new Tuning();
 
-    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("ze camera", 0);
-    camera.setResolution(640, 480);
-    MjpegServer mjpegServer0 = new MjpegServer("Front Server", 1181);
-    mjpegServer0.setSource(camera);
+//    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture("ze camera", 0);
+//    camera.setResolution(640, 480);
+//    MjpegServer mjpegServer0 = new MjpegServer("Front Server", 1181);
+//    mjpegServer0.setSource(camera);
 
     OI.buttonIntake.whenPressed(new Intake());
     OI.buttonEject.whileHeld(new Eject());
@@ -69,10 +64,11 @@ public class Robot extends IterativeRobot {
     OI.buttonFire.whenPressed(new FireShooter());
     OI.buttonCancelShooter.whenPressed(new CancelShooter());
 
-    driveModeChooser.addDefault("Tank Drive", new TankDrive());
-    driveModeChooser.addObject("Arcade Drive", new ArcadeDrive());
+//    driveModeChooser.addDefault("Tank Drive", new TankDrive());
+//    driveModeChooser.addObject("Arcade Drive", new ArcadeDrive());
     SmartDashboard.putData("Drive Mode", driveModeChooser);
     SmartDashboard.putData(PowerManager.getInstance());
+    SmartDashboard.putData(Robot.driveTrain);
 
 //		PowerManager.getInstance().setVoltageMargin(10);
 //		PowerManager.getInstance().setVoltageDipLow(12);
