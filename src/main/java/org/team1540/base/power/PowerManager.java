@@ -89,7 +89,8 @@ public class PowerManager extends Thread implements Sendable {
       try {
         sleep(updateDelay);
       } catch (InterruptedException e) {
-        DriverStation.reportWarning("Power management interuppted: \n" + e, false);
+        DriverStation.reportWarning("Power management interuppted: \n" + e.getMessage(),
+            false);
         // end the thread
         return;
       }
