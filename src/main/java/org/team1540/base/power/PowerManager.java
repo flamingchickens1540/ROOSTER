@@ -1,5 +1,6 @@
 package org.team1540.base.power;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Sendable;
@@ -75,7 +76,6 @@ public class PowerManager extends Thread implements Sendable {
             voltageTimer.start();
           }
         } else {
-          System.out.println("shh bby is ok");
           voltageTimer.stop();
           voltageTimer.reset();
           stopScaling();
@@ -89,6 +89,7 @@ public class PowerManager extends Thread implements Sendable {
       try {
         sleep(updateDelay);
       } catch (InterruptedException e) {
+        DriverStation.reportWarning("Power management interuppted: \n" + e, false);
         // end the thread
         return;
       }
