@@ -5,9 +5,9 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
-import org.team1540.base.testing.zuko.Robot;
 import org.team1540.base.testing.zuko.RobotMap;
 import org.team1540.base.testing.zuko.RobotUtil;
+import org.team1540.base.testing.zuko.commands.TankDrive;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.base.wrappers.ChickenTalon.TalonControlMode;
 
@@ -45,7 +45,8 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   }
 
   public void actuallyInitDefaultCommand() {
-    setDefaultCommand(Robot.driveModeChooser.getSelected());
+//    setDefaultCommand(Robot.driveModeChooser.getSelected());
+    setDefaultCommand(new TankDrive());
   }
 
   public void tankDrive(double leftValue, double rightValue) {
