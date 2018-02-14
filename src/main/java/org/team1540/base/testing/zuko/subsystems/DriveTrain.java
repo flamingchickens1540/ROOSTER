@@ -1,13 +1,14 @@
 package org.team1540.base.testing.zuko.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
+import org.team1540.base.testing.zuko.OI;
+import org.team1540.base.testing.zuko.Robot;
 import org.team1540.base.testing.zuko.RobotMap;
-import org.team1540.base.testing.zuko.RobotUtil;
-import org.team1540.base.testing.zuko.commands.TankDrive;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.base.wrappers.ChickenTalon.TalonControlMode;
 
@@ -45,22 +46,7 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   }
 
   public void actuallyInitDefaultCommand() {
-//    setDefaultCommand(Robot.driveModeChooser.getSelected());
     setDefaultCommand(new TankDrive());
-  }
-
-  public void tankDrive(double leftValue, double rightValue) {
-    double deadzone = 0.1;
-    driveLeftTalon.set(ControlMode.PercentOutput, -RobotUtil.deadzone(leftValue, deadzone));
-    driveRightTalon.set(ControlMode.PercentOutput, RobotUtil.deadzone(rightValue, deadzone));
-  }
-
-  public void setLeft(double value) {
-    driveLeftTalon.set(-value);
-  }
-
-  public void setRight(double value) {
-    driveRightTalon.set(value);
   }
 
   public double getDriveLeftTalonVelocity() {
@@ -89,15 +75,7 @@ public class DriveTrain extends Subsystem implements PowerManageable {
 
   public void prepareForMotionProfiling() {
     driveRightTalon.setControlMode(ControlMode.Velocity);
-    driveRightBTalon.setControlMode(ControlMode.Follower);
-    driveRightCTalon.setControlMode(ControlMode.Follower);
     driveLeftTalon.setControlMode(ControlMode.Velocity);
-    driveLeftBTalon.setControlMode(ControlMode.Follower);
-    driveLeftCTalon.setControlMode(ControlMode.Follower);
-    driveRightBTalon.set(driveRightTalon.getDeviceID());
-    driveRightCTalon.set(driveRightTalon.getDeviceID());
-    driveLeftBTalon.set(driveLeftTalon.getDeviceID());
-    driveLeftCTalon.set(driveLeftTalon.getDeviceID());
 
     driveRightTalon.setInverted(true);
     driveRightBTalon.setInverted(true);
@@ -167,30 +145,30 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   public void setLimit(double limit) {
     double realLimit = limit / 6;
     SmartDashboard.putNumber("realLimit", realLimit);
-    driveLeftTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveLeftBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveLeftCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveRightTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveRightBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveRightCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-    driveLeftTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveLeftBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveLeftCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveRightTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveRightBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveRightCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-    driveLeftTalon.configForwardSoftLimitEnable(true);
-    driveLeftBTalon.configForwardSoftLimitEnable(true);
-    driveLeftCTalon.configForwardSoftLimitEnable(true);
-    driveRightTalon.configForwardSoftLimitEnable(true);
-    driveRightBTalon.configForwardSoftLimitEnable(true);
-    driveRightCTalon.configForwardSoftLimitEnable(true);
-    driveLeftTalon.configReverseSoftLimitEnable(true);
-    driveLeftBTalon.configReverseSoftLimitEnable(true);
-    driveLeftCTalon.configReverseSoftLimitEnable(true);
-    driveRightTalon.configReverseSoftLimitEnable(true);
-    driveRightBTalon.configReverseSoftLimitEnable(true);
-    driveRightCTalon.configReverseSoftLimitEnable(true);
+//    driveLeftTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveRightTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveRightBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveRightCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveRightTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveRightBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveRightCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
+//    driveLeftTalon.configForwardSoftLimitEnable(true);
+//    driveLeftBTalon.configForwardSoftLimitEnable(true);
+//    driveLeftCTalon.configForwardSoftLimitEnable(true);
+//    driveRightTalon.configForwardSoftLimitEnable(true);
+//    driveRightBTalon.configForwardSoftLimitEnable(true);
+//    driveRightCTalon.configForwardSoftLimitEnable(true);
+//    driveLeftTalon.configReverseSoftLimitEnable(true);
+//    driveLeftBTalon.configReverseSoftLimitEnable(true);
+//    driveLeftCTalon.configReverseSoftLimitEnable(true);
+//    driveRightTalon.configReverseSoftLimitEnable(true);
+//    driveRightBTalon.configReverseSoftLimitEnable(true);
+//    driveRightCTalon.configReverseSoftLimitEnable(true);
   }
 
   @Override
@@ -207,5 +185,30 @@ public class DriveTrain extends Subsystem implements PowerManageable {
     driveRightTalon.configReverseSoftLimitEnable(false);
     driveRightBTalon.configReverseSoftLimitEnable(false);
     driveRightCTalon.configReverseSoftLimitEnable(false);
+  }
+
+  public class TankDrive extends Command {
+
+    public TankDrive() {
+      requires(Robot.driveTrain);
+    }
+
+    @Override
+    protected void initialize() {
+    }
+
+    @Override
+    protected void execute() {
+      double lVal = -(OI.getDriveLeftAxis() + OI.getDriveLeftTrigger() - OI.getDriveRightTrigger());
+      double rVal = OI.getDriveRightAxis() + OI.getDriveLeftTrigger() - OI.getDriveRightTrigger();
+      driveLeftTalon.set(ControlMode.PercentOutput, lVal);
+      driveRightTalon.set(ControlMode.PercentOutput, rVal);
+    }
+
+    @Override
+    protected boolean isFinished() {
+      return false;
+    }
+
   }
 }
