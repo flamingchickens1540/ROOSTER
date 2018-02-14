@@ -75,6 +75,7 @@ public class PowerManager extends Thread implements Sendable {
             voltageTimer.start();
           }
         } else {
+          System.out.println("shh bby is ok");
           voltageTimer.stop();
           voltageTimer.reset();
           stopScaling();
