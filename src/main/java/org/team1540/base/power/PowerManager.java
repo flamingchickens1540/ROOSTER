@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 /*
-A word on language: Management is if this is running, scaling is if the power is actually being set to be something different.
+A word on language: Management is if this is running, scaling is if the power is actually being set
+to be something different.
  */
 
 // Reminder that everything will need to be thread safe
@@ -44,7 +45,8 @@ public class PowerManager extends Thread implements Sendable {
   private boolean running = true;
 
   // Store the currently running PowerManageables
-  // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
+  // For the love of everything, so there are no race conditions, do not access this except though
+  // synchronized blocks
   private final Set<PowerManageable> powerManaged = Collections.synchronizedSet(new HashSet<>());
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
@@ -139,7 +141,8 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Determines if the voltage is currently dipping. If power limiting is not engaged,
-   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.isBrownedOut();
+   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.
+   * isBrownedOut();
    * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
    * RobotController.isBrownedOut();.
    *
@@ -310,8 +313,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Gets the voltageMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 0.5V.
+   * Gets the voltageMargin within which, if power limiting has engaged, power management will
+   * remain engaged. Defaults to 0.5V.
    *
    * @return voltageMargin in volts.
    */
@@ -320,8 +323,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Sets the voltageMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 0.5V.
+   * Sets the voltageMargin within which, if power limiting has engaged, power management will
+   * remain engaged. Defaults to 0.5V.
    *
    * @param voltageMargin in volts.
    */
@@ -349,6 +352,7 @@ public class PowerManager extends Thread implements Sendable {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("PowerManager");
     builder.addBooleanProperty("isVoltageDipping", this::isVoltageDipping, null);
     builder.addBooleanProperty("isLimiting", this::isLimiting, null);
     builder.addDoubleProperty("powerTime", this::getPowerTime, null);
