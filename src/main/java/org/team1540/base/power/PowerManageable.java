@@ -1,7 +1,10 @@
 package org.team1540.base.power;
 
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+
 @SuppressWarnings("unused")
-public interface PowerManageable extends Comparable<PowerManageable> {
+public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
 
   /**
    * Get the priority of this PowerManageable. Used for power management.
@@ -41,6 +44,13 @@ public interface PowerManageable extends Comparable<PowerManageable> {
   @Override
   default int compareTo(PowerManageable o) {
     return (int) (getPriority() - o.getPriority());
+  }
+
+  @Override
+  default void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("PowerManageable");
+    builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
+    builder.addDoubleProperty("voltage", this::getVoltage, null);
   }
 
 }
