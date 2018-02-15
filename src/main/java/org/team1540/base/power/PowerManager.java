@@ -38,12 +38,15 @@ public class PowerManager extends Thread implements Sendable {
    */
   private double voltageDipLow = 7.2;
   private double voltageMargin = 0.5;
+  // TODO raise me, brownouts bypass
   private double voltageDipLength = 0;
 
   private double voltageTarget = 7.5;
 
   private final Timer voltageTimer = new Timer();
   private boolean running = true;
+
+  private double debugLastReduction = 1;
 
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
@@ -109,19 +112,22 @@ public class PowerManager extends Thread implements Sendable {
       // Find out what the highest priority is
       double highestPriority = Collections.max(powerManaged).getPriority();
 
+      double voltageReduction = voltageTarget / pdp.getVoltage();
+      debugLastReduction = voltageReduction;
+
       // For each PowerManageable, pass the priority into an arbitrary function and store that value
       // in a map
       // Meanwhile, keep a running total of the real voltages
-      double totalScaledVoltage = 0;
+      double totalScaledOutput = 0;
       for (PowerManageable manageable : powerManaged) {
-        double scaledOutput =
-            scaleExponential(highestPriority, manageable.getPriority());
+//        double scaledOutput = scaleExponential(highestPriority, manageable.getPriority());
+        double scaledOutput = 1;
         powerManageableScales.put(manageable, scaledOutput);
-        totalScaledVoltage += scaledOutput * manageable.getVoltage();
+        totalScaledOutput += scaledOutput;
       }
 
-      // Find a factor such that the new total equals the voltageTarget
-      double factor = voltageTarget / totalScaledVoltage;
+      // Find a factor such that the new total equals the voltageReduction
+      double factor = voltageReduction / totalScaledOutput;
 
       // Multiply that factor by the original calculated scale and pass that back into the power
       // manageable
@@ -140,6 +146,7 @@ public class PowerManager extends Thread implements Sendable {
         currentManageable.stopLimitingPower();
       }
     }
+    debugLastReduction = 1;
   }
 
   /**
@@ -343,6 +350,17 @@ public class PowerManager extends Thread implements Sendable {
     this.voltageTarget = voltageTarget;
   }
 
+  /**
+   * Gets the last factor that motors were universally scaled by. Yes that doesn't really make sense
+   * unless you read the code, sorry.
+   * For debugging only.
+   *
+   * @return A double representing the reduction.
+   */
+  public double getDebugLastReduction() {
+    return debugLastReduction;
+  }
+
   @Override
   public String getSubsystem() {
     return name;
@@ -368,5 +386,6 @@ public class PowerManager extends Thread implements Sendable {
         this::setVoltageDipLength);
     builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
     // Maybe add all the registered PowerManageables later?
+    builder.addDoubleProperty("zebuglastFactor", this::getDebugLastReduction, null);
   }
 }
