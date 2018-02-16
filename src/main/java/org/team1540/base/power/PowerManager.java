@@ -46,8 +46,6 @@ public class PowerManager extends Thread implements Sendable {
   private final Timer voltageTimer = new Timer();
   private boolean running = true;
 
-  private double debugLastReduction = 1;
-
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
   // synchronized blocks
@@ -107,32 +105,28 @@ public class PowerManager extends Thread implements Sendable {
   private void scalePower() {
     synchronized (powerLock) {
 
-      Map<PowerManageable, Double> powerManageableScales = new LinkedHashMap<>();
+      Map<PowerManageable, Double> powerManageableVoltages = new LinkedHashMap<>();
 
       // Find out what the highest priority is
       double highestPriority = Collections.max(powerManaged).getPriority();
 
-      double voltageReduction = voltageTarget / pdp.getVoltage();
-      debugLastReduction = voltageReduction;
-
-      // For each PowerManageable, pass the priority into an arbitrary function and store that value
-      // in a map
-      // Meanwhile, keep a running total of the real voltages
-      double totalScaledOutput = 0;
-      for (PowerManageable manageable : powerManaged) {
-//        double scaledOutput = scaleExponential(highestPriority, manageable.getPriority());
-        double scaledOutput = 1;
-        powerManageableScales.put(manageable, scaledOutput);
-        totalScaledOutput += scaledOutput;
+      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value
+      // by the actual voltage, and store it in a map along with a running tally of the total
+      double totalScaledVoltage = 0;
+      for (PowerManageable thisManageable : powerManaged) {
+        double scaledVoltage = scaleExponential(highestPriority, thisManageable.getPriority())
+            * thisManageable.getVoltage();
+        powerManageableVoltages.put(thisManageable, scaledVoltage);
+        totalScaledVoltage += scaledVoltage;
       }
 
-      // Find a factor such that the new total equals the voltageReduction
-      double factor = voltageReduction / totalScaledOutput;
+      // Find a factor such that the new total equals the currentTarget
+      double factor = voltageTarget / totalScaledVoltage;
 
-      // Multiply that factor by the original calculated scale and pass that back into the power
-      // manageable
+      // Multiply that factor by the ratio between the new voltage and the actual voltage and pass
+      // that back to the PowerManageable
       for (PowerManageable currentManageable : powerManaged) {
-        currentManageable.setLimit(powerManageableScales.get(currentManageable) * factor);
+        currentManageable.setVoltageLimit(powerManageableVoltages.get(currentManageable) * factor);
       }
     }
   }
@@ -146,7 +140,6 @@ public class PowerManager extends Thread implements Sendable {
         currentManageable.stopLimitingPower();
       }
     }
-    debugLastReduction = 1;
   }
 
   /**
@@ -350,17 +343,6 @@ public class PowerManager extends Thread implements Sendable {
     this.voltageTarget = voltageTarget;
   }
 
-  /**
-   * Gets the last factor that motors were universally scaled by. Yes that doesn't really make sense
-   * unless you read the code, sorry.
-   * For debugging only.
-   *
-   * @return A double representing the reduction.
-   */
-  public double getDebugLastReduction() {
-    return debugLastReduction;
-  }
-
   @Override
   public String getSubsystem() {
     return name;
@@ -386,6 +368,5 @@ public class PowerManager extends Thread implements Sendable {
         this::setVoltageDipLength);
     builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
     // Maybe add all the registered PowerManageables later?
-    builder.addDoubleProperty("zebuglastFactor", this::getDebugLastReduction, null);
   }
 }

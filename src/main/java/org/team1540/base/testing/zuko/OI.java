@@ -19,6 +19,8 @@ public class OI {
    * right joystick thing -> portcullis arms up/down
    */
 
+  public static double deadzone = 0.1;
+
   public static final Joystick driver = new Joystick(0);
   public static final Joystick copilot = new Joystick(1);
 

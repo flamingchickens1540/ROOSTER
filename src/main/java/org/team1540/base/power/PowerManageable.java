@@ -23,11 +23,11 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
   double getVoltage();
 
   /**
-   * Set a percent output limit for this PowerManageable.
+   * Set an absolute voltage limit for this PowerManageable.
    *
-   * @param limit The percent output limit, from 0 to 1 (inclusive.)
+   * @param limit The voltage limit, from 0 to some number in volts (inclusive.)
    */
-  void setLimit(double limit);
+  void setVoltageLimit(double limit);
 
   /**
    * Stop limiting the power.

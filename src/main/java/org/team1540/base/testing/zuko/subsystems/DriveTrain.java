@@ -9,6 +9,7 @@ import org.team1540.base.power.PowerManager;
 import org.team1540.base.testing.zuko.OI;
 import org.team1540.base.testing.zuko.Robot;
 import org.team1540.base.testing.zuko.RobotMap;
+import org.team1540.base.wrappers.ChickenController;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.base.wrappers.ChickenTalon.TalonControlMode;
 
@@ -21,6 +22,9 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   private final ChickenTalon driveRightTalon = new ChickenTalon(RobotMap.driveRightA);
   private final ChickenTalon driveRightBTalon = new ChickenTalon(RobotMap.driveRightB);
   private final ChickenTalon driveRightCTalon = new ChickenTalon(RobotMap.driveRightC);
+
+  private ChickenController[] allMotors = {driveLeftTalon, driveLeftBTalon, driveLeftCTalon,
+      driveRightTalon, driveRightBTalon, driveRightCTalon};
 
   public DriveTrain() {
     driveRightTalon.changeControlMode(TalonControlMode.PercentVbus);
@@ -136,55 +140,29 @@ public class DriveTrain extends Subsystem implements PowerManageable {
 
   @Override
   public double getVoltage() {
-    return driveLeftTalon.getMotorOutputVoltage() + driveLeftBTalon.getMotorOutputVoltage() +
-        driveLeftCTalon.getMotorOutputVoltage() + driveRightTalon.getMotorOutputVoltage() +
-        driveRightBTalon.getMotorOutputVoltage() + driveRightCTalon.getMotorOutputVoltage();
+    double total = 0;
+    for (ChickenController currentController : allMotors) {
+      total += currentController.getMotorOutputVoltage();
+    }
+    return total;
   }
 
   @Override
-  public void setLimit(double limit) {
-    double realLimit = limit / 6;
-    SmartDashboard.putNumber("realLimit", realLimit);
-//    driveLeftTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveRightTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveRightBTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveRightCTalon.configPeakOutputForward(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveRightTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveRightBTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveRightCTalon.configPeakOutputReverse(Math.toIntExact(Math.round(realLimit)));
-//    driveLeftTalon.configForwardSoftLimitEnable(true);
-//    driveLeftBTalon.configForwardSoftLimitEnable(true);
-//    driveLeftCTalon.configForwardSoftLimitEnable(true);
-//    driveRightTalon.configForwardSoftLimitEnable(true);
-//    driveRightBTalon.configForwardSoftLimitEnable(true);
-//    driveRightCTalon.configForwardSoftLimitEnable(true);
-//    driveLeftTalon.configReverseSoftLimitEnable(true);
-//    driveLeftBTalon.configReverseSoftLimitEnable(true);
-//    driveLeftCTalon.configReverseSoftLimitEnable(true);
-//    driveRightTalon.configReverseSoftLimitEnable(true);
-//    driveRightBTalon.configReverseSoftLimitEnable(true);
-//    driveRightCTalon.configReverseSoftLimitEnable(true);
+  public void setVoltageLimit(double limit) {
+    for (ChickenController currentController : allMotors) {
+      double realVoltage =
+          currentController.getBusVoltage() + currentController.getMotorOutputVoltage();
+      currentController.configPeakOutputForward(limit / realVoltage / allMotors.length);
+      currentController.configPeakOutputReverse(-limit / realVoltage / allMotors.length);
+    }
   }
 
   @Override
   public void stopLimitingPower() {
-    driveLeftTalon.configForwardSoftLimitEnable(false);
-    driveLeftBTalon.configForwardSoftLimitEnable(false);
-    driveLeftCTalon.configForwardSoftLimitEnable(false);
-    driveRightTalon.configForwardSoftLimitEnable(false);
-    driveRightBTalon.configForwardSoftLimitEnable(false);
-    driveRightCTalon.configForwardSoftLimitEnable(false);
-    driveLeftTalon.configReverseSoftLimitEnable(false);
-    driveLeftBTalon.configReverseSoftLimitEnable(false);
-    driveLeftCTalon.configReverseSoftLimitEnable(false);
-    driveRightTalon.configReverseSoftLimitEnable(false);
-    driveRightBTalon.configReverseSoftLimitEnable(false);
-    driveRightCTalon.configReverseSoftLimitEnable(false);
+    for (ChickenController currentController : allMotors) {
+      currentController.configPeakOutputForward(1);
+      currentController.configPeakOutputReverse(-1);
+    }
   }
 
   public class TankDrive extends Command {

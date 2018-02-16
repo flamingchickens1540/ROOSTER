@@ -101,15 +101,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   @Override
-  public void setLimit(double limit) {
+  public void setVoltageLimit(double limit) {
     synchronized (powerLock) {
       for (ChickenController currentMotor : motors) {
-        currentMotor
-            .configPeakOutputForward(Math.toIntExact(Math.round(limit / motors.size())));
-        currentMotor
-            .configPeakOutputReverse(-Math.toIntExact(Math.round(limit / motors.size())));
-        currentMotor.configForwardSoftLimitEnable(true);
-        currentMotor.configReverseSoftLimitEnable(true);
+        double realVoltage = currentMotor.getBusVoltage() + currentMotor.getMotorOutputVoltage();
+        currentMotor.configPeakOutputForward(limit / realVoltage / motors.size());
+        currentMotor.configPeakOutputReverse(-limit / realVoltage / motors.size());
       }
     }
   }
@@ -118,8 +115,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public void stopLimitingPower() {
     synchronized (powerLock) {
       for (ChickenController currentMotor : motors) {
-        currentMotor.configForwardSoftLimitEnable(false);
-        currentMotor.configReverseSoftLimitEnable(false);
+        currentMotor.configPeakOutputForward(1);
+        currentMotor.configPeakOutputReverse(-1);
       }
     }
   }
