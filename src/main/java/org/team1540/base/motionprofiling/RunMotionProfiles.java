@@ -76,7 +76,11 @@ public class RunMotionProfiles extends Command {
     int startIndex = Math.toIntExact(Math.round(currentTime / dt));
 
     int length = thisTrajectory.segments.length;
-    int index = (startIndex < length) ? startIndex : length - 1;
+    int index = startIndex;
+    if (startIndex < length) {
+      index = length - 1;
+      isFinished = true;
+    }
     return thisTrajectory.segments[index].velocity / encoderMultiplier * 0.1;
   }
 
