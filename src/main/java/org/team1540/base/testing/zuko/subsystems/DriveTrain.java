@@ -2,18 +2,16 @@ package org.team1540.base.testing.zuko.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.team1540.base.power.PowerManageable;
+import org.team1540.base.ChickenSubsystem;
 import org.team1540.base.power.PowerManager;
 import org.team1540.base.testing.zuko.OI;
 import org.team1540.base.testing.zuko.Robot;
 import org.team1540.base.testing.zuko.RobotMap;
-import org.team1540.base.wrappers.ChickenController;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.base.wrappers.ChickenTalon.TalonControlMode;
 
-public class DriveTrain extends Subsystem implements PowerManageable {
+public class DriveTrain extends ChickenSubsystem {
 
   private final ChickenTalon driveLeftTalon = new ChickenTalon(RobotMap.driveLeftA);
   private final ChickenTalon driveLeftBTalon = new ChickenTalon(RobotMap.driveLeftB);
@@ -22,9 +20,6 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   private final ChickenTalon driveRightTalon = new ChickenTalon(RobotMap.driveRightA);
   private final ChickenTalon driveRightBTalon = new ChickenTalon(RobotMap.driveRightB);
   private final ChickenTalon driveRightCTalon = new ChickenTalon(RobotMap.driveRightC);
-
-  private ChickenController[] allMotors = {driveLeftTalon, driveLeftBTalon, driveLeftCTalon,
-      driveRightTalon, driveRightBTalon, driveRightCTalon};
 
   public DriveTrain() {
     driveRightTalon.changeControlMode(TalonControlMode.PercentVbus);
@@ -41,6 +36,9 @@ public class DriveTrain extends Subsystem implements PowerManageable {
     driveRightCTalon.set(driveRightTalon.getDeviceID());
     driveLeftBTalon.set(driveLeftTalon.getDeviceID());
     driveLeftCTalon.set(driveLeftTalon.getDeviceID());
+    this.setPriority(10);
+    this.add(driveLeftTalon, driveLeftBTalon, driveLeftCTalon, driveRightTalon, driveRightBTalon,
+        driveRightCTalon);
     PowerManager.getInstance().registerPowerManageable(this);
   }
 
@@ -126,43 +124,6 @@ public class DriveTrain extends Subsystem implements PowerManageable {
   public void displayGeneralInfo() {
     SmartDashboard.putBoolean("isVoltageDipping", PowerManager.getInstance().isVoltageDipping());
     SmartDashboard.putBoolean("isLimiting", PowerManager.getInstance().isLimiting());
-  }
-
-  @Override
-  public double getPriority() {
-    return 10;
-  }
-
-  @Override
-  public void setPriority(double priority) {
-
-  }
-
-  @Override
-  public double getVoltage() {
-    double total = 0;
-    for (ChickenController currentController : allMotors) {
-      total += currentController.getMotorOutputVoltage();
-    }
-    return total;
-  }
-
-  @Override
-  public void setVoltageLimit(double limit) {
-    for (ChickenController currentController : allMotors) {
-      double realVoltage =
-          currentController.getBusVoltage() + currentController.getMotorOutputVoltage();
-      currentController.configPeakOutputForward(limit / realVoltage / allMotors.length);
-      currentController.configPeakOutputReverse(-limit / realVoltage / allMotors.length);
-    }
-  }
-
-  @Override
-  public void stopLimitingPower() {
-    for (ChickenController currentController : allMotors) {
-      currentController.configPeakOutputForward(1);
-      currentController.configPeakOutputReverse(-1);
-    }
   }
 
   public class TankDrive extends Command {

@@ -105,28 +105,35 @@ public class PowerManager extends Thread implements Sendable {
   private void scalePower() {
     synchronized (powerLock) {
 
-      Map<PowerManageable, Double> powerManageableVoltages = new LinkedHashMap<>();
+      Map<PowerManageable, Double> manageablePowers = new LinkedHashMap<>();
+      Map<PowerManageable, Double> manageablePowersScaled = new LinkedHashMap<>();
 
       // Find out what the highest priority is
       double highestPriority = Collections.max(powerManaged).getPriority();
 
       // For each PowerManageable, pass the priority into an arbitrary function, multiply that value
-      // by the actual voltage, and store it in a map along with a running tally of the total
-      double totalScaledVoltage = 0;
+      // by the actual power consumption, and store it in a map along with a running tally of the
+      // total
+      // Also store the real power draw
+      double totalScaledPower = 0;
       for (PowerManageable thisManageable : powerManaged) {
-        double scaledVoltage = scaleExponential(highestPriority, thisManageable.getPriority())
-            * thisManageable.getVoltage();
-        powerManageableVoltages.put(thisManageable, scaledVoltage);
-        totalScaledVoltage += scaledVoltage;
+        double powerConsumption = thisManageable.getPowerConsumption();
+        double powerConsumptionScaled = scaleExponential(highestPriority,
+            thisManageable.getPriority()) * powerConsumption;
+        manageablePowers.put(thisManageable, powerConsumption);
+        manageablePowersScaled.put(thisManageable, powerConsumptionScaled);
+        totalScaledPower += powerConsumptionScaled;
       }
 
-      // Find a factor such that the new total equals the currentTarget
-      double factor = voltageTarget / totalScaledVoltage;
+      // Find a factor such that the totalScaledPower * that factor = the target
+      double factor = voltageTarget * pdp.getTotalCurrent() / totalScaledPower;
 
-      // Multiply that factor by the ratio between the new voltage and the actual voltage and pass
-      // that back to the PowerManageable
+      // Multiply each scaled power by the factor, which gets us our real target power. Then, divide
+      // that by the original power draw to get the percent output we want.
       for (PowerManageable currentManageable : powerManaged) {
-        currentManageable.setVoltageLimit(powerManageableVoltages.get(currentManageable) * factor);
+        currentManageable
+            .setPercentOutputLimit(manageablePowersScaled.get(currentManageable) * factor /
+                manageablePowers.get(currentManageable));
       }
     }
   }

@@ -3,8 +3,8 @@ package org.team1540.base;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.wrappers.ChickenController;
 
@@ -19,9 +19,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   private double priority = 0.0;
 
   /**
-   * A set of all master motors to be power managed. Slaves (including ChickenVictors) will be power managed through that
+   * Map of motors in this subsystem to be power managed, with the key being the motor and the value
+   * being the current percentOutput the motor is at.
    */
-  private final Set<ChickenController> motors = new HashSet<>();
+  private final Map<ChickenController, Double> motors = new HashMap<>();
 
   public int size() {
     return motors.size();
@@ -32,35 +33,44 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public boolean contains(ChickenController o) {
-    return motors.contains(o);
+    return motors.containsKey(o);
   }
 
-  public boolean add(ChickenController o) {
-    return motors.add(o);
+  public double add(ChickenController o) {
+    return motors.put(o, 1d);
   }
 
-  public boolean add(ChickenController... os) {
-    return addAll(Arrays.asList(os));
+  public void add(ChickenController... os) {
+    addAll(Arrays.asList(os));
   }
 
-  public boolean remove(ChickenController o) {
+  public double remove(ChickenController o) {
     return motors.remove(o);
   }
 
-  public boolean remove(ChickenController... os) {
-    return removeAll(Arrays.asList(os));
+  public void remove(ChickenController... os) {
+    removeAll(Arrays.asList(os));
   }
 
-  public boolean containsAll(Collection<ChickenController> c) {
-    return motors.containsAll(c);
+  public boolean containsAll(Collection<ChickenController> controllers) {
+    for (ChickenController c : controllers) {
+      if (!motors.containsKey(c)) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  public boolean addAll(Collection<? extends ChickenController> c) {
-    return motors.addAll(c);
+  public void addAll(Collection<? extends ChickenController> controllers) {
+    for (ChickenController c : controllers) {
+      motors.put(c, 1d);
+    }
   }
 
-  public boolean removeAll(Collection<ChickenController> c) {
-    return motors.removeAll(c);
+  public void removeAll(Collection<ChickenController> controllers) {
+    for (ChickenController c : controllers) {
+      motors.remove(c);
+    }
   }
 
   public void clear() {
@@ -92,21 +102,22 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   @Override
-  public double getVoltage() {
+  public double getPowerConsumption() {
     double sum = 0;
-    for (ChickenController currentMotor : motors) {
-      sum += currentMotor.getMotorOutputVoltage();
+    for (ChickenController currentMotor : motors.keySet()) {
+      sum += currentMotor.getMotorOutputVoltage() * currentMotor.getOutputCurrent();
     }
     return sum;
   }
 
   @Override
-  public void setVoltageLimit(double limit) {
+  public void setPercentOutputLimit(double limit) {
     synchronized (powerLock) {
-      for (ChickenController currentMotor : motors) {
-        double realVoltage = currentMotor.getBusVoltage() + currentMotor.getMotorOutputVoltage();
-        currentMotor.configPeakOutputForward(limit / realVoltage / motors.size());
-        currentMotor.configPeakOutputReverse(-limit / realVoltage / motors.size());
+      for (ChickenController currentMotor : motors.keySet()) {
+        double newLimit = motors.get(currentMotor) * limit;
+        currentMotor.configPeakOutputForward(newLimit);
+        currentMotor.configPeakOutputReverse(-newLimit);
+        motors.put(currentMotor, newLimit);
       }
     }
   }
@@ -114,9 +125,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void stopLimitingPower() {
     synchronized (powerLock) {
-      for (ChickenController currentMotor : motors) {
+      for (ChickenController currentMotor : motors.keySet()) {
         currentMotor.configPeakOutputForward(1);
         currentMotor.configPeakOutputReverse(-1);
+        motors.put(currentMotor, 1d);
       }
     }
   }

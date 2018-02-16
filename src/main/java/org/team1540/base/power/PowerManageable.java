@@ -20,14 +20,19 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    */
   void setPriority(double priority);
 
-  double getVoltage();
+  /**
+   * Get the total power consumption of this subsystem.
+   *
+   * @return The power consumption in watts.
+   */
+  double getPowerConsumption();
 
   /**
-   * Set an absolute voltage limit for this PowerManageable.
-   *
-   * @param limit The voltage limit, from 0 to some number in volts (inclusive.)
+   * Set the percent of the current power draw this motor can draw.
+   * e.g. if you were drawing .5 and set this to .5, you'll draw .25
+   * @param limit The percent of the current power draw to draw.
    */
-  void setVoltageLimit(double limit);
+  void setPercentOutputLimit(double limit);
 
   /**
    * Stop limiting the power.
@@ -50,7 +55,7 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
   default void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("PowerManageable");
     builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
-    builder.addDoubleProperty("voltage", this::getVoltage, null);
+    builder.addDoubleProperty("voltage", this::getPowerConsumption, null);
   }
 
 }
