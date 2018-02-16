@@ -67,17 +67,6 @@ public class RunMotionProfiles extends Command {
   private double getVelocitySetpoint(MotionProfilingProperties currentProperty, double currentTime,
       double lastTime) {
 
-    /*
-      Whoa! This is weird. Although everything is ordered base on time, that's prone to getting off
-      and just never correcting.
-      However, positions can collide. Thus, we search forward in time from the last point we
-      calculated until we get a position we like.
-
-      Note that there's no guessing what the velocity setpoint should be based on how long it took
-      the last loop to complete–that is, if your jerk is high, you might have some issues with the
-      setpoint being a little wonky, as though it's lagging. Otherwise you shouldn't really notice.
-    */
-
     Trajectory thisTrajectory = currentProperty.getTrajectory();
     double dt = thisTrajectory.segments[0].dt;
     double encoderMultiplier = currentProperty.getEncoderTickRatio();
@@ -86,7 +75,6 @@ public class RunMotionProfiles extends Command {
     // Start from the current time and find the closest point.
     int startIndex = Math.toIntExact(Math.round(currentTime / dt));
 
-    // Very simple but reliable implementation commented out.
     int length = thisTrajectory.segments.length;
     int index = (startIndex < length) ? startIndex : length - 1;
     return thisTrajectory.segments[index].velocity / encoderMultiplier * 0.1;
