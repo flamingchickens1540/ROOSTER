@@ -7,7 +7,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MotionProfile extends Command {
+/**
+ * Executes a set of motion profiles (with respective properties.)
+ */
+public class RunMotionProfiles extends Command {
 
   private int slotId = 0;
   private Set<MotionProfilingProperties> motionProfiles;
@@ -15,11 +18,11 @@ public class MotionProfile extends Command {
   private double lastTime;
   private boolean isFinished = false;
 
-  public MotionProfile(MotionProfilingProperties... properties) {
+  public RunMotionProfiles(MotionProfilingProperties... properties) {
     realConstructor(new HashSet<>(Arrays.asList(properties)));
   }
 
-  public MotionProfile(Set<MotionProfilingProperties> motionProfiles) {
+  public RunMotionProfiles(Set<MotionProfilingProperties> motionProfiles) {
     realConstructor(motionProfiles);
   }
 
