@@ -3,6 +3,8 @@ package org.team1540.base.motionprofiling;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import jaci.pathfinder.Trajectory;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MotionProfile extends Command {
@@ -13,7 +15,15 @@ public class MotionProfile extends Command {
   private double lastTime;
   private boolean isFinished = false;
 
+  public MotionProfile(MotionProfilingProperties... properties) {
+    realConstructor(new HashSet<>(Arrays.asList(properties)));
+  }
+
   public MotionProfile(Set<MotionProfilingProperties> motionProfiles) {
+    realConstructor(motionProfiles);
+  }
+
+  private void realConstructor(Set<MotionProfilingProperties> motionProfiles) {
     this.motionProfiles = motionProfiles;
   }
 
