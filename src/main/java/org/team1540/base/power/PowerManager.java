@@ -35,12 +35,11 @@ public class PowerManager extends Thread implements Sendable {
   /**
    * Default to be a little higher than brownouts.
    */
-  private double voltageDipLow = 7.2;
+  private double voltageDipLow = 7.5;
   private double voltageMargin = 0.5;
-  // TODO raise me, brownouts bypass
-  private double voltageDipLength = 0;
+  private double voltageDipLength = 0.25;
 
-  private double voltageTarget = 7.5;
+  private double voltageTarget = 8.0;
 
   private final Timer voltageTimer = new Timer();
   private boolean running = true;
