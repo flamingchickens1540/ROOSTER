@@ -1,7 +1,10 @@
 package org.team1540.base.power;
 
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+
 @SuppressWarnings("unused")
-public interface PowerManageable extends Comparable<PowerManageable> {
+public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
 
   /**
    * Get the priority of this PowerManageable. Used for power management.
@@ -17,14 +20,19 @@ public interface PowerManageable extends Comparable<PowerManageable> {
    */
   void setPriority(double priority);
 
-  double getCurrent();
+  /**
+   * Get the total power consumption of this subsystem.
+   *
+   * @return The power consumption in watts.
+   */
+  double getPowerConsumption();
 
   /**
-   * Set a power limit for this PowerManageable.
-   *
-   * @param limit The power limit in amps.
+   * Set the percent of the current power draw this motor can draw.
+   * e.g. if you were drawing .5 and set this to .5, you'll draw .25
+   * @param limit The percent of the current power draw to draw.
    */
-  void limitPower(double limit);
+  void setPercentOutputLimit(double limit);
 
   /**
    * Stop limiting the power.
@@ -41,6 +49,13 @@ public interface PowerManageable extends Comparable<PowerManageable> {
   @Override
   default int compareTo(PowerManageable o) {
     return (int) (getPriority() - o.getPriority());
+  }
+
+  @Override
+  default void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("PowerManageable");
+    builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
+    builder.addDoubleProperty("voltage", this::getPowerConsumption, null);
   }
 
 }

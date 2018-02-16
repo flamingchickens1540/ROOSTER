@@ -2,7 +2,9 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,12 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 /*
-A word on language: Management is if this is running, scaling is if the power is actually being set to be something different.
+A word on language: Management is if this is running, scaling is if the power is actually being set
+to be something different.
  */
 
 // Reminder that everything will need to be thread safe
 @SuppressWarnings("unused")
-public class PowerManager extends Thread {
+public class PowerManager extends Thread implements Sendable {
+
+  private static String name = "PowerManager";
 
   // Singleton
   private static PowerManager theManager = new PowerManager();
@@ -27,23 +32,21 @@ public class PowerManager extends Thread {
 
   private int updateDelay = 5;
 
-  private double currentSpikePeak = 50;
-  private double currentSpikeLength = 2.0;
-  private double currentTarget = 40;
-  private double currentMargin = 5;
-  private final Timer currentTimer = new Timer();
-  private final Timer voltageTimer = new Timer();
   /**
    * Default to be a little higher than brownouts.
    */
-  private double voltageDipLow = 7.2;
+  private double voltageDipLow = 7.5;
   private double voltageMargin = 0.5;
-  private double voltageDipLength = 0;
+  private double voltageDipLength = 0.25;
 
+  private double voltageTarget = 8.0;
+
+  private final Timer voltageTimer = new Timer();
   private boolean running = true;
 
   // Store the currently running PowerManageables
-  // For the love of everything, so there are no race conditions, do not access this except though synchronized blocks
+  // For the love of everything, so there are no race conditions, do not access this except though
+  // synchronized blocks
   private final Set<PowerManageable> powerManaged = Collections.synchronizedSet(new HashSet<>());
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
@@ -66,41 +69,20 @@ public class PowerManager extends Thread {
     while (true) {
       // No whiles in here as that'd stop the last block from executing
       if (running) {
-
-        // Zach says don't break out into method. I don't care that much.
-
-        boolean stopScaling = true;
-
-        if (isCurrentSpiking()) {
-          if (currentTimer.get() <= 0) {
-            // Calling the timer when it's already started seems to reset it.
-            currentTimer.start();
-          }
-          stopScaling = false;
-        } else {
-          currentTimer.stop();
-          currentTimer.reset();
-        }
-
         if (isVoltageDipping()) {
           if (voltageTimer.get() <= 0) {
             // Calling the timer when it's already started seems to reset it.
             voltageTimer.start();
           }
-          stopScaling = false;
         } else {
           voltageTimer.stop();
           voltageTimer.reset();
-        }
-
-        if (hasTimePassedVoltage() || hasTimePassedCurrent()) {
-          scalePower();
-        }
-
-        if (stopScaling) {
           stopScaling();
         }
 
+        if (hasTimePassedVoltage()) {
+          scalePower();
+        }
       }
 
       try {
@@ -119,29 +101,35 @@ public class PowerManager extends Thread {
   private void scalePower() {
     synchronized (powerLock) {
 
-      Map<PowerManageable, Double> powerManageableCurrents = new LinkedHashMap<>();
+      Map<PowerManageable, Double> manageablePowers = new LinkedHashMap<>();
+      Map<PowerManageable, Double> manageablePowersScaled = new LinkedHashMap<>();
 
       // Find out what the highest priority is
       double highestPriority = Collections.max(powerManaged).getPriority();
 
-      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value by the
-      // actual current draw, and store it in a map along with a running tally of the total
-      double totalScaledCurrent = 0;
-      for (PowerManageable currentManageable : powerManaged) {
-        double scaledCurrent =
-            scaleExponential(highestPriority, currentManageable.getPriority()) * currentManageable
-                .getCurrent();
-        powerManageableCurrents.put(currentManageable, scaledCurrent);
-        totalScaledCurrent += scaledCurrent;
+      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value
+      // by the actual power consumption, and store it in a map along with a running tally of the
+      // total
+      // Also store the real power draw
+      double totalScaledPower = 0;
+      for (PowerManageable thisManageable : powerManaged) {
+        double powerConsumption = thisManageable.getPowerConsumption();
+        double powerConsumptionScaled = scaleExponential(highestPriority,
+            thisManageable.getPriority()) * powerConsumption;
+        manageablePowers.put(thisManageable, powerConsumption);
+        manageablePowersScaled.put(thisManageable, powerConsumptionScaled);
+        totalScaledPower += powerConsumptionScaled;
       }
 
-      // Find a factor such that the new total equals the currentTarget
-      double factor = currentTarget / totalScaledCurrent;
+      // Find a factor such that the totalScaledPower * that factor = the target
+      double factor = voltageTarget * pdp.getTotalCurrent() / totalScaledPower;
 
-      // Multiply that factor by the ratio between the new power and the actual power and pass that
-      // back to the PowerManageable
+      // Multiply each scaled power by the factor, which gets us our real target power. Then, divide
+      // that by the original power draw to get the percent output we want.
       for (PowerManageable currentManageable : powerManaged) {
-        currentManageable.limitPower(powerManageableCurrents.get(currentManageable) * factor);
+        currentManageable
+            .setPercentOutputLimit(manageablePowersScaled.get(currentManageable) * factor /
+                manageablePowers.get(currentManageable));
       }
     }
   }
@@ -157,25 +145,10 @@ public class PowerManager extends Thread {
     }
   }
 
-
-  /**
-   * Determines if the current is currently spiking. If power limiting is not engaged,
-   * returns pdp.getTotalCurrent() &gt; currentSpikePeak.
-   * If power limiting is engaged, returns pdp.getTotalCurrent() &gt; currentTarget - currentMargin.
-   *
-   * @return Boolean representing if the current is spiking.
-   */
-  public boolean isCurrentSpiking() {
-    if (!hasTimePassedCurrent()) {
-      return pdp.getTotalCurrent() > currentSpikePeak;
-    } else {
-      return pdp.getTotalCurrent() > currentTarget - currentMargin;
-    }
-  }
-
   /**
    * Determines if the voltage is currently dipping. If power limiting is not engaged,
-   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.isBrownedOut();
+   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.
+   * isBrownedOut();
    * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
    * RobotController.isBrownedOut();.
    *
@@ -190,10 +163,6 @@ public class PowerManager extends Thread {
     }
   }
 
-  private boolean hasTimePassedCurrent() {
-    return (currentTimer.get() > currentSpikeLength);
-  }
-
   private boolean hasTimePassedVoltage() {
     return (voltageTimer.get() > voltageDipLength);
   }
@@ -204,8 +173,7 @@ public class PowerManager extends Thread {
    * @return True if power limiting has kicked in, false otherwise
    */
   public boolean isLimiting() {
-    return (hasTimePassedCurrent() && isCurrentSpiking()) || (hasTimePassedVoltage()
-        && isVoltageDipping());
+    return hasTimePassedVoltage() && isVoltageDipping();
   }
 
   /**
@@ -277,45 +245,6 @@ public class PowerManager extends Thread {
     return success;
   }
 
-  public double getCurrentSpikePeak() {
-    return currentSpikePeak;
-  }
-
-  /**
-   * Sets the required current value for the robot to be considered spiking. Defaults to 50A.
-   *
-   * @param currentSpikePeak The minimum spike value, in amps.
-   */
-  public void setCurrentSpikePeak(double currentSpikePeak) {
-    this.currentSpikePeak = currentSpikePeak;
-  }
-
-  public double getCurrentSpikeLength() {
-    return currentSpikeLength;
-  }
-
-  /**
-   * Sets how long the current must spike for before doing anything. Defaults to 2 seconds.
-   *
-   * @param currentSpikeLength The minimum actionable spike length, in seconds.
-   */
-  public void setCurrentSpikeLength(double currentSpikeLength) {
-    this.currentSpikeLength = currentSpikeLength;
-  }
-
-  public double getCurrentTarget() {
-    return currentTarget;
-  }
-
-  /**
-   * Sets the currentTarget value we want when starting to power-manage. Defaults to 40A.
-   *
-   * @param currentTarget The currentTarget value, in amps.
-   */
-  public void setCurrentTarget(double currentTarget) {
-    this.currentTarget = currentTarget;
-  }
-
   public int getUpdateDelay() {
     return updateDelay;
   }
@@ -344,33 +273,13 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the currentMargin below which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 5A.
-   *
-   * @return currentMargin in amps.
-   */
-  public double getCurrentMargin() {
-    return currentMargin;
-  }
-
-  /**
-   * Set the currentMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 5A.
-   *
-   * @param currentMargin currentMargin in amps.
-   */
-  public void setCurrentMargin(double currentMargin) {
-    this.currentMargin = currentMargin;
-  }
-
-  /**
    * Gets the highest current time on any of the internal timers representing time from the most
    * recent spike or dip.
    *
    * @return Double representing time.
    */
   public double getPowerTime() {
-    return currentTimer.get() > voltageTimer.get() ? currentTimer.get() : voltageTimer.get();
+    return voltageTimer.get();
   }
 
   /**
@@ -410,8 +319,8 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Gets the voltageMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 0.5V.
+   * Gets the voltageMargin within which, if power limiting has engaged, power management will
+   * remain engaged. Defaults to 0.5V.
    *
    * @return voltageMargin in volts.
    */
@@ -420,12 +329,47 @@ public class PowerManager extends Thread {
   }
 
   /**
-   * Sets the voltageMargin within which, if power limiting has engaged, power management will remain
-   * engaged. Defaults to 0.5V.
+   * Sets the voltageMargin within which, if power limiting has engaged, power management will
+   * remain engaged. Defaults to 0.5V.
    *
    * @param voltageMargin in volts.
    */
   public void setVoltageMargin(double voltageMargin) {
     this.voltageMargin = voltageMargin;
+  }
+
+  public double getVoltageTarget() {
+    return voltageTarget;
+  }
+
+  public void setVoltageTarget(double voltageTarget) {
+    this.voltageTarget = voltageTarget;
+  }
+
+  @Override
+  public String getSubsystem() {
+    return name;
+  }
+
+  @Override
+  public void setSubsystem(String subsystem) {
+    name = subsystem;
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("PowerManager");
+    builder.addBooleanProperty("isVoltageDipping", this::isVoltageDipping, null);
+    builder.addBooleanProperty("isLimiting", this::isLimiting, null);
+    builder.addDoubleProperty("powerTime", this::getPowerTime, null);
+    builder.addBooleanProperty("running", this::isRunning, this::setRunning);
+    builder.addDoubleProperty("updateDelay", this::getUpdateDelay,
+        value -> setUpdateDelay(Math.toIntExact(Math.round(value))));
+    builder.addDoubleProperty("voltageDipLow", this::getVoltageDipLow, this::setVoltageDipLow);
+    builder.addDoubleProperty("voltageMargin", this::getVoltageMargin, this::setVoltageMargin);
+    builder.addDoubleProperty("voltageDipLength", this::getVoltageDipLength,
+        this::setVoltageDipLength);
+    builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
+    // Maybe add all the registered PowerManageables later?
   }
 }
