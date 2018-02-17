@@ -3,9 +3,14 @@ package org.team1540.base.motionprofiling;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import jaci.pathfinder.Trajectory;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-public class MotionProfile extends Command {
+/**
+ * Executes a set of motion profiles (with respective properties.)
+ */
+public class RunMotionProfiles extends Command {
 
   private int slotId = 0;
   private Set<MotionProfilingProperties> motionProfiles;
@@ -13,7 +18,15 @@ public class MotionProfile extends Command {
   private double lastTime;
   private boolean isFinished = false;
 
-  public MotionProfile(Set<MotionProfilingProperties> motionProfiles) {
+  public RunMotionProfiles(MotionProfilingProperties... properties) {
+    realConstructor(new HashSet<>(Arrays.asList(properties)));
+  }
+
+  public RunMotionProfiles(Set<MotionProfilingProperties> motionProfiles) {
+    realConstructor(motionProfiles);
+  }
+
+  private void realConstructor(Set<MotionProfilingProperties> motionProfiles) {
     this.motionProfiles = motionProfiles;
   }
 
@@ -54,17 +67,6 @@ public class MotionProfile extends Command {
   private double getVelocitySetpoint(MotionProfilingProperties currentProperty, double currentTime,
       double lastTime) {
 
-    /*
-      Whoa! This is weird. Although everything is ordered base on time, that's prone to getting off
-      and just never correcting.
-      However, positions can collide. Thus, we search forward in time from the last point we
-      calculated until we get a position we like.
-
-      Note that there's no guessing what the velocity setpoint should be based on how long it took
-      the last loop to complete–that is, if your jerk is high, you might have some issues with the
-      setpoint being a little wonky, as though it's lagging. Otherwise you shouldn't really notice.
-    */
-
     Trajectory thisTrajectory = currentProperty.getTrajectory();
     double dt = thisTrajectory.segments[0].dt;
     double encoderMultiplier = currentProperty.getEncoderTickRatio();
@@ -73,9 +75,12 @@ public class MotionProfile extends Command {
     // Start from the current time and find the closest point.
     int startIndex = Math.toIntExact(Math.round(currentTime / dt));
 
-    // Very simple but reliable implementation commented out.
     int length = thisTrajectory.segments.length;
-    int index = (startIndex < length) ? startIndex : length - 1;
+    int index = startIndex;
+    if (startIndex < length) {
+      index = length - 1;
+      isFinished = true;
+    }
     return thisTrajectory.segments[index].velocity / encoderMultiplier * 0.1;
   }
 
