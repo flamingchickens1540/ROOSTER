@@ -17,6 +17,7 @@
     <orderEntry type="library" name="Gradle: edu.wpi.first.cscore:cscore-java:1.1.0" level="project" />
     <orderEntry type="library" name="Gradle: openrio.mirror.third.ctre:CTRE-phoenix-java:5.2.1.1" level="project" />
     <orderEntry type="library" name="Gradle: openrio.mirror.third.kauailabs:navx-java:3.0.346" level="project" />
+    <orderEntry type="library" name="Gradle: jaci.pathfinder:Pathfinder-Java:1.8" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="ROOSTER_main" />
 </module>
