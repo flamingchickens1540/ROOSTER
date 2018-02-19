@@ -23,7 +23,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 javadoc {
-    options.header = '<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
+    options {
+        header '<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
+        links 'http://first.wpi.edu/FRC/roborio/release/docs/java/', 'http://www.ctr-electronics.com/downloads/api/java/html/'
+        linksOffline('https://docs.oracle.com/javase/8/docs/api/', 'https://docs.oracle.com/javase/8/docs/api/')
+    }
     options.addBooleanOption("-allow-script-in-comments", true)
 }
 
