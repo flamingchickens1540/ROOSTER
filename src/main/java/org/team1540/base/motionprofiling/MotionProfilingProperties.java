@@ -6,9 +6,8 @@ import java.util.function.DoubleSupplier;
 
 public class MotionProfilingProperties {
 
-  private double encoderTicksPerRev = 1023;
+  private double encoderTicksPerUnit = 1023 * 0.1 * Math.PI;
 
-  private double wheelDiameter = 0.1;
   private double secondsFromNeutralToFull = 0;
 
   private DoubleSupplier getEncoderVelocityFunction;
@@ -31,13 +30,10 @@ public class MotionProfilingProperties {
     this.trajectory = trajectory;
   }
 
-  public MotionProfilingProperties(double encoderTicksPerRev,
-      double wheelDiameter, double secondsFromNeutralToFull,
-      DoubleSupplier getEncoderVelocityFunction,
-      DoubleConsumer setMotorVelocityFunction, DoubleSupplier getEncoderPositionFunction,
-      Trajectory trajectory) {
-    this.encoderTicksPerRev = encoderTicksPerRev;
-    this.wheelDiameter = wheelDiameter;
+  public MotionProfilingProperties(double encoderTicksPerUnit, double secondsFromNeutralToFull,
+      DoubleSupplier getEncoderVelocityFunction, DoubleConsumer setMotorVelocityFunction,
+      DoubleSupplier getEncoderPositionFunction, Trajectory trajectory) {
+    this.encoderTicksPerUnit = encoderTicksPerUnit;
     this.secondsFromNeutralToFull = secondsFromNeutralToFull;
     this.getEncoderVelocityFunction = getEncoderVelocityFunction;
     this.setMotorVelocityFunction = setMotorVelocityFunction;
@@ -46,39 +42,23 @@ public class MotionProfilingProperties {
   }
 
   /**
-   * Get the number of encoder ticks per revolution of the wheel.
+   * Get the number of encoder ticks per revolution of the wheel. This is roughly equal to the
+   * number of encoder ticks per rev * the wheel diameter * pi.
    *
    * @return The number of encoder ticks in native units.
    */
-  public double getEncoderTicksPerRev() {
-    return encoderTicksPerRev;
+  public double getEncoderTicksPerUnit() {
+    return encoderTicksPerUnit;
   }
 
   /**
-   * Set the number of encoder ticks per revolution of the wheel.
+   * Set the number of encoder ticks per unit distance travelled by the wheel. You can calculate
+   * this by doing the number of encoder ticks per rev * the wheel diameter * pi.
    *
-   * @param encoderTicksPerRev The number of encoder ticks in native units.
+   * @param encoderTicksPerUnit The number of encoder ticks in native units.
    */
-  public void setEncoderTicksPerRev(double encoderTicksPerRev) {
-    this.encoderTicksPerRev = encoderTicksPerRev;
-  }
-
-  /**
-   * Get the wheel diameter.
-   *
-   * @return The wheel diameter.
-   */
-  public double getWheelDiameter() {
-    return wheelDiameter;
-  }
-
-  /**
-   * Set the wheel diameter.
-   *
-   * @param wheelDiameter The wheel diameter in the same units as the Trajectory.
-   */
-  public void setWheelDiameter(double wheelDiameter) {
-    this.wheelDiameter = wheelDiameter;
+  public void setEncoderTicksPerUnit(double encoderTicksPerUnit) {
+    this.encoderTicksPerUnit = encoderTicksPerUnit;
   }
 
   /**
@@ -88,7 +68,7 @@ public class MotionProfilingProperties {
    * @return The ratio in encoder ticks / unit used in the Trajectory.
    */
   public double getEncoderTickRatio() {
-    return (1 / encoderTicksPerRev) * (wheelDiameter * Math.PI);
+    return (1 / encoderTicksPerUnit);
   }
 
   public Trajectory getTrajectory() {

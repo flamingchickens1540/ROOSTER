@@ -77,7 +77,7 @@ public class RunMotionProfiles extends Command {
 
     int length = thisTrajectory.segments.length;
     int index = startIndex;
-    if (startIndex < length) {
+    if (startIndex >= length - 1) {
       index = length - 1;
       isFinished = true;
     }

@@ -35,7 +35,8 @@ public class Utilities {
    */
   public static double processDeadzone(double axis, double deadzone) {
     double baseDeadzone = (Math.abs(axis) > Math.abs(deadzone)) ? axis : 0;
-    return (baseDeadzone - Math.copySign(deadzone, baseDeadzone)) / (1 - deadzone);
+    return baseDeadzone != 0 ? (baseDeadzone - Math.copySign(deadzone, baseDeadzone)) / (1
+        - deadzone) : 0;
   }
 
   /**
