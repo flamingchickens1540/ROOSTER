@@ -111,7 +111,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   @Override
-  public double getPercentOutput() {
+  public double getPercentOutputLimit() {
     double sum = 0;
     for (ChickenController currentMotors : motors.keySet()) {
       sum += motors.get(currentMotors);

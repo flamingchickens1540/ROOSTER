@@ -32,12 +32,11 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    *
    * @return The current percent output from 0 to 1 (not enforced!)
    */
-  double getPercentOutput();
+  double getPercentOutputLimit();
 
   /**
    * Set the percent of the current power draw this motor can draw.
    * e.g. if you were drawing .5 and set this to .5, you'll draw .25
-   *
    * @param limit The percent of the current power draw to draw.
    */
   void setPercentOutputLimit(double limit);
