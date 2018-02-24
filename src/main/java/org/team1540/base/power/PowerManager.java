@@ -30,20 +30,7 @@ public class PowerManager extends Thread implements Sendable {
     theManager.start();
   }
 
-  private int updateDelay = 5;
-
-  /**
-   * Default to be a little higher than brownouts.
-   */
-  private double voltageDipLow = 7.5;
-  private double voltageMargin = 0.5;
-  private double voltageDipLength = 0.25;
-
-  private double voltageTarget = 8.0;
-
   private final Timer voltageTimer = new Timer();
-  private boolean running = true;
-
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
   // synchronized blocks
@@ -51,6 +38,15 @@ public class PowerManager extends Thread implements Sendable {
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+  private int updateDelay = 5;
+  /**
+   * Default to be a little higher than brownouts.
+   */
+  private double voltageDipLow = 7.5;
+  private double voltageMargin = 0.5;
+  private double voltageDipLength = 0.25;
+  private double voltageTarget = 8.0;
+  private boolean running = true;
 
   private PowerManager() {
   }
@@ -177,11 +173,13 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Run an arbitrary function to scale the priority of a given {@link PowerManageable}. <p> Currently uses
+   * Run an arbitrary function to scale the priority of a given {@link PowerManageable}. <p>
+   *   Currently uses
    * inverse natural exponential For those who like LaTeX, here's the function, where h is the
    * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
    *
-   * @param highestPriority The priority of the highest priority {@link PowerManageable} currently running.
+   * @param highestPriority The priority of the highest priority {@link PowerManageable}
+   * currently running.
    * @param priority The priority of this {@link PowerManageable}.
    * @return The scale factor for this {@link PowerManageable}.
    */
