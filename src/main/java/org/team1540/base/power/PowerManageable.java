@@ -21,13 +21,6 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
   void setPriority(double priority);
 
   /**
-   * Get the total power consumption of this subsystem.
-   *
-   * @return The power consumption in watts.
-   */
-  double getPowerConsumption();
-
-  /**
    * Gets the current percent output that the motors are being capped at.
    *
    * @return The current percent output from 0 to 1 (not enforced!)
@@ -46,6 +39,13 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    */
   void stopLimitingPower();
 
+  /**
+   * Gets the class responsible for grabbing the power telemetry, including power, current, and
+   * voltage.
+   *
+   * @return The PowerTelemetry, or null if it does not exist.
+   */
+  PowerTelemetry getPowerTelemetry();
 
   /**
    * Compare two PowerManageables by priority.
@@ -62,7 +62,9 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
   default void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("PowerManageable");
     builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
-    builder.addDoubleProperty("voltage", this::getPowerConsumption, null);
+    builder.addDoubleProperty("percentOutputLimit", this::getPercentOutputLimit,
+        this::setPercentOutputLimit
+    );
   }
 
 }

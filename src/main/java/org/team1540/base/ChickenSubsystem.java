@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.team1540.base.power.PowerManageable;
+import org.team1540.base.power.PowerTelemetry;
 import org.team1540.base.wrappers.ChickenController;
+import org.team1540.base.wrappers.ChickenTalon;
 
 
 /**
@@ -17,6 +19,28 @@ import org.team1540.base.wrappers.ChickenController;
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
+
+  private PowerTelemetry powerTelemetry = new PowerTelemetry() {
+    @Override
+    public double getCurrent() {
+      double sum = 0;
+      for (ChickenController motor : motors.keySet()) {
+        if (motor instanceof ChickenTalon) {
+          sum += motor.getOutputCurrent();
+        }
+      }
+      return sum;
+    }
+
+    @Override
+    public double getVoltage() {
+      double sum = 0;
+      for (ChickenController motor : motors.keySet()) {
+        sum += motor.getMotorOutputVoltage();
+      }
+      return sum / motors.size();
+    }
+  };
 
   /**
    * Map of motors in this subsystem to be power managed, with the key being the motor and the value
@@ -102,15 +126,6 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   @Override
-  public double getPowerConsumption() {
-    double sum = 0;
-    for (ChickenController currentMotor : motors.keySet()) {
-      sum += currentMotor.getMotorOutputVoltage() * currentMotor.getOutputCurrent();
-    }
-    return sum;
-  }
-
-  @Override
   public double getPercentOutputLimit() {
     double sum = 0;
     for (ChickenController currentMotors : motors.keySet()) {
@@ -140,5 +155,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
         motors.put(currentMotor, 1d);
       }
     }
+  }
+
+  @Override
+  public PowerTelemetry getPowerTelemetry() {
+    return powerTelemetry;
   }
 }

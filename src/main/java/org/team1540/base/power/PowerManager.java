@@ -34,7 +34,8 @@ public class PowerManager extends Thread implements Sendable {
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
   // synchronized blocks
-  private final Set<PowerManageable> powerManaged = Collections.synchronizedSet(new HashSet<>());
+  private final Set<PowerManageable> powerManageables = Collections
+      .synchronizedSet(new HashSet<>());
   private final Object powerLock = new Object();
   // Because we gotta grab the power info off of it
   private final PowerDistributionPanel pdp = new PowerDistributionPanel();
@@ -96,37 +97,59 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void scalePower() {
     synchronized (powerLock) {
+      // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
+      // Otherwise, it'll be scaled flatly using the remaining bit.
 
-      Map<PowerManageable, Double> manageablePowers = new LinkedHashMap<>();
-      Map<PowerManageable, Double> manageablePowersScaled = new LinkedHashMap<>();
+      final double highestPriority = Collections.max(powerManageables).getPriority();
+      final double percentNeedToDecrease = voltageTarget / RobotController.getBatteryVoltage();
+      final double totalCurrentDraw = pdp.getTotalCurrent();
+      final double currentNeedToDecrease = percentNeedToDecrease * totalCurrentDraw;
 
-      // Find out what the highest priority is
-      double highestPriority = Collections.max(powerManaged).getPriority();
-
-      // For each PowerManageable, pass the priority into an arbitrary function, multiply that value
-      // by the actual power consumption, and store it in a map along with a running tally of the
-      // total
-      // Also store the real power draw
-      double totalScaledPower = 0;
-      for (PowerManageable thisManageable : powerManaged) {
-        double powerConsumption = thisManageable.getPowerConsumption();
-        double powerConsumptionScaled = scaleExponential(highestPriority,
-            thisManageable.getPriority()) * powerConsumption;
-        manageablePowers.put(thisManageable, powerConsumption);
-        manageablePowersScaled.put(thisManageable, powerConsumptionScaled);
-        totalScaledPower += powerConsumptionScaled;
+      // TODO Maintaining two different maps is meh
+      Set<PowerManageable> noTelemetry = new HashSet<>();
+      Map<PowerManageable, Double> manageableCurrentsUnscaled = new LinkedHashMap<>();
+      Map<PowerManageable, Double> manageableCurrentsScaled = new LinkedHashMap<>();
+      double totalCurrentDrawUnscaled = 0;
+      double totalCurrentDrawScaled = 0;
+      for (PowerManageable thisManageable : powerManageables) {
+        if (thisManageable.getPowerTelemetry() != null) {
+          double currentDrawUnscaled = thisManageable.getPowerTelemetry().getCurrent();
+          double currentDrawScaled = scaleExponential(highestPriority, thisManageable.getPriority())
+              * currentDrawUnscaled;
+          manageableCurrentsUnscaled.put(thisManageable, currentDrawUnscaled);
+          manageableCurrentsScaled.put(thisManageable, currentDrawScaled);
+          totalCurrentDrawUnscaled += currentDrawUnscaled;
+          totalCurrentDrawScaled += currentDrawScaled;
+        } else {
+          noTelemetry.add(thisManageable);
+        }
       }
 
-      // Find a factor such that the totalScaledPower * that factor = the target
-      double factor = voltageTarget * pdp.getTotalCurrent() / totalScaledPower;
+      // Find a factor such that the totalCurrentDrawScaled * that factor =
+      // totalCurrentDrawUnscaled * percentNeededToDecrease
+      // FIXME divide by zero
+      final double fancyScalingCurrentDecrease = totalCurrentDrawUnscaled * percentNeedToDecrease;
+      double scaledToUnscaledFactor = (fancyScalingCurrentDecrease) /
+          totalCurrentDrawScaled;
 
-      // Multiply each scaled power by the factor, which gets us our real target power. Then, divide
-      // that by the original power draw to get the percent output we want.
-      for (PowerManageable currentManageable : powerManaged) {
-        currentManageable
-            .setPercentOutputLimit(manageablePowersScaled.get(currentManageable) * factor /
-                manageablePowers.get(currentManageable));
+      // Multiply each scaled power by the factor, which gets us our real target current. Then,
+      // divide that by the original current draw to get the percent output we want.
+      // FIXME divide by zero
+      for (PowerManageable currentManageable : powerManageables) {
+        currentManageable.setPercentOutputLimit(manageableCurrentsScaled.get(currentManageable) *
+            scaledToUnscaledFactor / manageableCurrentsUnscaled.get(currentManageable));
       }
+
+      // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
+      // We'll flat scale the rest of the powerManageables to account for that
+
+      // Get a percentage such that it's equal to the remaining percent needed to decrease
+      double unnacountedCurrentPercent = 1 - (fancyScalingCurrentDecrease / totalCurrentDraw);
+      // Scale that across the remaining powerManageables
+      for (PowerManageable currentManageable : noTelemetry) {
+        currentManageable.setPercentOutputLimit(unnacountedCurrentPercent);
+      }
+
     }
   }
 
@@ -135,7 +158,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void stopScaling() {
     synchronized (powerLock) {
-      for (PowerManageable currentManageable : powerManaged) {
+      for (PowerManageable currentManageable : powerManageables) {
         currentManageable.stopLimitingPower();
       }
     }
@@ -195,7 +218,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   public boolean registerPowerManageable(PowerManageable toRegister) {
     synchronized (powerLock) {
-      return powerManaged.add(toRegister);
+      return powerManageables.add(toRegister);
     }
   }
 
@@ -223,7 +246,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
     synchronized (powerLock) {
-      return powerManaged.remove(toUnregister);
+      return powerManageables.remove(toUnregister);
     }
   }
 
