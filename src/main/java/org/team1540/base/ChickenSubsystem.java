@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.team1540.base.power.PowerManageable;
+import org.team1540.base.power.PowerManager;
 import org.team1540.base.power.PowerTelemetry;
 import org.team1540.base.wrappers.ChickenController;
 import org.team1540.base.wrappers.ChickenTalon;
@@ -15,7 +16,7 @@ import org.team1540.base.wrappers.ChickenVictor;
 
 /**
  * Simple implementation of core {@link Subsystem} related interfaces. Makes it quick and easy to
- * build a basic robot.
+ * build a basic zuko.
  */
 @SuppressWarnings("unused")
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
@@ -107,9 +108,16 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public ChickenSubsystem(String name) {
     super(name);
+    realConstructor();
   }
 
   public ChickenSubsystem() {
+    super();
+    realConstructor();
+  }
+
+  private void realConstructor() {
+    PowerManager.getInstance().registerPowerManageable(this);
   }
 
   @Override
