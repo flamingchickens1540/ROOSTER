@@ -1,5 +1,6 @@
 package org.team1540.base;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerTelemetry;
 import org.team1540.base.wrappers.ChickenController;
 import org.team1540.base.wrappers.ChickenTalon;
+import org.team1540.base.wrappers.ChickenVictor;
 
 
 /**
@@ -157,8 +159,24 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   }
 
+  /**
+   * Returns an object that gives the aggregate data from {@link ChickenTalon}s if all motors are
+   * either {@link ChickenTalon}s or slaved {@link ChickenVictor}s.
+   * Else, returns null.
+   * Basically, either the entire subsystem has telemetry or none of it does.
+   *
+   * @return The according {@link PowerTelemetry} object.
+   */
   @Override
   public PowerTelemetry getPowerTelemetry() {
+    // This unforunately needs to be checked at runtime, as if a Victor is slaved can change
+    // really at any time
+    for (ChickenController currentMotor : motors.keySet()) {
+      if (currentMotor instanceof ChickenVictor && !currentMotor.getControlMode().equals
+          (ControlMode.Follower)) {
+        return null;
+      }
+    }
     return powerTelemetry;
   }
 }
