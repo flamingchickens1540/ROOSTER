@@ -101,9 +101,9 @@ public class PowerManager extends Thread implements Sendable {
       // Otherwise, it'll be scaled flatly using the remaining bit.
 
       final double highestPriority = Collections.max(powerManageables).getPriority();
-      final double percentNeedToDecrease = voltageTarget / RobotController.getBatteryVoltage();
+      final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
       final double totalCurrentDraw = pdp.getTotalCurrent();
-      final double currentNeedToDecrease = percentNeedToDecrease * totalCurrentDraw;
+      final double currentNeedToDecrease = percentToTarget * totalCurrentDraw;
 
       // TODO Maintaining two different maps is meh
       Set<PowerManageable> noTelemetry = new HashSet<>();
@@ -128,23 +128,24 @@ public class PowerManager extends Thread implements Sendable {
       // Find a factor such that the totalCurrentDrawScaled * that factor =
       // totalCurrentDrawUnscaled * percentNeededToDecrease
       // FIXME divide by zero
-      final double fancyScalingCurrentDecrease = totalCurrentDrawUnscaled * percentNeedToDecrease;
-      double scaledToUnscaledFactor = (fancyScalingCurrentDecrease) /
+      final double fancyScalingCurrentTarget = totalCurrentDrawUnscaled * percentToTarget;
+      double scaledToUnscaledFactor = (fancyScalingCurrentTarget) /
           totalCurrentDrawScaled;
 
       // Multiply each scaled power by the factor, which gets us our real target current. Then,
       // divide that by the original current draw to get the percent output we want.
       // FIXME divide by zero
       for (PowerManageable currentManageable : powerManageables) {
-        currentManageable.setPercentOutputLimit(manageableCurrentsScaled.get(currentManageable) *
-            scaledToUnscaledFactor / manageableCurrentsUnscaled.get(currentManageable));
+        double percentToDecreaseTo = manageableCurrentsScaled.get(currentManageable) *
+            scaledToUnscaledFactor / manageableCurrentsUnscaled.get(currentManageable);
+        currentManageable.setPercentOutputLimit(percentToDecreaseTo);
       }
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll flat scale the rest of the powerManageables to account for that
 
       // Get a percentage such that it's equal to the remaining percent needed to decrease
-      double unnacountedCurrentPercent = 1 - (fancyScalingCurrentDecrease / totalCurrentDraw);
+      double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
       // Scale that across the remaining powerManageables
       for (PowerManageable currentManageable : noTelemetry) {
         currentManageable.setPercentOutputLimit(unnacountedCurrentPercent);
@@ -391,6 +392,5 @@ public class PowerManager extends Thread implements Sendable {
     builder.addDoubleProperty("voltageDipLength", this::getVoltageDipLength,
         this::setVoltageDipLength);
     builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
-    // Maybe add all the registered PowerManageables later?
   }
 }
