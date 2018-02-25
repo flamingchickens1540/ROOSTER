@@ -60,6 +60,10 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
 
   @Override
   default void initSendable(SendableBuilder builder) {
+    sendablePowerInfo(builder);
+  }
+
+  default void sendablePowerInfo(SendableBuilder builder) {
     builder.setSmartDashboardType("PowerManageable");
     builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
     builder.addDoubleProperty("percentOutputLimit", this::getPercentOutputLimit,

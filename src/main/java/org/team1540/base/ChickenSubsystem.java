@@ -2,6 +2,7 @@ package org.team1540.base;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -186,5 +187,11 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       }
     }
     return powerTelemetry;
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    sendablePowerInfo(builder);
   }
 }
