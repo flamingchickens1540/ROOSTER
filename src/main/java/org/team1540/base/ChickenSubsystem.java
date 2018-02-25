@@ -150,6 +150,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     synchronized (powerLock) {
       for (ChickenController currentMotor : motors.keySet()) {
         double newLimit = motors.get(currentMotor) * limit;
+        // If the limit is above 1, set it to 1
+        newLimit = newLimit > 1 ? 1 : newLimit;
         currentMotor.configPeakOutputForward(newLimit);
         currentMotor.configPeakOutputReverse(-newLimit);
         motors.put(currentMotor, newLimit);
@@ -173,6 +175,9 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    * either {@link ChickenTalon}s or slaved {@link ChickenVictor}s.
    * Else, returns null.
    * Basically, either the entire subsystem has telemetry or none of it does.
+   *
+   * Override me as necessary (e.g. for all-Victor subsystemes where you'd be getting the
+   * telemetry from the PDP.)
    *
    * @return The according {@link PowerTelemetry} object.
    */
