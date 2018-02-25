@@ -101,9 +101,10 @@ public class PowerManager extends Thread implements Sendable {
       // Otherwise, it'll be scaled flatly using the remaining bit.
 
       final double highestPriority = Collections.max(powerManageables).getPriority();
+      // The amount of our current output we need to be at
       final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
       final double totalCurrentDraw = pdp.getTotalCurrent();
-      final double currentNeedToDecrease = percentToTarget * totalCurrentDraw;
+      final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
 
       // TODO Maintaining two different maps is meh
       Set<PowerManageable> noTelemetry = new HashSet<>();
