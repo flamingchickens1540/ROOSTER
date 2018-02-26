@@ -102,6 +102,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void scalePower() {
     synchronized (powerLock) {
+      // TODO clean this up cuz it's messy
       // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
       // Otherwise, it'll be scaled flatly using the remaining bit.
 
@@ -394,7 +395,6 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Sets the voltageTarget. Defaults to 8.0V, must be {@literal >=}0.
-   * @return voltageTarget in volts.
    */
   public void setVoltageTarget(double voltageTarget) {
     if (voltageTarget < 0) {
