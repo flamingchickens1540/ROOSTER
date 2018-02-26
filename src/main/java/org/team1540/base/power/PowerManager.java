@@ -102,7 +102,8 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void scalePower() {
     synchronized (powerLock) {
-      // TODO clean this up cuz it's messy
+      // TODO clean this up cuz it's messy; some way of maintaining what's what kind of unit?
+      // TODO v is wrong
       // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
       // Otherwise, it'll be scaled flatly using the remaining bit.
 
@@ -113,18 +114,19 @@ public class PowerManager extends Thread implements Sendable {
       final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
 
       // TODO Maintaining two different maps is meh
-      Set<PowerManageable> noTelemetry = new HashSet<>();
+      Map<PowerManageable, Double> scaledPrioritiesNoTelemetry = new LinkedHashMap<>();
       Map<PowerManageable, Double> manageableCurrentsUnscaled = new LinkedHashMap<>();
       Map<PowerManageable, Double> manageableCurrentsScaled = new LinkedHashMap<>();
       double totalCurrentDrawUnscaled = 0;
       double totalCurrentDrawScaled = 0;
-      double scaledPriorityWithTelemtry = 0;
-      double scaledPriorityTotal = 0;
+      double scaledPrioritTelemtry = 0;
+      double priorityTotalTelemetry = 0;
+      double priorityTotalNoTelemetry = 0;
       for (PowerManageable thisManageable : powerManageables) {
         double scaledPriority = scaleExponential(highestPriority, thisManageable.getPriority());
-        scaledPriorityTotal += scaledPriority;
+        priorityTotalTelemetry += scaledPriority;
         if (thisManageable.getPowerTelemetry() != null) {
-          scaledPriorityWithTelemtry += scaledPriority;
+          scaledPrioritTelemtry += scaledPriority;
           double currentDrawUnscaled = thisManageable.getPowerTelemetry().getCurrent();
           double currentDrawScaled = scaledPriority * currentDrawUnscaled;
           manageableCurrentsUnscaled.put(thisManageable, currentDrawUnscaled);
@@ -132,7 +134,8 @@ public class PowerManager extends Thread implements Sendable {
           totalCurrentDrawUnscaled += currentDrawUnscaled;
           totalCurrentDrawScaled += currentDrawScaled;
         } else {
-          noTelemetry.add(thisManageable);
+          priorityTotalNoTelemetry += scaledPriority;
+          scaledPrioritiesNoTelemetry.put(thisManageable, scaledPriority);
         }
       }
 
@@ -140,9 +143,9 @@ public class PowerManager extends Thread implements Sendable {
       // totalCurrentDrawUnscaled * percentNeededToDecrease * the priority ratio between subsystems
       // with telemetry and those without it
       // Also including checking for divide by zeros
-      final double fancyScalingCurrentTarget = scaledPriorityTotal == 0 ?
-          totalCurrentDrawUnscaled * percentToTarget * (scaledPriorityWithTelemtry
-              / scaledPriorityTotal) : 0;
+      final double fancyScalingCurrentTarget = priorityTotalTelemetry == 0 ?
+          totalCurrentDrawUnscaled * percentToTarget * (scaledPrioritTelemtry
+              / priorityTotalTelemetry) : 0;
       double scaledToUnscaledFactor = totalCurrentDrawScaled == 0 ? (fancyScalingCurrentTarget) /
           totalCurrentDrawScaled : 0;
 
@@ -159,12 +162,16 @@ public class PowerManager extends Thread implements Sendable {
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll flat scale the rest of the powerManageables to account for that
 
-      // FIXME?
-      // Get a percentage such that it's equal to the remaining percent needed to decrease
+      // Get the remaining percent needed to decrease
       double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
+      // Find the percent to decrease per unit priority
+      double percentNeededToDecreasePerPriority =
+          unnacountedCurrentPercent / (priorityTotalNoTelemetry
+              / scaledPrioritiesNoTelemetry.size());
       // Scale that across the remaining powerManageables
-      for (PowerManageable currentManageable : noTelemetry) {
-        currentManageable.setPercentOutputLimit(unnacountedCurrentPercent);
+      for (PowerManageable currentManageable : scaledPrioritiesNoTelemetry.keySet()) {
+        currentManageable.setPercentOutputLimit(percentNeededToDecreasePerPriority *
+            scaledPrioritiesNoTelemetry.get(currentManageable));
       }
 
     }
