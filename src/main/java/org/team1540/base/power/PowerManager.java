@@ -18,6 +18,11 @@ to be something different.
  */
 
 // Reminder that everything will need to be thread safe
+
+/**
+ * A class for power managing PowerManageables (both with and without telemetry.) Set a target
+ * voltage to stay above, register PowerManageables, and you're good to go!
+ */
 @SuppressWarnings("unused")
 public class PowerManager extends Thread implements Sendable {
 
@@ -112,11 +117,15 @@ public class PowerManager extends Thread implements Sendable {
       Map<PowerManageable, Double> manageableCurrentsScaled = new LinkedHashMap<>();
       double totalCurrentDrawUnscaled = 0;
       double totalCurrentDrawScaled = 0;
+      double scaledPriorityWithTelemtry = 0;
+      double scaledPriorityTotal = 0;
       for (PowerManageable thisManageable : powerManageables) {
+        double scaledPriority = scaleExponential(highestPriority, thisManageable.getPriority());
+        scaledPriorityTotal += scaledPriority;
         if (thisManageable.getPowerTelemetry() != null) {
+          scaledPriorityWithTelemtry += scaledPriority;
           double currentDrawUnscaled = thisManageable.getPowerTelemetry().getCurrent();
-          double currentDrawScaled = scaleExponential(highestPriority, thisManageable.getPriority())
-              * currentDrawUnscaled;
+          double currentDrawScaled = scaledPriority * currentDrawUnscaled;
           manageableCurrentsUnscaled.put(thisManageable, currentDrawUnscaled);
           manageableCurrentsScaled.put(thisManageable, currentDrawScaled);
           totalCurrentDrawUnscaled += currentDrawUnscaled;
@@ -127,9 +136,11 @@ public class PowerManager extends Thread implements Sendable {
       }
 
       // Find a factor such that the totalCurrentDrawScaled * that factor =
-      // totalCurrentDrawUnscaled * percentNeededToDecrease
+      // totalCurrentDrawUnscaled * percentNeededToDecrease * the priority ratio between subsystems
+      // with telemetry and those without it
       // FIXME divide by zero
-      final double fancyScalingCurrentTarget = totalCurrentDrawUnscaled * percentToTarget;
+      final double fancyScalingCurrentTarget = totalCurrentDrawUnscaled * percentToTarget *
+          (scaledPriorityWithTelemtry / scaledPriorityTotal);
       double scaledToUnscaledFactor = (fancyScalingCurrentTarget) /
           totalCurrentDrawScaled;
 
@@ -145,6 +156,7 @@ public class PowerManager extends Thread implements Sendable {
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll flat scale the rest of the powerManageables to account for that
 
+      // FIXME
       // Get a percentage such that it's equal to the remaining percent needed to decrease
       double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
       // Scale that across the remaining powerManageables
