@@ -138,25 +138,27 @@ public class PowerManager extends Thread implements Sendable {
       // Find a factor such that the totalCurrentDrawScaled * that factor =
       // totalCurrentDrawUnscaled * percentNeededToDecrease * the priority ratio between subsystems
       // with telemetry and those without it
-      // FIXME divide by zero
-      final double fancyScalingCurrentTarget = totalCurrentDrawUnscaled * percentToTarget *
-          (scaledPriorityWithTelemtry / scaledPriorityTotal);
-      double scaledToUnscaledFactor = (fancyScalingCurrentTarget) /
-          totalCurrentDrawScaled;
+      // Also including checking for divide by zeros
+      final double fancyScalingCurrentTarget = scaledPriorityTotal == 0 ?
+          totalCurrentDrawUnscaled * percentToTarget * (scaledPriorityWithTelemtry
+              / scaledPriorityTotal) : 0;
+      double scaledToUnscaledFactor = totalCurrentDrawScaled == 0 ? (fancyScalingCurrentTarget) /
+          totalCurrentDrawScaled : 0;
 
       // Multiply each scaled power by the factor, which gets us our real target current. Then,
       // divide that by the original current draw to get the percent output we want.
-      // FIXME divide by zero
+      // Also includes divde by zero checking
       for (PowerManageable currentManageable : powerManageables) {
-        double percentToDecreaseTo = manageableCurrentsScaled.get(currentManageable) *
-            scaledToUnscaledFactor / manageableCurrentsUnscaled.get(currentManageable);
+        double unscaledCurrent = manageableCurrentsUnscaled.get(currentManageable);
+        double percentToDecreaseTo = unscaledCurrent == 0 ? manageableCurrentsScaled.get
+            (currentManageable) * scaledToUnscaledFactor / unscaledCurrent : 1;
         currentManageable.setPercentOutputLimit(percentToDecreaseTo);
       }
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll flat scale the rest of the powerManageables to account for that
 
-      // FIXME
+      // FIXME?
       // Get a percentage such that it's equal to the remaining percent needed to decrease
       double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
       // Scale that across the remaining powerManageables
@@ -336,7 +338,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Gets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
+   * Gets how long the voltage must dip for before doing anything. Defaults to 0.25 seconds, must be
+   * {@literal >=}0.
    *
    * @return voltageDipLength The minimum actionable spike length, in seconds.
    */
@@ -345,11 +348,15 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Sets how long the voltage must dip for before doing anything. Defaults to 0 seconds.
+   * Sets how long the voltage must dip for before doing anything. Defaults to 0.25 seconds, must
+   * be {@literal >=}0.
    *
    * @param voltageDipLength The minimum actionable spike length, in seconds.
    */
   public void setVoltageDipLength(double voltageDipLength) {
+    if (voltageDipLength < 0) {
+      throw new IllegalArgumentException("voltageDipLength must be >=0, got " + voltageDipLength);
+    }
     this.voltageDipLength = voltageDipLength;
   }
 
@@ -365,19 +372,34 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Sets the voltageMargin within which, if power limiting has engaged, power management will
-   * remain engaged. Defaults to 0.5V.
+   * remain engaged. Defaults to 0.5V, must be {@literal >=}0.
    *
    * @param voltageMargin in volts.
    */
   public void setVoltageMargin(double voltageMargin) {
+    if (voltageMargin < 0) {
+      throw new IllegalArgumentException("voltageMargin must be >=0, got " + voltageMargin);
+    }
     this.voltageMargin = voltageMargin;
   }
 
+  /**
+   * Gets the voltageTarget. Defaults to 8.0V.
+   *
+   * @return voltageTarget in volts.
+   */
   public double getVoltageTarget() {
     return voltageTarget;
   }
 
+  /**
+   * Sets the voltageTarget. Defaults to 8.0V, must be {@literal >=}0.
+   * @return voltageTarget in volts.
+   */
   public void setVoltageTarget(double voltageTarget) {
+    if (voltageTarget < 0) {
+      throw new IllegalArgumentException("voltageTarget must be >=0, got " + voltageTarget);
+    }
     this.voltageTarget = voltageTarget;
   }
 
