@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /*
 A word on language: Management is if this is running, scaling is if the power is actually being set
@@ -53,6 +54,7 @@ public class PowerManager extends Thread implements Sendable {
   private double voltageDipLength = 0.25;
   private double voltageTarget = 8.0;
   private boolean running = true;
+  private BiFunction<Double, Double, Double> priorityScalingFunction = this::scaleExponential;
 
   private PowerManager() {
   }
@@ -123,7 +125,8 @@ public class PowerManager extends Thread implements Sendable {
       double priorityTotalTelemetry = 0;
       double priorityTotalNoTelemetry = 0;
       for (PowerManageable thisManageable : powerManageables) {
-        double scaledPriority = scaleExponential(highestPriority, thisManageable.getPriority());
+        double scaledPriority = priorityScalingFunction.apply(highestPriority, thisManageable
+            .getPriority());
         priorityTotalTelemetry += scaledPriority;
         if (thisManageable.getPowerTelemetry() != null) {
           scaledPrioritTelemtry += scaledPriority;
@@ -418,6 +421,15 @@ public class PowerManager extends Thread implements Sendable {
   @Override
   public void setSubsystem(String subsystem) {
     name = subsystem;
+  }
+
+  public BiFunction<Double, Double, Double> getPriorityScalingFunction() {
+    return priorityScalingFunction;
+  }
+
+  public void setPriorityScalingFunction(
+      BiFunction<Double, Double, Double> priorityScalingFunction) {
+    this.priorityScalingFunction = priorityScalingFunction;
   }
 
   @Override
