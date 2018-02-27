@@ -128,8 +128,6 @@ public class PowerManager extends Thread implements Sendable {
       noTelemetryCount = 0;
 
       // TODO Could still use some cleanup. Still, could be worse.
-      double priorityUnscaledTotal = 0, priorityScaledTotal = 0, currentUnscaledTotal = 0,
-          currentScaledTotal = 0;
       Set<PowerProperties> manageableProperties = new LinkedHashSet<>();
       for (PowerManageable thisManageable : powerManageables) {
         PowerProperties thisPowerProperty = new PowerProperties(thisManageable, highestPriority);
@@ -150,9 +148,11 @@ public class PowerManager extends Thread implements Sendable {
       // divide that by the original current draw to get the percent output we want.
       // Also includes divde by zero checking
       for (PowerProperties currentProperties : manageableProperties) {
-        double percentToDecreaseTo = currentProperties.currentUnscaled == 0 ? currentProperties
-            .currentScaled * scaledToUnscaledFactor / currentProperties.currentUnscaled : 1;
-        currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
+        if (currentProperties.hasPowerTelemetry) {
+          double percentToDecreaseTo = currentProperties.currentUnscaled == 0 ? currentProperties
+              .currentScaled * scaledToUnscaledFactor / currentProperties.currentUnscaled : 1;
+          currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
+        }
       }
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
@@ -218,7 +218,7 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Run an arbitrary function to scale the priority of a given {@link PowerManageable}. <p>
-   *   Currently uses
+   * Currently uses
    * inverse natural exponential For those who like LaTeX, here's the function, where h is the
    * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
    *
@@ -447,7 +447,7 @@ public class PowerManager extends Thread implements Sendable {
 
     public final Double priorityUnscaled, priorityScaled, currentUnscaled, currentScaled;
     PowerManageable manageable;
-    public final boolean hasPowerTelemetry = manageable.getPowerTelemetry() != null;
+    public final boolean hasPowerTelemetry = (manageable.getPowerTelemetry() != null);
 
     public PowerProperties(PowerManageable manageable, final double highestPriority) {
       this.manageable = manageable;
@@ -469,7 +469,6 @@ public class PowerManager extends Thread implements Sendable {
     }
 
   }
-
 
 
 }
