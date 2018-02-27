@@ -58,22 +58,21 @@ public class PidDrive extends Command {
   @Override
   protected void execute() {
     // inputs
-    double fwdTriggerInput = scaling
-        .scale(Utilities.processDeadzone(joystick.getRawAxis(forwardTrigger), deadzone));
+    double fwdTriggerInput = Utilities
+        .processDeadzone(joystick.getRawAxis(forwardTrigger), deadzone);
 
-    double backTriggerInput = scaling
-        .scale(Utilities.processDeadzone(joystick.getRawAxis(backTrigger), deadzone));
+    double backTriggerInput = Utilities.processDeadzone(joystick.getRawAxis(backTrigger), deadzone);
 
     double triggerInput = fwdTriggerInput - backTriggerInput;
 
-    double leftInput = Utilities.invertIf(invertLeft,
-        scaling.scale(Utilities.processDeadzone(joystick.getRawAxis(leftAxis), deadzone)));
+    double leftInput = Utilities
+        .invertIf(invertLeft, Utilities.processDeadzone(joystick.getRawAxis(leftAxis), deadzone));
 
-    double rightInput = Utilities.invertIf(invertRight,
-        scaling.scale(Utilities.processDeadzone(joystick.getRawAxis(rightAxis), deadzone)));
+    double rightInput = Utilities
+        .invertIf(invertRight, Utilities.processDeadzone(joystick.getRawAxis(rightAxis), deadzone));
 
-    double leftSetpoint = Utilities.constrain(leftInput + triggerInput, 1);
-    double rightSetpoint = Utilities.constrain(rightInput + triggerInput, 1);
+    double leftSetpoint = Utilities.constrain(scaling.scale(leftInput + triggerInput), 1);
+    double rightSetpoint = Utilities.constrain(scaling.scale(rightInput + triggerInput), 1);
 
     doPeakOutput(left, leftSetpoint);
     doPeakOutput(right, rightSetpoint);
