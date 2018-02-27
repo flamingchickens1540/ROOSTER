@@ -109,10 +109,8 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void scalePower() {
     synchronized (powerLock) {
-      // TODO clean this up cuz it's messy; some way of maintaining what's what kind of unit?
-      // TODO v is wrong
       // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
-      // Otherwise, it'll be scaled flatly using the remaining bit.
+      // Otherwise, it'll be scaled using what power remains.
 
       final double highestPriority = Collections.max(powerManageables).getPriority();
       // The amount of our current output we need to be at
@@ -128,8 +126,6 @@ public class PowerManager extends Thread implements Sendable {
       currentScaledTotal = 0;
       noTelemetryCount = 0;
 
-      // TODO Could still use some cleanup. Still, could be worse.
-      // TODO Stop passing null around
       Set<PowerProperties> manageableProperties = new LinkedHashSet<>();
       for (PowerManageable thisManageable : powerManageables) {
         PowerProperties thisPowerProperty = new PowerProperties(thisManageable, highestPriority);
