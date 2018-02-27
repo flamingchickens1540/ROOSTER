@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -128,6 +129,7 @@ public class PowerManager extends Thread implements Sendable {
       noTelemetryCount = 0;
 
       // TODO Could still use some cleanup. Still, could be worse.
+      // TODO Stop passing null around
       Set<PowerProperties> manageableProperties = new LinkedHashSet<>();
       for (PowerManageable thisManageable : powerManageables) {
         PowerProperties thisPowerProperty = new PowerProperties(thisManageable, highestPriority);
@@ -144,33 +146,27 @@ public class PowerManager extends Thread implements Sendable {
       double scaledToUnscaledFactor = currentScaledTotal == 0 ? (fancyScalingCurrentTarget) /
           currentScaledTotal : 0;
 
-      // Multiply each scaled power by the factor, which gets us our real target current. Then,
-      // divide that by the original current draw to get the percent output we want.
-      // Also includes divde by zero checking
-      for (PowerProperties currentProperties : manageableProperties) {
-        if (currentProperties.hasPowerTelemetry) {
-          double percentToDecreaseTo = currentProperties.currentUnscaled == 0 ? currentProperties
-              .currentScaled * scaledToUnscaledFactor / currentProperties.currentUnscaled : 1;
-          currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
-        }
-      }
-
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
-      // We'll flat scale the rest of the powerManageables to account for that
+      // We'll do a dumber scale the rest of the powerManageables to account for that
 
       // Get the remaining percent needed to decrease
       double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
       // Find the percent to decrease per unit priority
       double percentNeededToDecreasePerPriority = unnacountedCurrentPercent /
           (priorityScaledNoTelemetryTotal / noTelemetryCount);
-      // Scale that across the remaining powerManageables
-      for (PowerProperties currentProperties : manageableProperties) {
-        if (!currentProperties.hasPowerTelemetry) {
-          currentProperties.manageable.setPercentOutputLimit(percentNeededToDecreasePerPriority *
-              currentProperties.priorityScaled);
-        }
-      }
 
+      // IF THERE IS TELEMETRY
+      // Multiply each scaled power by the factor, which gets us our real target current. Then,
+      // divide that by the original current draw to get the percent output we want.
+
+      // IF THERE IS NOT
+      // Do the dumber scale
+      for (PowerProperties currentProperties : manageableProperties) {
+        double percentToDecreaseTo = currentProperties.getCurrentScaled()
+            .orElse(percentNeededToDecreasePerPriority *
+                currentProperties.priorityScaled);
+        currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
+      }
     }
   }
 
@@ -445,9 +441,11 @@ public class PowerManager extends Thread implements Sendable {
 
   private class PowerProperties {
 
-    public final Double priorityUnscaled, priorityScaled, currentUnscaled, currentScaled;
-    PowerManageable manageable;
-    public final boolean hasPowerTelemetry = (manageable.getPowerTelemetry() != null);
+    private final Double priorityUnscaled;
+    private final Double priorityScaled;
+    private final Double currentUnscaled;
+    private final Double currentScaled;
+    private PowerManageable manageable;
 
     public PowerProperties(PowerManageable manageable, final double highestPriority) {
       this.manageable = manageable;
@@ -455,8 +453,8 @@ public class PowerManager extends Thread implements Sendable {
       this.priorityScaled = priorityScalingFunction.apply(highestPriority, priorityUnscaled);
       priorityUnscaledTotal += priorityUnscaled;
       priorityScaledTotal += priorityScaled;
-      if (hasPowerTelemetry) {
-        this.currentUnscaled = manageable.getPowerTelemetry().getCurrent();
+      if (manageable.getPowerTelemetry().isPresent()) {
+        this.currentUnscaled = manageable.getPowerTelemetry().get().getCurrent();
         this.currentScaled = this.priorityScaled * currentUnscaled;
         currentUnscaledTotal += currentUnscaled;
         currentScaledTotal += currentScaled;
@@ -466,6 +464,22 @@ public class PowerManager extends Thread implements Sendable {
         priorityScaledNoTelemetryTotal += priorityScaled;
         noTelemetryCount++;
       }
+    }
+
+    public Double getPriorityUnscaled() {
+      return priorityUnscaled;
+    }
+
+    public Double getPriorityScaled() {
+      return priorityScaled;
+    }
+
+    public Optional<Double> getCurrentUnscaled() {
+      return Optional.ofNullable(currentUnscaled);
+    }
+
+    public Optional<Double> getCurrentScaled() {
+      return Optional.ofNullable(currentScaled);
     }
 
   }

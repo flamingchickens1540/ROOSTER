@@ -2,6 +2,7 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
@@ -43,9 +44,9 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    * Gets the class responsible for grabbing the power telemetry, including power, current, and
    * voltage.
    *
-   * @return The PowerTelemetry, or null if it does not exist.
+   * @return The PowerTelemetry contained in an optional, empty if it does not exist.
    */
-  PowerTelemetry getPowerTelemetry();
+  Optional<PowerTelemetry> getPowerTelemetry();
 
   /**
    * Compare two PowerManageables by priority.

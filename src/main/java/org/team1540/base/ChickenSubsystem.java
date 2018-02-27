@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
 import org.team1540.base.power.PowerTelemetry;
@@ -182,16 +183,16 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    * @return The according {@link PowerTelemetry} object.
    */
   @Override
-  public PowerTelemetry getPowerTelemetry() {
+  public Optional<PowerTelemetry> getPowerTelemetry() {
     // This unforunately needs to be checked at runtime, as if a Victor is slaved can change
     // really at any time
     for (ChickenController currentMotor : motors.keySet()) {
       if (currentMotor instanceof ChickenVictor && !currentMotor.getControlMode().equals
           (ControlMode.Follower)) {
-        return null;
+        return Optional.empty();
       }
     }
-    return powerTelemetry;
+    return Optional.of(powerTelemetry);
   }
 
   @Override
