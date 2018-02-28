@@ -137,10 +137,10 @@ public class PowerManager extends Thread implements Sendable {
       // with telemetry and those without it
       // Also including checking for divide by zeros
       final double fancyScalingCurrentTarget = priorityUnscaledTotal == 0 ?
-          currentUnscaledTotal * percentToTarget * (priorityScaledTotal / priorityUnscaledTotal)
-          : 0;
-      double scaledToUnscaledFactor = currentScaledTotal == 0 ? (fancyScalingCurrentTarget) /
-          currentScaledTotal : 0;
+          0 : currentUnscaledTotal * percentToTarget * (priorityScaledTotal /
+          priorityUnscaledTotal);
+      double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 : (fancyScalingCurrentTarget) /
+          currentScaledTotal;
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
@@ -156,11 +156,17 @@ public class PowerManager extends Thread implements Sendable {
       // divide that by the original current draw to get the percent output we want.
 
       // IF THERE IS NOT
-      // Do the dumber scale
+      // Do the dumber scale, linear centered around the average amount needed to decrease.
       for (PowerProperties currentProperties : manageableProperties) {
-        double percentToDecreaseTo = currentProperties.getCurrentScaled()
-            .orElse(percentNeededToDecreasePerPriority *
-                currentProperties.priorityScaled);
+        double percentToDecreaseTo;
+        if (currentProperties.getCurrentUnscaled().isPresent()) {
+          percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
+              1 : currentProperties.getCurrentScaled().get() * scaledToUnscaledFactor /
+              currentProperties.getCurrentUnscaled().get();
+        } else {
+          percentToDecreaseTo =
+              percentNeededToDecreasePerPriority * currentProperties.priorityScaled;
+        }
         currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
       }
     }
@@ -210,8 +216,8 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Scale the priority of a given {@link PowerManageable} using an inverse natural
-   * exponential. For those who like LaTeX, here's the function, where h is the
-   * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
+   * exponential. \(\frac{h}{e^{\left(h-x\right)}}\) where h is the
+   * highest priority and x is the priority.
    *
    * @param highestPriority The priority of the highest priority {@link PowerManageable}
    * currently running.
