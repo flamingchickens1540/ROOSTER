@@ -104,8 +104,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Separate method to block PowerManageable registration/unregistration while actually scaling the
-   * power.
+   * Separate method to block {@link PowerManageable} registration/unregistration while actually
+   * scaling the power.
    */
   private void scalePower() {
     synchronized (powerLock) {
@@ -179,10 +179,10 @@ public class PowerManager extends Thread implements Sendable {
 
   /**
    * Determines if the voltage is currently dipping. If power limiting is not engaged,
-   * returns RobotController.getBatteryVoltage() &lt; voltageDipLow || RobotController.
-   * isBrownedOut();
-   * If power limiting is engaged, returns pdp.getVoltage() &lt; voltageDipLow + voltageMargin ||
-   * RobotController.isBrownedOut();.
+   * returns {@link RobotController#getBatteryVoltage()} &lt; voltageDipLow ||
+   * {@link RobotController#isBrownedOut()};
+   * If power limiting is engaged, returns {@link PowerDistributionPanel#getVoltage()} &lt;
+   * voltageDipLow + voltageMargin || {@link RobotController#isBrownedOut()};
    *
    * @return Boolean representing if the voltage is dipping.
    */
@@ -209,9 +209,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Run an arbitrary function to scale the priority of a given {@link PowerManageable}. <p>
-   * Currently uses
-   * inverse natural exponential For those who like LaTeX, here's the function, where h is the
+   * Scale the priority of a given {@link PowerManageable} using an inverse natural
+   * exponential. For those who like LaTeX, here's the function, where h is the
    * highest priority and x is the priority \frac{h}{e^{\left(h-x\right)}}
    *
    * @param highestPriority The priority of the highest priority {@link PowerManageable}
@@ -264,7 +263,8 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Unregisters a group of {@link PowerManageable}s. Calls unregisterPowerManager().
+   * Unregisters a group of {@link PowerManageable}s. Calls
+   * {@link PowerManager#unregisterPowerManageable(PowerManageable)}}.
    *
    * @param toUnregister The {@link PowerManageable}s to unregister.
    * @return A map of PowerManageables with the key true if the PowerManager contained the specified
@@ -443,7 +443,7 @@ public class PowerManager extends Thread implements Sendable {
     private final Double currentScaled;
     private PowerManageable manageable;
 
-    public PowerProperties(PowerManageable manageable, final double highestPriority) {
+    private PowerProperties(PowerManageable manageable, final double highestPriority) {
       this.manageable = manageable;
       this.priorityUnscaled = manageable.getPriority();
       this.priorityScaled = priorityScalingFunction.apply(highestPriority, priorityUnscaled);
@@ -462,19 +462,19 @@ public class PowerManager extends Thread implements Sendable {
       }
     }
 
-    public Double getPriorityUnscaled() {
+    private Double getPriorityUnscaled() {
       return priorityUnscaled;
     }
 
-    public Double getPriorityScaled() {
+    private Double getPriorityScaled() {
       return priorityScaled;
     }
 
-    public Optional<Double> getCurrentUnscaled() {
+    private Optional<Double> getCurrentUnscaled() {
       return Optional.ofNullable(currentUnscaled);
     }
 
-    public Optional<Double> getCurrentScaled() {
+    private Optional<Double> getCurrentScaled() {
       return Optional.ofNullable(currentScaled);
     }
 
