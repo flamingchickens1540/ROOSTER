@@ -74,8 +74,8 @@ public class PidDrive extends Command {
     double leftSetpoint = Utilities.constrain(scaling.scale(leftInput + triggerInput), 1);
     double rightSetpoint = Utilities.constrain(scaling.scale(rightInput + triggerInput), 1);
 
-    doPeakOutput(left, leftSetpoint);
-    doPeakOutput(right, rightSetpoint);
+    doPeakOutput(left, leftSetpoint, invertLeftBrakeDirection);
+    doPeakOutput(right, rightSetpoint, invertRightBrakeDirection);
 
     left.set(ControlMode.Velocity, leftSetpoint * maxVel);
     right.set(ControlMode.Velocity, rightSetpoint * maxVel);
@@ -227,13 +227,13 @@ public class PidDrive extends Command {
     this.brakeOverrideThresh = brakeOverrideThresh;
   }
 
-  private void doPeakOutput(ChickenController controller, double setpoint) {
+  private void doPeakOutput(ChickenController controller, double setpoint, boolean invertBrake) {
     boolean stopped = abs(controller.getSelectedSensorVelocity()) < abs(brakingStopZone * maxVel);
 
     if (!stopped && setpoint < brakeOverrideThresh) {
       // process braking
       boolean goingForward =
-          Utilities.invertIf(invertLeftBrakeDirection, left.getSelectedSensorVelocity()) > 0;
+          Utilities.invertIf(invertBrake, controller.getSelectedSensorVelocity()) > 0;
 
       controller.configPeakOutputForward(goingForward ? 1 : maxBrakePct);
       controller.configPeakOutputReverse(goingForward ? -maxBrakePct : -1);
