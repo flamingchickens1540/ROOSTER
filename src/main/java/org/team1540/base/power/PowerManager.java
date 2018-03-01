@@ -1,5 +1,7 @@
 package org.team1540.base.power;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Sendable;
@@ -28,6 +30,7 @@ to be something different.
 @SuppressWarnings("unused")
 public class PowerManager extends Thread implements Sendable {
 
+  @NotNull
   private static String name = "PowerManager";
 
   // Singleton
@@ -55,6 +58,7 @@ public class PowerManager extends Thread implements Sendable {
   private double voltageDipLength = 0.25;
   private double voltageTarget = 8.0;
   private boolean running = true;
+  @NotNull
   private BiFunction<Double, Double, Double> priorityScalingFunction = this::scaleExponential;
 
   private double priorityUnscaledTotal, priorityScaledTotal, priorityScaledNoTelemetryTotal,
@@ -234,7 +238,7 @@ public class PowerManager extends Thread implements Sendable {
    * @param toRegister The {@link PowerManageable} to register.
    * @return true if the PowerManager did not already contain the specified element
    */
-  public boolean registerPowerManageable(PowerManageable toRegister) {
+  public boolean registerPowerManageable(@NotNull PowerManageable toRegister) {
     synchronized (powerLock) {
       return powerManageables.add(toRegister);
     }
@@ -443,10 +447,15 @@ public class PowerManager extends Thread implements Sendable {
 
   private class PowerProperties {
 
+    @NotNull
     private final Double priorityUnscaled;
+    @NotNull
     private final Double priorityScaled;
+    @Nullable
     private final Double currentUnscaled;
+    @Nullable
     private final Double currentScaled;
+    @NotNull
     private PowerManageable manageable;
 
     private PowerProperties(PowerManageable manageable, final double highestPriority) {
@@ -468,18 +477,22 @@ public class PowerManager extends Thread implements Sendable {
       }
     }
 
+    @NotNull
     private Double getPriorityUnscaled() {
       return priorityUnscaled;
     }
 
+    @NotNull
     private Double getPriorityScaled() {
       return priorityScaled;
     }
 
+    @NotNull
     private Optional<Double> getCurrentUnscaled() {
       return Optional.ofNullable(currentUnscaled);
     }
 
+    @NotNull
     private Optional<Double> getCurrentScaled() {
       return Optional.ofNullable(currentScaled);
     }
