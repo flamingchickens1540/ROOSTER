@@ -1,7 +1,5 @@
 package org.team1540.base.power;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Sendable;
@@ -15,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /*
 A word on language: Management is if this is running, scaling is if the power is actually being set
