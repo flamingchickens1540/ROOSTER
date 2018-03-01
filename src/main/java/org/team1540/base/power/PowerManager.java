@@ -146,9 +146,9 @@ public class PowerManager extends Thread implements Sendable {
       // We'll do a dumber scale the rest of the powerManageables to account for that
 
       // Get the remaining percent needed to decrease
-      double unnacountedCurrentPercent = 1 - (fancyScalingCurrentTarget / totalCurrentDraw);
+      double unaccountedCurrentPercent = 1 - (fancyScalingCurrentTarget / currentNeedToDecrease);
       // Find the percent to decrease per unit priority
-      double percentNeededToDecreasePerPriority = unnacountedCurrentPercent /
+      double percentNeededToDecreasePerPriority = unaccountedCurrentPercent /
           (priorityScaledNoTelemetryTotal / noTelemetryCount);
 
       // IF THERE IS TELEMETRY
