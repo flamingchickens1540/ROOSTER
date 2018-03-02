@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,8 +48,9 @@ public class PowerManager extends Thread implements Sendable {
   private final Set<PowerManageable> powerManageables = Collections
       .synchronizedSet(new HashSet<>());
   private final Object powerLock = new Object();
-  // Because we gotta grab the power info off of it
-  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+
+  @NotNull
+  private DoubleSupplier getTotalPower = () -> new PowerDistributionPanel().getTotalCurrent();
   private int updateDelay = 5;
   /**
    * Default to be a little higher than brownouts.
@@ -119,7 +121,7 @@ public class PowerManager extends Thread implements Sendable {
       final double highestPriority = Collections.max(powerManageables).getPriority();
       // The amount of our current output we need to be at
       final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
-      final double totalCurrentDraw = pdp.getTotalCurrent();
+      final double totalCurrentDraw = getTotalPower.getAsDouble();
       final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
 
       // Reset the totals
@@ -136,21 +138,18 @@ public class PowerManager extends Thread implements Sendable {
         manageableProperties.add(thisPowerProperty);
       }
 
-      // Find a factor such that the totalCurrentDrawScaled * that factor =
-      // totalCurrentDrawUnscaled * percentNeededToDecrease * the priority ratio between subsystems
-      // with telemetry and those without it
-      // Also including checking for divide by zeros
-      final double fancyScalingCurrentTarget = priorityUnscaledTotal == 0 ?
-          0 : currentUnscaledTotal * percentToTarget * (priorityScaledTotal /
-          priorityUnscaledTotal);
-      double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 : (fancyScalingCurrentTarget) /
-          currentScaledTotal;
+      // FIXME?
+      // Find a factor such that a given currentScaled / a given priorityScaled * that factor =
+      // the percent to target, with divide by zero checking
+      final double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 :
+          percentToTarget * priorityScaledTotal / currentScaledTotal;
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
 
       // Get the remaining percent needed to decrease
-      double unaccountedCurrentPercent = 1 - (fancyScalingCurrentTarget / currentNeedToDecrease);
+      // FIXME
+      double unaccountedCurrentPercent = 0;
       // Find the percent to decrease per unit priority
       double percentNeededToDecreasePerPriority = unaccountedCurrentPercent /
           (priorityScaledNoTelemetryTotal / noTelemetryCount);
@@ -164,12 +163,14 @@ public class PowerManager extends Thread implements Sendable {
       for (PowerProperties currentProperties : manageableProperties) {
         double percentToDecreaseTo;
         if (currentProperties.getCurrentUnscaled().isPresent()) {
+          // Set the percentToDecreaseTo to the current we want to have out of the present
+          // current, with divide by zero checking
           percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
               1 : currentProperties.getCurrentScaled().get() * scaledToUnscaledFactor /
               currentProperties.getCurrentUnscaled().get();
         } else {
-          percentToDecreaseTo =
-              percentNeededToDecreasePerPriority * currentProperties.priorityScaled;
+          percentToDecreaseTo = 1 - percentNeededToDecreasePerPriority * currentProperties
+              .priorityScaled;
         }
         currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
       }
@@ -426,6 +427,14 @@ public class PowerManager extends Thread implements Sendable {
   public void setPriorityScalingFunction(
       BiFunction<Double, Double, Double> priorityScalingFunction) {
     this.priorityScalingFunction = priorityScalingFunction;
+  }
+
+  public DoubleSupplier getGetTotalPower() {
+    return getTotalPower;
+  }
+
+  public void setGetTotalPower(@NotNull DoubleSupplier getTotalPower) {
+    this.getTotalPower = getTotalPower;
   }
 
   @Override
