@@ -506,6 +506,32 @@ public class PowerManager extends Thread implements Sendable {
       return Optional.ofNullable(currentScaled);
     }
 
+    // In case the PDP is being funky, this provides a way to get the total power from the
+    // controllers instead
+    private class GetPowerFromControllersDoubleSupplier implements DoubleSupplier {
+
+      @Override
+      public double getAsDouble() {
+        synchronized (powerLock) {
+          double totalCurrent = 0;
+          for (PowerManageable currentManageable : powerManageables) {
+            totalCurrent += currentManageable.getPowerTelemetry().orElse(new PowerTelemetry() {
+              @Override
+              public double getCurrent() {
+                return 0;
+              }
+
+              @Override
+              public double getVoltage() {
+                return 0;
+              }
+            }).getCurrent();
+          }
+          return totalCurrent;
+        }
+      }
+    }
+
   }
 
 
