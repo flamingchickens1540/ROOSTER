@@ -27,15 +27,20 @@ artifacts {
     archives javadocJar
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile wpilib()
     compile ctre()
     compile navx()
     compile pathfinder()
+    compile 'org.jetbrains:annotations:15.0'
 }
 
 def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.testing.XXX"
+def ROBOT_CLASS = "org.team1540.base.testing.zuko.Robot"
 
 deploy {
     targets {
@@ -47,8 +52,8 @@ deploy {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
             /*
-            IMPORTANT: With this line in the buildscript, the robot code will not start until
-            you connect your debugger to the robot. Connect by running the "Remote Robot Debug"
+            IMPORTANT: With this line in the buildscript, the zuko code will not start until
+            you connect your debugger to the zuko. Connect by running the "Remote Robot Debug"
             run configuration which should be shared through version control. Alternatively,
             remove this line and redeploy.
             */
