@@ -36,11 +36,16 @@ artifacts {
     archives javadocJar
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile wpilib()
     compile ctre()
     compile navx()
     compile pathfinder()
+    compile 'org.jetbrains:annotations:15.0'
 }
 
 def TEAM = 1540
