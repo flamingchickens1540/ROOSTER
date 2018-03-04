@@ -138,39 +138,34 @@ public class PowerManager extends Thread implements Sendable {
         manageableProperties.add(thisPowerProperty);
       }
 
-      // FIXME?
-      // Find a factor such that a given currentScaled / a given priorityScaled * that factor =
-      // the percent to target, with divide by zero checking
-      final double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 :
-          percentToTarget * priorityScaledTotal / currentScaledTotal;
+      // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
+      // simple flat scaling on
+      final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
+      final double percentFancyScaling = 1 - percentSimpleScaling;
+
+      final double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 : priorityScaledTotal /
+          currentScaledTotal;
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
-
-      // Get the remaining percent needed to decrease
-      // FIXME
-      double unaccountedCurrentPercent = 0;
-      // Find the percent to decrease per unit priority
-      double percentNeededToDecreasePerPriority = unaccountedCurrentPercent /
-          (priorityScaledNoTelemetryTotal / noTelemetryCount);
 
       // IF THERE IS TELEMETRY
       // Multiply each scaled power by the factor, which gets us our real target current. Then,
       // divide that by the original current draw to get the percent output we want.
 
       // IF THERE IS NOT
-      // Do the dumber scale, linear centered around the average amount needed to decrease.
+      // Do a flat scale since we don't know how to break it up to hit the total
       for (PowerProperties currentProperties : manageableProperties) {
         double percentToDecreaseTo;
         if (currentProperties.getCurrentUnscaled().isPresent()) {
           // Set the percentToDecreaseTo to the current we want to have out of the present
-          // current, with divide by zero checking
+          // current times amount we want to use with fancy scaling, with divide by zero checking
+          double currentToTarget = percentToTarget * currentProperties.getCurrentScaled().get() *
+              scaledToUnscaledFactor * percentFancyScaling;
           percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
-              1 : currentProperties.getCurrentScaled().get() * scaledToUnscaledFactor /
-              currentProperties.getCurrentUnscaled().get();
+              1 : currentToTarget / currentProperties.getCurrentUnscaled().get();
         } else {
-          percentToDecreaseTo = 1 - percentNeededToDecreasePerPriority * currentProperties
-              .priorityScaled;
+          percentToDecreaseTo = (1 - percentSimpleScaling) * percentToTarget;
         }
         currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
       }
@@ -420,15 +415,17 @@ public class PowerManager extends Thread implements Sendable {
     name = subsystem;
   }
 
+  @NotNull
   public BiFunction<Double, Double, Double> getPriorityScalingFunction() {
     return priorityScalingFunction;
   }
 
   public void setPriorityScalingFunction(
-      BiFunction<Double, Double, Double> priorityScalingFunction) {
+      @NotNull BiFunction<Double, Double, Double> priorityScalingFunction) {
     this.priorityScalingFunction = priorityScalingFunction;
   }
 
+  @NotNull
   public DoubleSupplier getGetTotalPower() {
     return getTotalPower;
   }
