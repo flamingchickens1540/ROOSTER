@@ -115,7 +115,7 @@ public class RunMotionProfiles extends Command {
   }
 
   @Override
-  protected boolean isFinished() {
+  public boolean isFinished() {
     return isFinished;
   }
 }
