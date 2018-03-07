@@ -47,12 +47,14 @@ public class RunMotionProfiles extends Command {
     this.motionProfiles = motionProfiles;
   }
 
+  @Override
   protected void initialize() {
     timer.start();
     lastTime = timer.get();
     isFinished = false;
   }
 
+  @Override
   protected void execute() {
     for (MotionProfilingProperties currentProperty : motionProfiles) {
       // Each controller's setpoint is calculated at a slightly different time, but this doesn't
@@ -82,6 +84,17 @@ public class RunMotionProfiles extends Command {
       isFinished = true;
     }
     return thisTrajectory.segments[index].velocity / encoderMultiplier * 0.1;
+  }
+
+  /**
+   * Sets the velocity to 0 for all properties and sets isFinished to true.
+   */
+  @Override
+  protected void interrupted() {
+    for (MotionProfilingProperties currentProperty : motionProfiles) {
+      currentProperty.getSetMotorVelocityFunction().accept(0);
+    }
+    isFinished = true;
   }
 
   /**
