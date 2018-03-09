@@ -143,8 +143,10 @@ public class PowerManager extends Thread implements Sendable {
       final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
       final double percentFancyScaling = 1 - percentSimpleScaling;
 
-      final double scaledToUnscaledFactor = currentScaledTotal == 0 ? 0 : priorityScaledTotal /
-          currentScaledTotal;
+      // I kind of forgot how this works. Totally does tho.
+      final double scaledToUnscaledFactor = currentScaledTotal == 0 || priorityUnscaledTotal == 0 ?
+          0 : percentToTarget * (currentUnscaledTotal / currentScaledTotal) * (priorityScaledTotal
+          / priorityUnscaledTotal);
 
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
