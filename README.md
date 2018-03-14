@@ -37,6 +37,8 @@ Download the latest version from the [releases page](https://github.com/flamingc
 
 ## Manifest
 
+[Javadoc hosted on Github Pages](https://flamingchickens1540.github.io/ROOSTER)
+
 ### Power Management
 `org.team1540.base.power`
 - A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
