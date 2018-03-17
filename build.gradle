@@ -6,7 +6,7 @@ plugins {
     id "java"
     id "idea"
     id "maven"
-    id "jaci.openrio.gradle.GradleRIO" version "2018.01.22"
+    id "jaci.openrio.gradle.GradleRIO" version "2018.02.17"
 }
 
 group = 'org.team1540'
@@ -20,6 +20,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+javadoc {
+    options.header = '<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
+    options.addBooleanOption("-allow-script-in-comments", true)
 }
 
 artifacts {

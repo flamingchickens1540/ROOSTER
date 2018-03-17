@@ -59,34 +59,18 @@ public class PidDrive extends Command {
   protected void execute() {
     // inputs
     double fwdTriggerInput = scaling
-        .scale((Utilities.processAxisDeadzone(joystick.getRawAxis(forwardTrigger), deadzone)
-                - Math.copySign(
-            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(forwardTrigger), deadzone)
-            )) * (1 / (1 - deadzone))
-        );
+        .scale(Utilities.processDeadzone(joystick.getRawAxis(forwardTrigger), deadzone));
 
     double backTriggerInput = scaling
-        .scale((Utilities.processAxisDeadzone(joystick.getRawAxis(backTrigger), deadzone)
-                - Math.copySign(
-            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(backTrigger), deadzone)
-            )) * (1 / (1 - deadzone))
-        );
+        .scale(Utilities.processDeadzone(joystick.getRawAxis(backTrigger), deadzone));
 
     double triggerInput = fwdTriggerInput - backTriggerInput;
 
     double leftInput = Utilities.invertIf(invertLeft,
-        scaling.scale((Utilities.processAxisDeadzone(joystick.getRawAxis(leftAxis), deadzone)
-            - Math.copySign(deadzone,
-            Utilities.processAxisDeadzone(joystick.getRawAxis(leftAxis), deadzone)
-        )) * (1 / (1 - deadzone)))
-    );
+        scaling.scale(Utilities.processDeadzone(joystick.getRawAxis(leftAxis), deadzone)));
 
     double rightInput = Utilities.invertIf(invertRight,
-        scaling.scale((Utilities.processAxisDeadzone(joystick.getRawAxis(rightAxis), deadzone)
-            - Math.copySign(
-            deadzone, Utilities.processAxisDeadzone(joystick.getRawAxis(rightAxis), deadzone)
-        )) * (1 / (1 - deadzone)))
-    );
+        scaling.scale(Utilities.processDeadzone(joystick.getRawAxis(rightAxis), deadzone)));
 
     double leftSetpoint = Utilities.constrain(leftInput + triggerInput, 1);
     double rightSetpoint = Utilities.constrain(rightInput + triggerInput, 1);
