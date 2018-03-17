@@ -151,6 +151,9 @@ public class PowerManager extends Thread implements Sendable {
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
 
+      double cachedMathTelemetry = percentToTarget * scaledToUnscaledFactor * percentFancyScaling;
+      double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
+
       // IF THERE IS TELEMETRY
       // Multiply each scaled power by the factor, which gets us our real target current. Then,
       // divide that by the original current draw to get the percent output we want.
@@ -162,12 +165,11 @@ public class PowerManager extends Thread implements Sendable {
         if (currentProperties.getCurrentUnscaled().isPresent()) {
           // Set the percentToDecreaseTo to the current we want to have out of the present
           // current times amount we want to use with fancy scaling, with divide by zero checking
-          double currentToTarget = percentToTarget * currentProperties.getCurrentScaled().get() *
-              scaledToUnscaledFactor * percentFancyScaling;
+          double currentToTarget = currentProperties.getCurrentScaled().get() * cachedMathTelemetry;
           percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
               1 : currentToTarget / currentProperties.getCurrentUnscaled().get();
         } else {
-          percentToDecreaseTo = (1 - percentSimpleScaling) * percentToTarget;
+          percentToDecreaseTo = cachedMathNoTelemetry;
         }
         currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
       }
