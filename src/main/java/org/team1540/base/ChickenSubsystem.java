@@ -18,7 +18,7 @@ import org.team1540.base.wrappers.ChickenVictor;
 
 /**
  * Simple implementation of core {@link Subsystem} related interfaces. Makes it quick and easy to
- * build a basic zuko.
+ * build a basic robot.
  */
 @SuppressWarnings("unused")
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
@@ -177,7 +177,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    * Else, returns null.
    * Basically, either the entire subsystem has telemetry or none of it does.
    *
-   * Override me as necessary (e.g. for all-Victor subsystemes where you'd be getting the
+   * Override me as necessary (e.g. for all-Victor subsystems where you'd be getting the
    * telemetry from the PDP.)
    *
    * @return The according {@link PowerTelemetry} object.
