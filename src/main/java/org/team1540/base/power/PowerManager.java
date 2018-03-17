@@ -516,17 +516,9 @@ public class PowerManager extends Thread implements Sendable {
         synchronized (powerLock) {
           double totalCurrent = 0;
           for (PowerManageable currentManageable : powerManageables) {
-            totalCurrent += currentManageable.getPowerTelemetry().orElse(new PowerTelemetry() {
-              @Override
-              public double getCurrent() {
-                return 0;
-              }
-
-              @Override
-              public double getVoltage() {
-                return 0;
-              }
-            }).getCurrent();
+            if (currentManageable.getPowerTelemetry().isPresent()) {
+              totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
+            }
           }
           return totalCurrent;
         }
