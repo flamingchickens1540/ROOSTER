@@ -129,7 +129,7 @@ public class PowerManager extends Thread implements Sendable {
       noTelemetryCount = 0;
 
       for (CachedPowerProperties powerProperty : powerManageables.values()) {
-//        powerProperty.refreshTelemetry();
+        powerProperty.refreshTelemetry();
       }
 
       // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
