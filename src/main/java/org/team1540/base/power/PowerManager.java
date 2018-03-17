@@ -7,11 +7,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
@@ -45,8 +42,8 @@ public class PowerManager extends Thread implements Sendable {
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
   // synchronized blocks
-  private final Set<PowerManageable> powerManageables = Collections
-      .synchronizedSet(new HashSet<>());
+  private final Map<PowerManageable, CachedPowerProperties> powerManageables = Collections
+      .synchronizedMap(new HashMap<>());
   private final Object powerLock = new Object();
 
   @NotNull
@@ -64,8 +61,7 @@ public class PowerManager extends Thread implements Sendable {
   private BiFunction<Double, Double, Double> priorityScalingFunction = this::scaleExponential;
 
   private double priorityUnscaledTotal, priorityScaledTotal, priorityScaledNoTelemetryTotal,
-      currentUnscaledTotal,
-      currentScaledTotal, noTelemetryCount;
+      currentUnscaledTotal, currentScaledTotal, noTelemetryCount, highestPriority;
 
   private PowerManager() {
   }
@@ -118,7 +114,7 @@ public class PowerManager extends Thread implements Sendable {
       // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
       // Otherwise, it'll be scaled using what power remains.
 
-      final double highestPriority = Collections.max(powerManageables).getPriority();
+      highestPriority = Collections.max(powerManageables.keySet()).getPriority();
       // The amount of our current output we need to be at
       final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
       final double totalCurrentDraw = getTotalPower.getAsDouble();
@@ -132,10 +128,8 @@ public class PowerManager extends Thread implements Sendable {
       currentScaledTotal = 0;
       noTelemetryCount = 0;
 
-      Set<PowerProperties> manageableProperties = new LinkedHashSet<>();
-      for (PowerManageable thisManageable : powerManageables) {
-        PowerProperties thisPowerProperty = new PowerProperties(thisManageable, highestPriority);
-        manageableProperties.add(thisPowerProperty);
+      for (CachedPowerProperties powerProperty : powerManageables.values()) {
+//        powerProperty.refreshTelemetry();
       }
 
       // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
@@ -160,7 +154,7 @@ public class PowerManager extends Thread implements Sendable {
 
       // IF THERE IS NOT
       // Do a flat scale since we don't know how to break it up to hit the total
-      for (PowerProperties currentProperties : manageableProperties) {
+      for (CachedPowerProperties currentProperties : powerManageables.values()) {
         double percentToDecreaseTo;
         if (currentProperties.getCurrentUnscaled().isPresent()) {
           // Set the percentToDecreaseTo to the current we want to have out of the present
@@ -181,7 +175,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   private void stopScaling() {
     synchronized (powerLock) {
-      for (PowerManageable currentManageable : powerManageables) {
+      for (PowerManageable currentManageable : powerManageables.keySet()) {
         currentManageable.stopLimitingPower();
       }
     }
@@ -240,7 +234,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   public boolean registerPowerManageable(@NotNull PowerManageable toRegister) {
     synchronized (powerLock) {
-      return powerManageables.add(toRegister);
+      return (powerManageables.put(toRegister, new CachedPowerProperties(toRegister)) == null);
     }
   }
 
@@ -268,7 +262,7 @@ public class PowerManager extends Thread implements Sendable {
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
     synchronized (powerLock) {
-      return powerManageables.remove(toUnregister);
+      return powerManageables.remove(toUnregister) != null;
     }
   }
 
@@ -455,21 +449,25 @@ public class PowerManager extends Thread implements Sendable {
   }
 
 
-  private class PowerProperties {
+  private class CachedPowerProperties {
 
     @NotNull
-    private final Double priorityUnscaled;
+    private Double priorityUnscaled;
     @NotNull
-    private final Double priorityScaled;
+    private Double priorityScaled;
     @Nullable
-    private final Double currentUnscaled;
+    private Double currentUnscaled;
     @Nullable
-    private final Double currentScaled;
+    private Double currentScaled;
     @NotNull
     private PowerManageable manageable;
 
-    private PowerProperties(PowerManageable manageable, final double highestPriority) {
+    public CachedPowerProperties(@NotNull PowerManageable manageable) {
       this.manageable = manageable;
+      refreshTelemetry();
+    }
+
+    public void refreshTelemetry() {
       this.priorityUnscaled = manageable.getPriority();
       this.priorityScaled = priorityScalingFunction.apply(highestPriority, priorityUnscaled);
       priorityUnscaledTotal += priorityUnscaled;
@@ -515,7 +513,7 @@ public class PowerManager extends Thread implements Sendable {
       public double getAsDouble() {
         synchronized (powerLock) {
           double totalCurrent = 0;
-          for (PowerManageable currentManageable : powerManageables) {
+          for (PowerManageable currentManageable : powerManageables.keySet()) {
             if (currentManageable.getPowerTelemetry().isPresent()) {
               totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
             }
