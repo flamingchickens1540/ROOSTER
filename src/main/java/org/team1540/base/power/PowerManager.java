@@ -47,8 +47,8 @@ public class PowerManager extends Thread implements Sendable {
   private final Object powerLock = new Object();
 
   @NotNull
-  private DoubleSupplier getTotalPower = () -> new PowerDistributionPanel().getTotalCurrent();
-  private int updateDelay = 5;
+  private DoubleSupplier getTotalPower = (new PowerDistributionPanel())::getTotalCurrent;
+  private int updateDelay = 10;
   /**
    * Default to be a little higher than brownouts.
    */
@@ -321,7 +321,7 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Gets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
+   * Gets the required voltage value for the zuko to be considered dipping. Defaults to 7.2V.
    *
    * @return voltageDipLow The minimum dip value, in volts.
    */
@@ -330,7 +330,7 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Sets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
+   * Sets the required voltage value for the zuko to be considered dipping. Defaults to 7.2V.
    *
    * @param voltageDipLow The minimum dip value, in volts.
    */
@@ -504,25 +504,24 @@ public class PowerManager extends Thread implements Sendable {
     private Optional<Double> getCurrentScaled() {
       return Optional.ofNullable(currentScaled);
     }
+  }
 
-    // In case the PDP is being funky, this provides a way to get the total power from the
-    // controllers instead
-    private class GetPowerFromControllersDoubleSupplier implements DoubleSupplier {
+  // In case the PDP is being funky, this provides a way to get the total power from the
+  // controllers instead
+  public class GetPowerFromControllersDoubleSupplier implements DoubleSupplier {
 
-      @Override
-      public double getAsDouble() {
-        synchronized (powerLock) {
-          double totalCurrent = 0;
-          for (PowerManageable currentManageable : powerManageables.keySet()) {
-            if (currentManageable.getPowerTelemetry().isPresent()) {
-              totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
-            }
+    @Override
+    public double getAsDouble() {
+      synchronized (powerLock) {
+        double totalCurrent = 0;
+        for (PowerManageable currentManageable : powerManageables.keySet()) {
+          if (currentManageable.getPowerTelemetry().isPresent()) {
+            totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
           }
-          return totalCurrent;
         }
+        return totalCurrent;
       }
     }
-
   }
 
 
