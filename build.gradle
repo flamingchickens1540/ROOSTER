@@ -7,6 +7,7 @@ plugins {
     id "idea"
     id "maven"
     id "jaci.openrio.gradle.GradleRIO" version "2018.02.17"
+    id "org.jetbrains.kotlin.jvm" version "1.2.30"
 }
 
 group = 'org.team1540'
@@ -36,11 +37,16 @@ artifacts {
     archives javadocJar
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile wpilib()
     compile ctre()
     compile navx()
     compile pathfinder()
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
 }
 
 def TEAM = 1540
