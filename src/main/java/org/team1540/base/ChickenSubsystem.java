@@ -24,8 +24,7 @@ import org.team1540.base.wrappers.ChickenVictor;
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   private double priority = 0.0;
-
-  private PowerTelemetry powerTelemetry = new PowerTelemetry() {
+  private final PowerTelemetry allMotorTelemetry = new PowerTelemetry() {
     @Override
     public double getCurrent() {
       double sum = 0;
@@ -46,7 +45,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       return sum / motors.size();
     }
   };
-
+  private boolean telemetryCacheValid = false;
+  private PowerTelemetry telemetry = allMotorTelemetry;
   /**
    * Map of motors in this subsystem to be power managed, with the key being the motor and the value
    * being the current percentOutput the motor is at.
@@ -66,6 +66,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public double add(ChickenController o) {
+    invalidateTelemetryCache();
     return motors.put(o, 1d);
   }
 
@@ -74,6 +75,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public double remove(ChickenController o) {
+    invalidateTelemetryCache();
     return motors.remove(o);
   }
 
@@ -103,6 +105,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public void clear() {
+    invalidateTelemetryCache();
     motors.clear();
   }
 
@@ -171,11 +174,27 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   }
 
+  public boolean isTelemetryCacheValid() {
+    return telemetryCacheValid;
+  }
+
+  public void invalidateTelemetryCache() {
+    telemetryCacheValid = false;
+  }
+
+  private void setTelemetry(PowerTelemetry t) {
+    telemetry = t;
+    telemetryCacheValid = true;
+  }
+
   /**
    * Returns an object that gives the aggregate data from {@link ChickenTalon}s if all motors are
    * either {@link ChickenTalon}s or slaved {@link ChickenVictor}s.
    * Else, returns null.
    * Basically, either the entire subsystem has telemetry or none of it does.
+   * Note that to improve performance, this status is cached and only updated when either a motor
+   * is added, removed, or the cache is externally invalidaded using
+   * {@link #invalidateTelemetryCache()}.
    *
    * Override me as necessary (e.g. for all-Victor subsystems where you'd be getting the
    * telemetry from the PDP.)
@@ -184,20 +203,27 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    */
   @Override
   public Optional<PowerTelemetry> getPowerTelemetry() {
-    // This unforunately needs to be checked at runtime, as if a Victor is slaved can change
-    // really at any time
-    for (ChickenController currentMotor : motors.keySet()) {
-      if (currentMotor instanceof ChickenVictor && !currentMotor.getControlMode().equals
-          (ControlMode.Follower)) {
-        return Optional.empty();
+    if (telemetryCacheValid) {
+      return Optional.ofNullable(telemetry);
+    } else {
+      // This unforunately needs to be checked at runtime, as if a Victor is slaved can change
+      // really at any time
+      for (ChickenController currentMotor : motors.keySet()) {
+        if (currentMotor instanceof ChickenVictor && !currentMotor.getControlMode().equals
+            (ControlMode.Follower)) {
+          setTelemetry(null);
+          return Optional.empty();
+        }
       }
+      setTelemetry(allMotorTelemetry);
+      return Optional.of(allMotorTelemetry);
     }
-    return Optional.of(powerTelemetry);
   }
 
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
     sendablePowerInfo(builder);
+    builder.addBooleanProperty("telemetryCacheValid", this::isTelemetryCacheValid, null);
   }
 }
