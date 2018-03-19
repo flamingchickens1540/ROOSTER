@@ -145,8 +145,9 @@ public class PowerManager extends Thread implements Sendable {
       // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
       // We'll do a dumber scale the rest of the powerManageables to account for that
 
-      double cachedMathTelemetry = percentToTarget * scaledToUnscaledFactor * percentFancyScaling;
-      double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
+      final double cachedMathTelemetry = percentToTarget * scaledToUnscaledFactor *
+          percentFancyScaling;
+      final double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
 
       // IF THERE IS TELEMETRY
       // Multiply each scaled power by the factor, which gets us our real target current. Then,
@@ -439,6 +440,7 @@ public class PowerManager extends Thread implements Sendable {
     builder.addBooleanProperty("isLimiting", this::isLimiting, null);
     builder.addDoubleProperty("powerTime", this::getPowerTime, null);
     builder.addBooleanProperty("running", this::isRunning, this::setRunning);
+    builder.addDoubleProperty("totalPower", this.getGetTotalPower(), null);
     builder.addDoubleProperty("updateDelay", this::getUpdateDelay,
         value -> setUpdateDelay(Math.toIntExact(Math.round(value))));
     builder.addDoubleProperty("voltageDipLow", this::getVoltageDipLow, this::setVoltageDipLow);
@@ -506,8 +508,10 @@ public class PowerManager extends Thread implements Sendable {
     }
   }
 
-  // In case the PDP is being funky, this provides a way to get the total power from the
-  // controllers instead
+  /**
+   * In case the PDP is being funky, this provides a way to get the total power from the
+   * controllers instead.
+   */
   public class GetPowerFromControllersDoubleSupplier implements DoubleSupplier {
 
     @Override
