@@ -23,6 +23,7 @@ import org.team1540.base.wrappers.ChickenVictor;
 @SuppressWarnings("unused")
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
+  private double noiseThreshold = 0.02;
   private double priority = 0.0;
   private final PowerTelemetry allMotorTelemetry = new PowerTelemetry() {
     @Override
@@ -154,8 +155,14 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     synchronized (powerLock) {
       for (ChickenController currentMotor : motors.keySet()) {
         double newLimit = motors.get(currentMotor) * limit;
-        // If the limit is above 1, set it to 1
-        newLimit = newLimit > 1 ? 1 : newLimit;
+        if (newLimit > 1) {
+          // If the limit is above 1, set it to 1 to keep it from increasing forver
+          newLimit = 1;
+        } else if (newLimit < noiseThreshold) {
+          // If the new limit is below the threshold, introduce some noise to keep it from being
+          // stuck at 0
+          newLimit = Math.random() * noiseThreshold;
+        }
         currentMotor.configPeakOutputForward(newLimit);
         currentMotor.configPeakOutputReverse(-newLimit);
         motors.put(currentMotor, newLimit);
@@ -186,6 +193,31 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     telemetry = t;
     telemetryCacheValid = true;
   }
+
+  /**
+   * Gets the threshold below which the output will be randomized to prevent the output from
+   * being stuck at 0.
+   *
+   * @return A float between 0 and 1 inclusive.
+   */
+  public double getNoiseThreshold() {
+    return noiseThreshold;
+  }
+
+  /**
+   * Gets the threshold below which the output will be randomized to prevent the output from
+   * being stuck at 0.
+   *
+   * @param noiseThreshold A float between 0 and 1 inclusive.
+   */
+  public void setNoiseThreshold(double noiseThreshold) {
+    if (noiseThreshold < 0 || noiseThreshold > 1) {
+      throw new IllegalArgumentException("noiseThreshold must be between 0 and 1 inclusive, got "
+          + noiseThreshold);
+    }
+    this.noiseThreshold = noiseThreshold;
+  }
+
 
   /**
    * Returns an object that gives the aggregate data from {@link ChickenTalon}s if all motors are
@@ -225,5 +257,6 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     super.initSendable(builder);
     sendablePowerInfo(builder);
     builder.addBooleanProperty("telemetryCacheValid", this::isTelemetryCacheValid, null);
+    builder.addDoubleProperty("noiseThreshold", this::getNoiseThreshold, this::setNoiseThreshold);
   }
 }
