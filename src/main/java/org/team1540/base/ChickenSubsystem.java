@@ -5,9 +5,9 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
 import org.team1540.base.power.PowerTelemetry;
@@ -23,8 +23,11 @@ import org.team1540.base.wrappers.ChickenVictor;
 @SuppressWarnings("unused")
 public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
-  private double noiseThreshold = 0.02;
-  private double priority = 0.0;
+  /**
+   * Map of motors in this subsystem to be power managed, with the key being the motor and the value
+   * being the current percentOutput the motor is at.
+   */
+  private final Map<ChickenController, Double> motors = new ConcurrentHashMap<>();
   private final PowerTelemetry allMotorTelemetry = new PowerTelemetry() {
     @Override
     public double getCurrent() {
@@ -46,14 +49,20 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       return sum / motors.size();
     }
   };
+  private double noiseThreshold = 0.02;
+  private double priority = 0.0;
   private boolean telemetryCacheValid = false;
   private PowerTelemetry telemetry = allMotorTelemetry;
-  private final Object powerLock = new Object();
-  /**
-   * Map of motors in this subsystem to be power managed, with the key being the motor and the value
-   * being the current percentOutput the motor is at.
-   */
-  private final Map<ChickenController, Double> motors = new HashMap<>();
+
+  public ChickenSubsystem(String name) {
+    super(name);
+    realConstructor();
+  }
+
+  public ChickenSubsystem() {
+    super();
+    realConstructor();
+  }
 
   public int size() {
     return motors.size();
@@ -64,16 +73,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public boolean contains(ChickenController o) {
-    synchronized (powerLock) {
-      return motors.containsKey(o);
-    }
+    return motors.containsKey(o);
   }
 
   public double add(ChickenController o) {
     invalidateTelemetryCache();
-    synchronized (powerLock) {
-      return motors.put(o, 1d);
-    }
+    return motors.put(o, 1d);
   }
 
   public void add(ChickenController... os) {
@@ -82,9 +87,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public double remove(ChickenController o) {
     invalidateTelemetryCache();
-    synchronized (powerLock) {
-      return motors.remove(o);
-    }
+    return motors.remove(o);
   }
 
   public void remove(ChickenController... os) {
@@ -114,19 +117,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public void clear() {
     invalidateTelemetryCache();
-    synchronized (powerLock) {
-      motors.clear();
-    }
-  }
-
-  public ChickenSubsystem(String name) {
-    super(name);
-    realConstructor();
-  }
-
-  public ChickenSubsystem() {
-    super();
-    realConstructor();
+    motors.clear();
   }
 
   private void realConstructor() {
@@ -159,32 +150,28 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   @Override
   public void setPercentOutputLimit(double limit) {
-    synchronized (powerLock) {
-      for (ChickenController currentMotor : motors.keySet()) {
-        double newLimit = motors.get(currentMotor) * limit;
-        if (newLimit > 1) {
-          // If the limit is above 1, set it to 1 to keep it from increasing forver
-          newLimit = 1;
-        } else if (newLimit < noiseThreshold) {
-          // If the new limit is below the threshold, introduce some noise to keep it from being
-          // stuck at 0
-          newLimit = Math.random() * noiseThreshold;
-        }
-        currentMotor.configPeakOutputForward(newLimit);
-        currentMotor.configPeakOutputReverse(-newLimit);
-        motors.put(currentMotor, newLimit);
+    for (ChickenController currentMotor : motors.keySet()) {
+      double newLimit = motors.get(currentMotor) * limit;
+      if (newLimit > 1) {
+        // If the limit is above 1, set it to 1 to keep it from increasing forver
+        newLimit = 1;
+      } else if (newLimit < noiseThreshold) {
+        // If the new limit is below the threshold, introduce some noise to keep it from being
+        // stuck at 0
+        newLimit = Math.random() * noiseThreshold;
       }
+      currentMotor.configPeakOutputForward(newLimit);
+      currentMotor.configPeakOutputReverse(-newLimit);
+      motors.put(currentMotor, newLimit);
     }
   }
 
   @Override
   public void stopLimitingPower() {
-    synchronized (powerLock) {
-      for (ChickenController currentMotor : motors.keySet()) {
-        currentMotor.configPeakOutputForward(1);
-        currentMotor.configPeakOutputReverse(-1);
-        motors.put(currentMotor, 1d);
-      }
+    for (ChickenController currentMotor : motors.keySet()) {
+      currentMotor.configPeakOutputForward(1);
+      currentMotor.configPeakOutputReverse(-1);
+      motors.put(currentMotor, 1d);
     }
   }
 

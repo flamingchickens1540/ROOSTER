@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
@@ -42,9 +43,8 @@ public class PowerManager extends Thread implements Sendable {
   // Store the currently running PowerManageables
   // For the love of everything, so there are no race conditions, do not access this except though
   // synchronized blocks
-  private final Map<PowerManageable, CachedPowerProperties> powerManageables = Collections
-      .synchronizedMap(new HashMap<>());
-  private final Object powerLock = new Object();
+  private final Map<PowerManageable, CachedPowerProperties> powerManageables = new
+      ConcurrentHashMap<>();
 
   @NotNull
   private DoubleSupplier getTotalPower = (new PowerDistributionPanel())::getTotalCurrent;
@@ -109,76 +109,71 @@ public class PowerManager extends Thread implements Sendable {
    * Separate method to block {@link PowerManageable} registration/unregistration while actually
    * scaling the power.
    */
-  private void scalePower() {
-    synchronized (powerLock) {
-      // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
-      // Otherwise, it'll be scaled using what power remains.
+  private synchronized void scalePower() {
+    // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
+    // Otherwise, it'll be scaled using what power remains.
 
-      highestPriority = Collections.max(powerManageables.keySet()).getPriority();
-      // The amount of our current output we need to be at
-      final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
-      final double totalCurrentDraw = getTotalPower.getAsDouble();
-      final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
+    highestPriority = Collections.max(powerManageables.keySet()).getPriority();
+    // The amount of our current output we need to be at
+    final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
+    final double totalCurrentDraw = getTotalPower.getAsDouble();
+    final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
 
-      // Reset the totals
-      priorityUnscaledTotal = 0;
-      priorityScaledTotal = 0;
-      priorityScaledNoTelemetryTotal = 0;
-      currentUnscaledTotal = 0;
-      currentScaledTotal = 0;
-      noTelemetryCount = 0;
+    // Reset the totals
+    priorityUnscaledTotal = 0;
+    priorityScaledTotal = 0;
+    priorityScaledNoTelemetryTotal = 0;
+    currentUnscaledTotal = 0;
+    currentScaledTotal = 0;
+    noTelemetryCount = 0;
 
-      for (CachedPowerProperties powerProperty : powerManageables.values()) {
-        powerProperty.refreshTelemetry();
+    for (CachedPowerProperties powerProperty : powerManageables.values()) {
+      powerProperty.refreshTelemetry();
+    }
+
+    // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
+    // simple flat scaling on
+    final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
+    final double percentFancyScaling = 1 - percentSimpleScaling;
+
+    // I kind of forgot how this works. Totally does tho.
+    final double scaledToUnscaledFactor = currentScaledTotal == 0 || priorityUnscaledTotal == 0 ?
+        0 : percentToTarget * (currentUnscaledTotal / currentScaledTotal) * (priorityScaledTotal
+        / priorityUnscaledTotal);
+
+    // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
+    // We'll do a dumber scale the rest of the powerManageables to account for that
+    final double cachedMathTelemetry = percentToTarget * scaledToUnscaledFactor *
+        percentFancyScaling;
+    final double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
+
+    // IF THERE IS TELEMETRY
+    // Multiply each scaled power by the factor, which gets us our real target current. Then,
+    // divide that by the original current draw to get the percent output we want.
+
+    // IF THERE IS NOT
+    // Do a flat scale since we don't know how to break it up to hit the total
+    for (CachedPowerProperties currentProperties : powerManageables.values()) {
+      double percentToDecreaseTo;
+      if (currentProperties.getCurrentUnscaled().isPresent()) {
+        // Set the percentToDecreaseTo to the current we want to have out of the present
+        // current times amount we want to use with fancy scaling, with divide by zero checking
+        double currentToTarget = currentProperties.getCurrentScaled().get() * cachedMathTelemetry;
+        percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
+            1 : currentToTarget / currentProperties.getCurrentUnscaled().get();
+      } else {
+        percentToDecreaseTo = cachedMathNoTelemetry;
       }
-
-      // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
-      // simple flat scaling on
-      final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
-      final double percentFancyScaling = 1 - percentSimpleScaling;
-
-      // I kind of forgot how this works. Totally does tho.
-      final double scaledToUnscaledFactor = currentScaledTotal == 0 || priorityUnscaledTotal == 0 ?
-          0 : percentToTarget * (currentUnscaledTotal / currentScaledTotal) * (priorityScaledTotal
-          / priorityUnscaledTotal);
-
-      // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
-      // We'll do a dumber scale the rest of the powerManageables to account for that
-
-      final double cachedMathTelemetry = percentToTarget * scaledToUnscaledFactor *
-          percentFancyScaling;
-      final double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
-
-      // IF THERE IS TELEMETRY
-      // Multiply each scaled power by the factor, which gets us our real target current. Then,
-      // divide that by the original current draw to get the percent output we want.
-
-      // IF THERE IS NOT
-      // Do a flat scale since we don't know how to break it up to hit the total
-      for (CachedPowerProperties currentProperties : powerManageables.values()) {
-        double percentToDecreaseTo;
-        if (currentProperties.getCurrentUnscaled().isPresent()) {
-          // Set the percentToDecreaseTo to the current we want to have out of the present
-          // current times amount we want to use with fancy scaling, with divide by zero checking
-          double currentToTarget = currentProperties.getCurrentScaled().get() * cachedMathTelemetry;
-          percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
-              1 : currentToTarget / currentProperties.getCurrentUnscaled().get();
-        } else {
-          percentToDecreaseTo = cachedMathNoTelemetry;
-        }
-        currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
-      }
+      currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
     }
   }
 
   /**
    * Separate method to block PowerManageable registration/deregistration while stopping scaling.
    */
-  private void stopScaling() {
-    synchronized (powerLock) {
-      for (PowerManageable currentManageable : powerManageables.keySet()) {
-        currentManageable.stopLimitingPower();
-      }
+  private synchronized void stopScaling() {
+    for (PowerManageable currentManageable : powerManageables.keySet()) {
+      currentManageable.stopLimitingPower();
     }
   }
 
@@ -234,9 +229,7 @@ public class PowerManager extends Thread implements Sendable {
    * @return true if the PowerManager did not already contain the specified element
    */
   public boolean registerPowerManageable(@NotNull PowerManageable toRegister) {
-    synchronized (powerLock) {
-      return (powerManageables.put(toRegister, new CachedPowerProperties(toRegister)) == null);
-    }
+    return (powerManageables.put(toRegister, new CachedPowerProperties(toRegister)) == null);
   }
 
   /**
@@ -246,7 +239,7 @@ public class PowerManager extends Thread implements Sendable {
    * @return A map of PowerManageables with the key true if the PowerManager did not already contain
    * the specified element
    */
-  public Map<PowerManageable, Boolean> registerPowerManageables(
+  public synchronized Map<PowerManageable, Boolean> registerPowerManageables(
       PowerManageable... toRegister) {
     HashMap<PowerManageable, Boolean> success = new HashMap<>();
     for (PowerManageable register : toRegister) {
@@ -262,9 +255,7 @@ public class PowerManager extends Thread implements Sendable {
    * @return true if the PowerManager contained the specified element
    */
   public boolean unregisterPowerManageable(PowerManageable toUnregister) {
-    synchronized (powerLock) {
-      return powerManageables.remove(toUnregister) != null;
-    }
+    return powerManageables.remove(toUnregister) != null;
   }
 
   /**
@@ -275,7 +266,7 @@ public class PowerManager extends Thread implements Sendable {
    * @return A map of PowerManageables with the key true if the PowerManager contained the specified
    * element
    */
-  public Map<PowerManageable, Boolean> unregisterPowerManageables(
+  public synchronized Map<PowerManageable, Boolean> unregisterPowerManageables(
       PowerManageable... toUnregister) {
     HashMap<PowerManageable, Boolean> success = new HashMap<>();
     for (PowerManageable unregister : toUnregister) {
@@ -515,16 +506,14 @@ public class PowerManager extends Thread implements Sendable {
   public class GetPowerFromControllersDoubleSupplier implements DoubleSupplier {
 
     @Override
-    public double getAsDouble() {
-      synchronized (powerLock) {
-        double totalCurrent = 0;
-        for (PowerManageable currentManageable : powerManageables.keySet()) {
-          if (currentManageable.getPowerTelemetry().isPresent()) {
-            totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
-          }
+    public synchronized double getAsDouble() {
+      double totalCurrent = 0;
+      for (PowerManageable currentManageable : powerManageables.keySet()) {
+        if (currentManageable.getPowerTelemetry().isPresent()) {
+          totalCurrent += currentManageable.getPowerTelemetry().get().getCurrent();
         }
-        return totalCurrent;
       }
+      return totalCurrent;
     }
   }
 
