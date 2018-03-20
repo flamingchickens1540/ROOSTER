@@ -48,6 +48,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   };
   private boolean telemetryCacheValid = false;
   private PowerTelemetry telemetry = allMotorTelemetry;
+  private final Object powerLock = new Object();
   /**
    * Map of motors in this subsystem to be power managed, with the key being the motor and the value
    * being the current percentOutput the motor is at.
@@ -63,12 +64,16 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   public boolean contains(ChickenController o) {
-    return motors.containsKey(o);
+    synchronized (powerLock) {
+      return motors.containsKey(o);
+    }
   }
 
   public double add(ChickenController o) {
     invalidateTelemetryCache();
-    return motors.put(o, 1d);
+    synchronized (powerLock) {
+      return motors.put(o, 1d);
+    }
   }
 
   public void add(ChickenController... os) {
@@ -77,7 +82,9 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public double remove(ChickenController o) {
     invalidateTelemetryCache();
-    return motors.remove(o);
+    synchronized (powerLock) {
+      return motors.remove(o);
+    }
   }
 
   public void remove(ChickenController... os) {
@@ -86,7 +93,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public boolean containsAll(Collection<ChickenController> controllers) {
     for (ChickenController c : controllers) {
-      if (!motors.containsKey(c)) {
+      if (!contains(c)) {
         return false;
       }
     }
@@ -95,22 +102,22 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   public void addAll(Collection<? extends ChickenController> controllers) {
     for (ChickenController c : controllers) {
-      motors.put(c, 1d);
+      add(c);
     }
   }
 
   public void removeAll(Collection<ChickenController> controllers) {
     for (ChickenController c : controllers) {
-      motors.remove(c);
+      remove(c);
     }
   }
 
   public void clear() {
     invalidateTelemetryCache();
-    motors.clear();
+    synchronized (powerLock) {
+      motors.clear();
+    }
   }
-
-  private final Object powerLock = new Object();
 
   public ChickenSubsystem(String name) {
     super(name);
