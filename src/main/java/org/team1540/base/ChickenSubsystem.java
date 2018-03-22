@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
 import org.team1540.base.power.PowerTelemetry;
@@ -72,29 +74,29 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return motors.isEmpty();
   }
 
-  public boolean contains(ChickenController o) {
+  public boolean contains(@NotNull ChickenController o) {
     return motors.containsKey(o);
   }
 
-  public double add(ChickenController o) {
+  public @Nullable Double add(@NotNull ChickenController o) {
     invalidateTelemetryCache();
     return motors.put(o, 1d);
   }
 
-  public void add(ChickenController... os) {
+  public void add(@NotNull ChickenController... os) {
     addAll(Arrays.asList(os));
   }
 
-  public double remove(ChickenController o) {
+  public @Nullable Double remove(@NotNull ChickenController o) {
     invalidateTelemetryCache();
     return motors.remove(o);
   }
 
-  public void remove(ChickenController... os) {
+  public void remove(@NotNull ChickenController... os) {
     removeAll(Arrays.asList(os));
   }
 
-  public boolean containsAll(Collection<ChickenController> controllers) {
+  public boolean containsAll(@NotNull Collection<ChickenController> controllers) {
     for (ChickenController c : controllers) {
       if (!contains(c)) {
         return false;
@@ -103,13 +105,13 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return true;
   }
 
-  public void addAll(Collection<? extends ChickenController> controllers) {
+  public void addAll(@NotNull Collection<? extends ChickenController> controllers) {
     for (ChickenController c : controllers) {
       add(c);
     }
   }
 
-  public void removeAll(Collection<ChickenController> controllers) {
+  public void removeAll(@NotNull Collection<ChickenController> controllers) {
     for (ChickenController c : controllers) {
       remove(c);
     }
