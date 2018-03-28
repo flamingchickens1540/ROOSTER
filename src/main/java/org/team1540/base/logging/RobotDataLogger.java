@@ -5,21 +5,18 @@ import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -28,22 +25,29 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.team1540.base.util.RobotStateUtil;
 import org.team1540.base.util.RobotStateUtil.State;
 
 /**
  * Logs assorted robot data to compressed ZIP files.
  * <p>
- * The {@code RobotDataLogger} class can be used to log data (Java primitive types + {@link String
- * Strings}) to a file. Data sources can be registered using the {@code addDataSource()} methods
- * which take lambda methods. These lamdas will be called on a regular interval (set by the {@link
- * #setUpdateInterval(int)} method).
+ * The {@code RobotDataLogger} class can be used to log data (in the form of primitive types and
+ * {@link Object Objects}) to a file. Data sources can be registered using the {@code
+ * addDataSource()} methods which take lambda methods. These lamdas will be called on a regular
+ * interval (set by the {@link #setUpdateInterval(int)} method).
  * <p>
  * This class is <em>not</em> thread-safe; any calls to this class's methods occuring in different
- * threads (including, but not limited to, code running inside a {@link Notifier}) MUST be
+ * threads (including, but not limited to, code running inside a {@link Notifier}) must be
  * synchronized externally. Calls occuring within the body of {@link
  * edu.wpi.first.wpilibj.command.Command Commands} are not in different threads and do not need to
  * be synchronized.
+ * <p>
+ * Unless otherwise noted, all methods in this class throw {@link NullPointerException} if any of
+ * their arguments are {@code null}.
  */
 public class RobotDataLogger implements Sendable {
 
@@ -66,6 +70,7 @@ public class RobotDataLogger implements Sendable {
   private String subsystem;
   private boolean logDuringDisabled = false;
   private boolean logOutsideOfMatches = true;
+  private int zipWriteBufferSize = 2048;
   private int updateInterval = 20; // milliseconds
 
   String header;
@@ -79,17 +84,11 @@ public class RobotDataLogger implements Sendable {
 
   private boolean active;
 
-  private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+  private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
   private Path zipFolderPath;
   private Path tempFolderPath;
 
-
-  private Map<String, String> zipFileSystemEnv = new HashMap<>();
   private String id;
-
-  {
-    zipFileSystemEnv.put("create", "true");
-  }
 
   private PrintWriter logger;
   private long startTime;
@@ -97,20 +96,39 @@ public class RobotDataLogger implements Sendable {
 
   private RobotStateUtil.State lastState;
 
-  public RobotDataLogger(String directory) {
-    zipFolderPath = Paths.get(URI.create("/home/lvuser/" + directory + "/"));
-    tempFolderPath = Paths.get(URI.create("/home/lvuser/" + directory + "/tmp/"));
+  /**
+   * Creates a new {@code RobotDataLogger} that logs to the specified directory.
+   *
+   * Log ZIP files will be saved to the directory /home/lvuser/DIRECTORY/ (where DIRECTORY) is the
+   * {@code directory} parameter.
+   *
+   * @param directory The directory name.
+   */
+  public RobotDataLogger(@NotNull String directory) {
+    Objects.requireNonNull(directory);
+    zipFolderPath = Paths.get("/home/lvuser/" + directory + "/");
+    tempFolderPath = Paths.get("/home/lvuser/" + directory + "/tmp/");
+
+    //noinspection ResultOfMethodCallIgnored
+    zipFolderPath.toFile().mkdir();
+    //noinspection ResultOfMethodCallIgnored
+    tempFolderPath.toFile().mkdir();
+
     name = "Robot Data Logger (" + directory + ")";
-    subsystem = "";
+    subsystem = "RDL";
   }
 
   private void update() {
     long startTime = System.currentTimeMillis();
+    boolean performedLargeOperation = false;
     try {
       RobotStateUtil.State currentState = RobotStateUtil.getRobotState();
       if (currentState != lastState) {
         // we're transitioning modes, so save the data from the last run (if there is any)
-        zipLog();
+        if (logger != null) {
+          zipLog();
+          performedLargeOperation = true;
+        }
 
         // now, reset start values and re-open a CSV stream
         if ((DriverStation.getInstance().isFMSAttached() || logOutsideOfMatches) &&
@@ -161,47 +179,56 @@ public class RobotDataLogger implements Sendable {
       }
     } catch (IOException e) {
       DriverStation
-          .reportError("[RobotDataLogger] IO error occured during logging: " + e.getMessage(),
+          .reportError("[RobotDataLogger] IO error occured during logging: " + e.toString(),
               e.getStackTrace());
     }
     long time = System.currentTimeMillis() - startTime;
 
-    if (time > updateInterval) {
+    // don't warn if we take longer than 50 ms to zip up a file, that's no big deal
+    if (time > updateInterval && !performedLargeOperation) {
       DriverStation.reportWarning("[RobotDataLogger] Data logging cycle took " + time
               + " ms, longer than the update interval. Reduce the amount of data written or "
-              + "increase the update interval.",
+              + "increase the update interval",
           false);
     }
   }
 
   private void zipLog() throws IOException {
     logger.close();
+    System.out.println("[RobotDataLogger] Zipping up log file for " + id);
 
     // create a zip file corresponding to the timestamp
     Path zipPath = zipFolderPath.resolve(id + ".zip");
 
-    try {
-      try (FileSystem zip = FileSystems.newFileSystem(zipPath.toUri(), zipFileSystemEnv, null)) {
-        Files.move(loggerFilePath, zip.getPath(id + ".csv"));
-      }
+    try (ZipOutputStream zipOutputStream = new ZipOutputStream(
+        new BufferedOutputStream(new FileOutputStream(zipPath.toFile())))) { // java_irl
+      try (FileInputStream csvInput = new FileInputStream(loggerFilePath.toFile())) {
+        ZipEntry entry = new ZipEntry(id + ".csv");
+        entry.setCreationTime(FileTime.fromMillis(loggerFilePath.toFile().lastModified()));
 
-      System.out.println("Saved data for " + id);
-    } catch (FileSystemAlreadyExistsException e) {
-      DriverStation.reportError("[RobotDataLogger] ZIP file " + zipPath.toString()
-          + " already existed! Saving unzipped file instead.", false);
+        zipOutputStream.putNextEntry(entry);
 
-      try {
-        Files.move(loggerFilePath, zipFolderPath.resolve(id + ".csv"));
+        byte[] buffer = new byte[zipWriteBufferSize];
+        int amountRead;
+        int written = 0;
 
-        System.out.println("Saved unzipped data for " + id);
-      } catch (FileAlreadyExistsException e2) {
-        DriverStation.reportError("[RobotDataLogger] CSV file " + zipPath.toString()
-            + " already existed! Saving data failed.", false);
+        while ((amountRead = csvInput.read(buffer)) > 0) {
+          zipOutputStream.write(buffer, 0, amountRead);
+          written += amountRead;
+        }
+
+        System.out.println(
+            "[RobotDataLogger] Successfully zipped up " + written / 1000.0 + " KB of log data for "
+                + id);
+
+        if (!loggerFilePath.toFile().delete()) {
+          DriverStation.reportWarning("[RobotDataLogger] Deleting original log file failed", false);
+        }
       }
     }
   }
 
-  private void createNewLog(State currentState) throws FileNotFoundException {
+  private void createNewLog(@NotNull State currentState) throws FileNotFoundException {
     startTime = System.currentTimeMillis();
     id = buildId(new Date(startTime), currentState.toString());
     loggerFilePath = tempFolderPath.resolve(id + ".csv");
@@ -211,6 +238,7 @@ public class RobotDataLogger implements Sendable {
 
     // headers
     logger.println(header);
+    System.out.println("[RobotDataLogger] Created new log file at " + loggerFilePath.toString());
   }
 
 
@@ -219,6 +247,7 @@ public class RobotDataLogger implements Sendable {
    */
   public void activate() {
     if (!active) {
+      System.out.println("[RobotDataLogger] Activating logger");
       // "lock in" all changes to avoid any thread-safety or weird CSV writing problems
       active = true;
 
@@ -238,7 +267,7 @@ public class RobotDataLogger implements Sendable {
         notifier.startPeriodic(updateInterval / 1000.0);
       } catch (IOException e) {
         DriverStation.reportError(
-            "[RobotDataLogger] IO error occured during logger activation: " + e.getMessage(),
+            "[RobotDataLogger] IO error occured during logger activation: " + e.toString(),
             e.getStackTrace());
       }
     }
@@ -249,6 +278,7 @@ public class RobotDataLogger implements Sendable {
    */
   public void deactivate() {
     if (active) {
+      System.out.println("[RobotDataLogger] Deactivating logger");
       try {
         notifier.stop();
         if (logger != null) {
@@ -259,7 +289,7 @@ public class RobotDataLogger implements Sendable {
         active = false;
       } catch (IOException e) {
         DriverStation.reportError(
-            "[RobotDataLogger] IO error occured during logger deactivation: " + e.getMessage(),
+            "[RobotDataLogger] IO error occured during logger deactivation: " + e.toString(),
             e.getStackTrace());
       }
     }
@@ -267,7 +297,8 @@ public class RobotDataLogger implements Sendable {
 
   // non-static to gain access to the DateFormat instance,
   // which is NOT synchronized so is created on a per-thread basis
-  private String buildId(Date startDate, String modeName) {
+  @NotNull
+  private String buildId(@NotNull Date startDate, @NotNull String modeName) {
     // if we are in a match, add that info to the file name
     StringBuilder builder = new StringBuilder();
 
@@ -275,7 +306,7 @@ public class RobotDataLogger implements Sendable {
 
     if (DriverStation.getInstance().isFMSAttached()) {
       // we're playing a match
-      builder.append(" (");
+      builder.append("-(");
       MatchType type = DriverStation.getInstance().getMatchType();
       switch (type) {
         case None:
@@ -295,11 +326,12 @@ public class RobotDataLogger implements Sendable {
           .append(")");
     }
 
-    builder.append(" ").append(modeName);
+    builder.append("-").append(modeName);
 
     return builder.toString();
   }
 
+  @NotNull
   private String buildHeader() {
     StringBuilder builder = new StringBuilder();
     builder.append("time");
@@ -353,6 +385,7 @@ public class RobotDataLogger implements Sendable {
    *
    * @return The update interval in milliseconds.
    */
+  @Contract(pure = true)
   public int getUpdateInterval() {
     return updateInterval;
   }
@@ -370,14 +403,37 @@ public class RobotDataLogger implements Sendable {
   }
 
   /**
+   * Returns the buffer size when copying data files into a ZIP.
+   *
+   * @return The write buffer size, in bytes.
+   */
+  @Contract(pure = true)
+  public int getZipWriteBufferSize() {
+    return zipWriteBufferSize;
+  }
+
+  /**
+   * Sets the buffer size when copying data files into a ZIP for storage. Defaults to 2048 bytes.
+   *
+   * @param zipWriteBufferSize The desired write buffer size, in bytes.
+   * @throws IllegalStateException If the logger is currently active.
+   */
+  public void setZipWriteBufferSize(int zipWriteBufferSize) {
+    ensureInactive();
+    this.zipWriteBufferSize = zipWriteBufferSize;
+  }
+
+  /**
    * Sets whether the logger will also log data when the robot is disabled.
    *
    * @return Whether to log data when the robot is disabled.
    */
+  @Contract(pure = true)
   public boolean isLogDuringDisabled() {
     return logDuringDisabled;
   }
 
+  @Contract(pure = true)
   public boolean isLogOutsideOfMatches() {
     return logOutsideOfMatches;
   }
@@ -389,6 +445,7 @@ public class RobotDataLogger implements Sendable {
    * @param logOutsideOfMatches Whether to log data outside of matches.
    */
   public void setLogOutsideOfMatches(boolean logOutsideOfMatches) {
+    ensureInactive();
     this.logOutsideOfMatches = logOutsideOfMatches;
   }
 
@@ -408,7 +465,7 @@ public class RobotDataLogger implements Sendable {
    * the toString() representation of its result will be written to a file.
    * @throws IllegalStateException If the logger is currently active.
    */
-  public void addDataSource(String name, Supplier<?> source) {
+  public void addDataSource(@NotNull String name, @NotNull Supplier<?> source) {
     ensureInactive();
     Objects.requireNonNull(name);
     Objects.requireNonNull(source);
@@ -424,7 +481,7 @@ public class RobotDataLogger implements Sendable {
    * its result written to a file as "true" or "false".
    * @throws IllegalStateException If the logger is currently active.
    */
-  public void addDataSource(String name, BooleanSupplier source) {
+  public void addDataSource(@NotNull String name, @NotNull BooleanSupplier source) {
     ensureInactive();
     Objects.requireNonNull(name);
     Objects.requireNonNull(source);
@@ -439,7 +496,7 @@ public class RobotDataLogger implements Sendable {
    * @param source The supplier for the telemetry item. The supplier will be called periodically and
    * its result written to a file.
    */
-  public void addDataSource(String name, DoubleSupplier source) {
+  public void addDataSource(@NotNull String name, @NotNull DoubleSupplier source) {
     ensureInactive();
     Objects.requireNonNull(name);
     Objects.requireNonNull(source);
@@ -454,7 +511,7 @@ public class RobotDataLogger implements Sendable {
    * @param source The supplier for the telemetry item. The supplier will be called periodically and
    * its result written to a file.
    */
-  public void addDataSource(String name, IntSupplier source) {
+  public void addDataSource(@NotNull String name, @NotNull IntSupplier source) {
     ensureInactive();
     Objects.requireNonNull(name);
     Objects.requireNonNull(source);
@@ -469,7 +526,7 @@ public class RobotDataLogger implements Sendable {
    * @param source The supplier for the telemetry item. The supplier will be called periodically and
    * its result written to a file.
    */
-  public void addDataSource(String name, LongSupplier source) {
+  public void addDataSource(@NotNull String name, @NotNull LongSupplier source) {
     ensureInactive();
     Objects.requireNonNull(name);
     Objects.requireNonNull(source);
@@ -525,5 +582,6 @@ public class RobotDataLogger implements Sendable {
         deactivate();
       }
     });
+    builder.setSmartDashboardType("Logger");
   }
 }
