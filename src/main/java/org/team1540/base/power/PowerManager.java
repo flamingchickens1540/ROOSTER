@@ -313,7 +313,7 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Gets the required voltage value for the zuko to be considered dipping. Defaults to 7.2V.
+   * Gets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
    * @return voltageDipLow The minimum dip value, in volts.
    */
@@ -322,7 +322,7 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Sets the required voltage value for the zuko to be considered dipping. Defaults to 7.2V.
+   * Sets the required voltage value for the robot to be considered dipping. Defaults to 7.2V.
    *
    * @param voltageDipLow The minimum dip value, in volts.
    */
