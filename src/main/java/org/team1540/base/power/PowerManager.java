@@ -132,41 +132,28 @@ public class PowerManager extends Thread implements Sendable {
     }
 
     // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
-    // simple flat scaling on
+    // simple flat scaling on.
     final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
     final double percentFancyScaling = 1 - percentSimpleScaling;
 
-    // Find a multiplier such that multiplying any given scaled current by that multiplier gives
-    // the unscaled current it should be
-    // FIXME math bad, lmao for one PowerManageable it's just returning percentToTarget
-    final double currentScaledToUnscaledMultiplier =
-        currentScaledTotal == 0 || priorityUnscaledTotal == 0 ?
-        0 : percentToTarget * (currentUnscaledTotal / currentScaledTotal) * (priorityScaledTotal
-        / priorityUnscaledTotal);
-
-    // This leaves some remaining amount of current that's unnacounted for by this fancy scaling.
-    // We'll do a dumber scale the rest of the powerManageables to account for that
-    final double cachedMathTelemetry = percentToTarget * currentScaledToUnscaledMultiplier *
-        percentFancyScaling;
-    final double cachedMathNoTelemetry = (1 - percentSimpleScaling) * percentToTarget;
-
     // IF THERE IS TELEMETRY
-    // Multiply each scaled power by the factor, which gets us our real target current. Then,
-    // divide that by the original current draw to get the percent output we want.
+    // Divide each scaled power by the total scaled power to find how much of the total power
+    // this individual constitutes. Then multiply that by the percent decrease we actually want
+    // to happen.
 
     // IF THERE IS NOT
     // Do a flat scale since we don't know how to break it up to hit the total
+
+    final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget /
+        currentScaledTotal;
+    final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
+
     for (CachedPowerProperties currentProperties : powerManageables.values()) {
-      double percentToDecreaseTo;
-      if (currentProperties.getCurrentUnscaled().isPresent()) {
+      final double percentToDecreaseTo = currentProperties.getCurrentUnscaled().isPresent() ?
+          cachedMathHasTelemetry * currentProperties.getCurrentScaled().get()
+          : cachedMathNoTelemetry;
         // Set the percentToDecreaseTo to the current we want to have out of the present
         // current times amount we want to use with fancy scaling, with divide by zero checking
-        double currentToTarget = currentProperties.getCurrentScaled().get() * cachedMathTelemetry;
-        percentToDecreaseTo = currentProperties.getCurrentUnscaled().get() == 0 ?
-            1 : currentToTarget / currentProperties.getCurrentUnscaled().get();
-      } else {
-        percentToDecreaseTo = cachedMathNoTelemetry;
-      }
       currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
     }
   }
