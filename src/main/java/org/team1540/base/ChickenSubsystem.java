@@ -52,7 +52,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   };
   private double noiseThreshold = 0.02;
-  private double priority = 0.0;
+  private double priority = 1.0;
   private boolean telemetryCacheValid = false;
   private PowerTelemetry telemetry = allMotorTelemetry;
 
