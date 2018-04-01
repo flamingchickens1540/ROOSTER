@@ -127,9 +127,7 @@ public class PowerManager extends Thread implements Sendable {
     currentScaledTotal = 0;
     noTelemetryCount = 0;
 
-    for (CachedPowerProperties powerProperty : powerManageables.values()) {
-      powerProperty.refreshTelemetry();
-    }
+    powerManageables.values().forEach(CachedPowerProperties::refreshTelemetry);
 
     // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
     // simple flat scaling on.
@@ -162,9 +160,7 @@ public class PowerManager extends Thread implements Sendable {
    * Separate method to block PowerManageable registration/deregistration while stopping scaling.
    */
   private synchronized void stopScaling() {
-    for (PowerManageable currentManageable : powerManageables.keySet()) {
-      currentManageable.stopLimitingPower();
-    }
+    powerManageables.keySet().forEach(PowerManageable::stopLimitingPower);
   }
 
   /**
