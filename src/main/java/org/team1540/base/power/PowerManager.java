@@ -63,9 +63,6 @@ public class PowerManager extends Thread implements Sendable {
   private double priorityUnscaledTotal, priorityScaledTotal, priorityScaledNoTelemetryTotal,
       currentUnscaledTotal, currentScaledTotal, noTelemetryCount, highestPriority;
 
-  private PowerManager() {
-  }
-
   /**
    * Gets the PowerManager.
    *
