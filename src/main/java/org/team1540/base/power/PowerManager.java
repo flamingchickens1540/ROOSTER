@@ -61,7 +61,8 @@ public class PowerManager extends Thread implements Sendable {
   private BiFunction<Double, Double, Double> priorityScalingFunction = this::scaleExponential;
 
   private double priorityUnscaledTotal, priorityScaledTotal, priorityScaledNoTelemetryTotal,
-      currentUnscaledTotal, currentScaledTotal, noTelemetryCount, highestPriority;
+      currentUnscaledTotal, currentScaledTotal, highestPriority;
+  private int telemetryCount, noTelemetryCount;
 
   /**
    * Gets the PowerManager.
@@ -377,6 +378,7 @@ public class PowerManager extends Thread implements Sendable {
     priorityScaledNoTelemetryTotal = 0;
     currentUnscaledTotal = 0;
     currentScaledTotal = 0;
+    telemetryCount = 0;
     noTelemetryCount = 0;
 
     powerManageables.values().forEach(CachedPowerProperties::refreshTelemetry);
@@ -386,22 +388,25 @@ public class PowerManager extends Thread implements Sendable {
     final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
     final double percentFancyScaling = 1 - percentSimpleScaling;
 
+    // TODO update this comment
     // IF THERE IS TELEMETRY
-    // Divide each scaled power by the total scaled power to find how much of the total power
-    // this individual constitutes. Then multiply that by the percent decrease we actually want
-    // to happen.
+    // Divide each scaled power by the average scaled power to find how much away from the norm
+    // this one should be. Then multiply that by the percent decrease we actually want to happen.
 
     // IF THERE IS NOT
     // Do a flat scale since we don't know how to break it up to hit the total
 
-    final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget /
-        currentScaledTotal;
+    // FIXME yeah so how's it going to get a new subsystem started if it can't draw any power really
+
+    final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget *
+        (currentUnscaledTotal / currentScaledTotal);
     final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
 
     for (CachedPowerProperties currentProperties : powerManageables.values()) {
-      final double percentToDecreaseTo = finiteMath(
-          currentProperties.getCurrentUnscaled().isPresent() ?
-              cachedMathHasTelemetry * currentProperties.getCurrentScaled().get()
+      final double percentToDecreaseTo =
+          finiteMath(currentProperties.getCurrentUnscaled().isPresent() ?
+              cachedMathHasTelemetry * currentProperties.getCurrentScaled().get() /
+                  currentProperties.getCurrentUnscaled().get()
               : cachedMathNoTelemetry, 1);
       // Set the percentToDecreaseTo to the current we want to have out of the present
       // current times amount we want to use with fancy scaling, with divide by zero checking
@@ -447,6 +452,7 @@ public class PowerManager extends Thread implements Sendable {
         this.currentScaled = this.priorityScaled * currentUnscaled;
         currentUnscaledTotal += currentUnscaled;
         currentScaledTotal += currentScaled;
+        telemetryCount++;
       } else {
         this.currentUnscaled = null;
         this.currentScaled = null;
