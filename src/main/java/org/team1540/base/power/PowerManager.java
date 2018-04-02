@@ -47,8 +47,7 @@ public class PowerManager extends Thread implements Sendable {
       ConcurrentHashMap<>();
 
   @NotNull
-  private DoubleSupplier getTotalCurrent = new GetPowerFromControllersDoubleSupplier();
-  //  private DoubleSupplier getTotalCurrent = (new PowerDistributionPanel())::getTotalCurrent;
+  private DoubleSupplier getTotalCurrent = (new PowerDistributionPanel())::getTotalCurrent;
   private int updateDelay = 10;
   /**
    * Default to be a little higher than brownouts.
