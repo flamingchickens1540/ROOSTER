@@ -1,6 +1,7 @@
 package org.team1540.base;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
@@ -152,6 +153,11 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
 
   @Override
   public void setPercentOutputLimit(double limit) {
+    if (Double.isNaN(limit)) {
+      DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to NaN, "
+          + "passing", false);
+      return;
+    }
     for (ChickenController currentMotor : motors.keySet()) {
       double newLimit = motors.get(currentMotor) * limit;
       if (newLimit > 1) {
