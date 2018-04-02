@@ -47,7 +47,8 @@ public class PowerManager extends Thread implements Sendable {
       ConcurrentHashMap<>();
 
   @NotNull
-  private DoubleSupplier getTotalPower = (new PowerDistributionPanel())::getTotalCurrent;
+  private DoubleSupplier getTotalCurrent = new GetPowerFromControllersDoubleSupplier();
+  //  private DoubleSupplier getTotalCurrent = (new PowerDistributionPanel())::getTotalCurrent;
   private int updateDelay = 10;
   /**
    * Default to be a little higher than brownouts.
@@ -103,54 +104,13 @@ public class PowerManager extends Thread implements Sendable {
   }
 
   /**
-   * Separate method to block {@link PowerManageable} registration/unregistration while actually
-   * scaling the power.
+   * Returns d if it is finite, else returns the safeValue.
+   * @param d A double of any sort
+   * @param safeValue A safe value to return.
+   * @return A finite double.
    */
-  private synchronized void scalePower() {
-    // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
-    // Otherwise, it'll be scaled using what power remains.
-
-    highestPriority = Collections.max(powerManageables.keySet()).getPriority();
-    // The amount of our current output we need to be at
-    final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
-    final double totalCurrentDraw = getTotalPower.getAsDouble();
-    final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
-
-    // Reset the totals
-    priorityUnscaledTotal = 0;
-    priorityScaledTotal = 0;
-    priorityScaledNoTelemetryTotal = 0;
-    currentUnscaledTotal = 0;
-    currentScaledTotal = 0;
-    noTelemetryCount = 0;
-
-    powerManageables.values().forEach(CachedPowerProperties::refreshTelemetry);
-
-    // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
-    // simple flat scaling on.
-    final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
-    final double percentFancyScaling = 1 - percentSimpleScaling;
-
-    // IF THERE IS TELEMETRY
-    // Divide each scaled power by the total scaled power to find how much of the total power
-    // this individual constitutes. Then multiply that by the percent decrease we actually want
-    // to happen.
-
-    // IF THERE IS NOT
-    // Do a flat scale since we don't know how to break it up to hit the total
-
-    final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget /
-        currentScaledTotal;
-    final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
-
-    for (CachedPowerProperties currentProperties : powerManageables.values()) {
-      final double percentToDecreaseTo = currentProperties.getCurrentUnscaled().isPresent() ?
-          cachedMathHasTelemetry * currentProperties.getCurrentScaled().get()
-          : cachedMathNoTelemetry;
-        // Set the percentToDecreaseTo to the current we want to have out of the present
-        // current times amount we want to use with fancy scaling, with divide by zero checking
-      currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
-    }
+  private static double finiteMath(double d, double safeValue) {
+    return Double.isFinite(d) ? d : safeValue;
   }
 
   /**
@@ -398,30 +358,65 @@ public class PowerManager extends Thread implements Sendable {
     this.priorityScalingFunction = priorityScalingFunction;
   }
 
+  /**
+   * Separate method to block {@link PowerManageable} registration/unregistration while actually
+   * scaling the power.
+   */
+  private synchronized void scalePower() {
+    // If the PowerManageable has PowerTelemetry, we'll scale it using the arbitrary function.
+    // Otherwise, it'll be scaled using what power remains.
+
+    highestPriority = Collections.max(powerManageables.keySet()).getPriority();
+    // The amount of our current output we need to be at
+    final double percentToTarget = RobotController.getBatteryVoltage() / voltageTarget;
+    final double totalCurrentDraw = getTotalCurrent.getAsDouble();
+    final double currentNeedToDecrease = (1 - percentToTarget) * totalCurrentDraw;
+
+    // Reset the totals
+    priorityUnscaledTotal = 0;
+    priorityScaledTotal = 0;
+    priorityScaledNoTelemetryTotal = 0;
+    currentUnscaledTotal = 0;
+    currentScaledTotal = 0;
+    noTelemetryCount = 0;
+
+    powerManageables.values().forEach(CachedPowerProperties::refreshTelemetry);
+
+    // Decide the split for how much we'll use the fancy scaling on and how much we'll use the
+    // simple flat scaling on.
+    final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
+    final double percentFancyScaling = 1 - percentSimpleScaling;
+
+    // IF THERE IS TELEMETRY
+    // Divide each scaled power by the total scaled power to find how much of the total power
+    // this individual constitutes. Then multiply that by the percent decrease we actually want
+    // to happen.
+
+    // IF THERE IS NOT
+    // Do a flat scale since we don't know how to break it up to hit the total
+
+    final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget /
+        currentScaledTotal;
+    final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
+
+    for (CachedPowerProperties currentProperties : powerManageables.values()) {
+      final double percentToDecreaseTo = finiteMath(
+          currentProperties.getCurrentUnscaled().isPresent() ?
+              cachedMathHasTelemetry * currentProperties.getCurrentScaled().get()
+              : cachedMathNoTelemetry, 1);
+      // Set the percentToDecreaseTo to the current we want to have out of the present
+      // current times amount we want to use with fancy scaling, with divide by zero checking
+      currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo);
+    }
+  }
+
   @NotNull
-  public DoubleSupplier getGetTotalPower() {
-    return getTotalPower;
+  public DoubleSupplier getGetTotalCurrent() {
+    return getTotalCurrent;
   }
 
-  public void setGetTotalPower(@NotNull DoubleSupplier getTotalPower) {
-    this.getTotalPower = getTotalPower;
-  }
-
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    builder.setSmartDashboardType("PowerManager");
-    builder.addBooleanProperty("isVoltageDipping", this::isVoltageDipping, null);
-    builder.addBooleanProperty("isLimiting", this::isLimiting, null);
-    builder.addDoubleProperty("powerTime", this::getPowerTime, null);
-    builder.addBooleanProperty("running", this::isRunning, this::setRunning);
-    builder.addDoubleProperty("totalPower", this.getGetTotalPower(), null);
-    builder.addDoubleProperty("updateDelay", this::getUpdateDelay,
-        value -> setUpdateDelay(Math.toIntExact(Math.round(value))));
-    builder.addDoubleProperty("voltageDipLow", this::getVoltageDipLow, this::setVoltageDipLow);
-    builder.addDoubleProperty("voltageMargin", this::getVoltageMargin, this::setVoltageMargin);
-    builder.addDoubleProperty("voltageDipLength", this::getVoltageDipLength,
-        this::setVoltageDipLength);
-    builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
+  public void setGetTotalCurrent(@NotNull DoubleSupplier getTotalCurrent) {
+    this.getTotalCurrent = getTotalCurrent;
   }
 
 
@@ -500,5 +495,21 @@ public class PowerManager extends Thread implements Sendable {
     }
   }
 
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("PowerManager");
+    builder.addBooleanProperty("isVoltageDipping", this::isVoltageDipping, null);
+    builder.addBooleanProperty("isLimiting", this::isLimiting, null);
+    builder.addDoubleProperty("powerTime", this::getPowerTime, null);
+    builder.addBooleanProperty("running", this::isRunning, this::setRunning);
+    builder.addDoubleProperty("totalPower", this.getGetTotalCurrent(), null);
+    builder.addDoubleProperty("updateDelay", this::getUpdateDelay,
+        value -> setUpdateDelay(Math.toIntExact(Math.round(value))));
+    builder.addDoubleProperty("voltageDipLow", this::getVoltageDipLow, this::setVoltageDipLow);
+    builder.addDoubleProperty("voltageMargin", this::getVoltageMargin, this::setVoltageMargin);
+    builder.addDoubleProperty("voltageDipLength", this::getVoltageDipLength,
+        this::setVoltageDipLength);
+    builder.addDoubleProperty("voltageTarget", this::getVoltageTarget, this::setVoltageTarget);
+  }
 
 }
