@@ -152,18 +152,20 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   }
 
   @Override
-  public void setPercentOutputLimit(double limit) {
+  public double setPercentOutputLimit(double limit) {
+    double overflow = 0;
     if (Double.isNaN(limit)) {
       DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to NaN, "
           + "passing", false);
-      return;
+      return 0;
     }
     for (ChickenController currentMotor : motors.keySet()) {
       double newLimit = motors.get(currentMotor) * limit;
       if (newLimit > 1) {
-        // If the limit is above 1, set it to 1 to keep it from increasing forver
+        overflow += newLimit - 1;
         newLimit = 1;
-      } else if (newLimit < noiseThreshold) {
+      }
+      if (newLimit < noiseThreshold) {
         // If the new limit is below the threshold, introduce some noise to keep it from being
         // stuck at 0
         newLimit = Math.random() * noiseThreshold;
@@ -172,6 +174,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       currentMotor.configPeakOutputReverse(-newLimit);
       motors.put(currentMotor, newLimit);
     }
+    return overflow / motors.size();
   }
 
   @Override
