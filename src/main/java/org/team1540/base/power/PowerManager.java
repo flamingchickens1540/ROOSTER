@@ -109,6 +109,7 @@ public class PowerManager extends Thread implements Sendable {
    * @param safeValue A safe value to return.
    * @return A finite double.
    */
+  @SuppressWarnings("SameParameterValue")
   private static double finiteMath(double d, double safeValue) {
     return Double.isFinite(d) ? d : safeValue;
   }
@@ -431,8 +432,10 @@ public class PowerManager extends Thread implements Sendable {
 
   private class CachedPowerProperties {
 
+    @SuppressWarnings("NullableProblems")
     @NotNull
     private Double priorityUnscaled;
+    @SuppressWarnings("NullableProblems")
     @NotNull
     private Double priorityScaled;
     @Nullable
