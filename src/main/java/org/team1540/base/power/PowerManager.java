@@ -388,30 +388,32 @@ public class PowerManager extends Thread implements Sendable {
     final double percentSimpleScaling = priorityScaledNoTelemetryTotal / priorityScaledTotal;
     final double percentFancyScaling = 1 - percentSimpleScaling;
 
-    // TODO update comments
-
     // IF THERE IS TELEMETRY
-    // Divide each scaled power by the average scaled power to find how much away from the norm
-    // this one should be. Then multiply that by the percent decrease we actually want to happen.
+    // Cache the percent we really want to target times the conversion factor between scaled
+    // current and unscaled current.
+    // Then, multiply that times the scaled current, add in any overflow, and then calculate the
+    // percent that is by dividing by the unscaled current draw.
 
     // IF THERE IS NOT
-    // Do a flat scale since we don't know how to break it up to hit the total
+    // Cache the percent we really want to target times and just do a flat scale since we don't
+    // know how to break it up to hit the total.
 
     final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget *
         (currentUnscaledTotal / currentScaledTotal);
     final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
 
     // Overflow is to ensure that if there's excess power to go around, it gets spread around
-    // instead of just getting thrown away.
+    // instead of just getting thrown away
     double currentOverflow = 0;
     for (CachedPowerProperties currentProperties : powerManageables.values()) {
+      // Includes checking against divide by zero.
       double percentToDecreaseTo =
           finiteMath(currentProperties.getCurrentUnscaled().isPresent() ?
               (cachedMathHasTelemetry * currentProperties.getCurrentScaled().get() +
                   currentOverflow) / currentProperties.getCurrentUnscaled().get()
               : cachedMathNoTelemetry, 1);
-      // Set the percentToDecreaseTo to the current we want to have out of the present
-      // current times amount we want to use with fancy scaling, with divide by zero checking
+      // Set the percentToDecreaseTo. This will return any overflow, which we can multiply by the
+      // unscaled current to get an actual value in amps and store away for later.
       currentOverflow = currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo) *
           currentProperties.getCurrentUnscaled().get();
     }
