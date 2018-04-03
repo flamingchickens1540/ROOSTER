@@ -396,8 +396,6 @@ public class PowerManager extends Thread implements Sendable {
     // IF THERE IS NOT
     // Do a flat scale since we don't know how to break it up to hit the total
 
-    // FIXME yeah so how's it going to get a new subsystem started if it can't draw any power really
-
     final double cachedMathHasTelemetry = percentFancyScaling * percentToTarget *
         (currentUnscaledTotal / currentScaledTotal);
     final double cachedMathNoTelemetry = percentSimpleScaling * percentToTarget;
