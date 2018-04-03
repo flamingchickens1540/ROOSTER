@@ -3,6 +3,7 @@ package org.team1540.base.power;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
@@ -57,7 +58,7 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    * @return (int) (getPriority() - o.getPriority())
    */
   @Override
-  default int compareTo(PowerManageable o) {
+  default int compareTo(@NotNull PowerManageable o) {
     return (int) (getPriority() - o.getPriority());
   }
 
