@@ -282,22 +282,43 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     builder.addDoubleProperty("noiseThreshold", this::getNoiseThreshold, this::setNoiseThreshold);
   }
 
+  /**
+   * Gets the maximum forward peak output.
+   *
+   * @param m The motor to get the maximum forward peak output of.
+   * @return Double 0 to 1 inclusive (always positive)
+   */
   public double getAbsolutePeakOutputCeilingForward(ChickenController m) {
     return motors.get(m).getAbsolutePeakOutputCeilingForward();
   }
 
+  /**
+   * Sets the maximum forward peak output.
+   * @param m The motor to get the maximum forward peak output of.
+   * @param absolutePeakOutputCeiling Double -1 to 1 inclusive. Negative numbers are made positive.
+   */
   public void setAbsolutePeakOutputCeilingForward(ChickenController m,
       double absolutePeakOutputCeiling) {
-    motors.get(m).setAbsolutePeakOutputCeilingForward(absolutePeakOutputCeiling);
+    motors.get(m).setAbsolutePeakOutputCeilingForward(Math.abs(absolutePeakOutputCeiling));
   }
 
+  /**
+   * Gets the maximum reverse peak output.
+   * @param m The motor to get the maximum reverse peak output of.
+   * @return Double 0 to 1 inclusive (always positive)
+   */
   public double getAbsolutePeakOutputCeilingReverse(ChickenController m) {
     return motors.get(m).getAbsolutePeakOutputCeilingReverse();
   }
 
+  /**
+   * Sets the maximum reverse peak output.
+   * @param m The motor to get the maximum reverse peak output of.
+   * @param absolutePeakOutputCeiling Double -1 to 1 inclusive. Negative numbers are made positive.
+   */
   public void setAbsolutePeakOutputCeilingReverse(ChickenController m,
       double absolutePeakOutputCeiling) {
-    motors.get(m).setAbsolutePeakOutputCeilingReverse(absolutePeakOutputCeiling);
+    motors.get(m).setAbsolutePeakOutputCeilingReverse(Math.abs(absolutePeakOutputCeiling));
   }
 
   public class MotorProperties {
@@ -308,19 +329,37 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     private final AtomicLong absolutePeakOutputCeilingReverse = new AtomicLong(Double
         .doubleToLongBits(1.0));
 
+    /**
+     * Gets the maximum forward peak output.
+     * @return Double 0 to 1 inclusive (always positive)
+     */
     public double getAbsolutePeakOutputCeilingForward() {
       return absolutePeakOutputCeilingForward.doubleValue();
     }
 
+    /**
+     * Sets the maximum forward peak output.
+     * @param absolutePeakOutputCeilingForward Double -1 to 1 inclusive. Negative numbers are
+     * made positive.
+     */
     public void setAbsolutePeakOutputCeilingForward(double absolutePeakOutputCeilingForward) {
       this.absolutePeakOutputCeilingForward
           .set(Double.doubleToLongBits(absolutePeakOutputCeilingForward));
     }
 
+    /**
+     * Gets the maximum reverse peak output.
+     * @return Double 0 to 1 inclusive (always positive)
+     */
     public double getAbsolutePeakOutputCeilingReverse() {
       return absolutePeakOutputCeilingReverse.doubleValue();
     }
 
+    /**
+     * Sets the maximum reverse peak output.
+     * @param absolutePeakOutputCeilingReverse Double -1 to 1 inclusive. Negative numbers are
+     * made positive.
+     */
     public void setAbsolutePeakOutputCeilingReverse(double absolutePeakOutputCeilingReverse) {
       this.absolutePeakOutputCeilingReverse
           .set(Double.doubleToLongBits(absolutePeakOutputCeilingReverse));
