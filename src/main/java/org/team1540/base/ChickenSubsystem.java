@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.team1540.base.power.PowerManageable;
 import org.team1540.base.power.PowerManager;
 import org.team1540.base.power.PowerTelemetry;
@@ -30,7 +30,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    * Map of motors in this subsystem to be power managed, with the key being the motor and the value
    * being the current percentOutput the motor is at.
    */
-  private final Map<ChickenController, Double> motors = new ConcurrentHashMap<>();
+  private final Map<ChickenController, MotorProperties> motors = new ConcurrentHashMap<>();
   private final PowerTelemetry allMotorTelemetry = new PowerTelemetry() {
     @Override
     public double getCurrent() {
@@ -79,18 +79,18 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     return motors.containsKey(o);
   }
 
-  public @Nullable Double add(@NotNull ChickenController o) {
+  public void add(@NotNull ChickenController o) {
     invalidateTelemetryCache();
-    return motors.put(o, 1d);
+    motors.put(o, new MotorProperties());
   }
 
   public void add(@NotNull ChickenController... os) {
     addAll(Arrays.asList(os));
   }
 
-  public @Nullable Double remove(@NotNull ChickenController o) {
+  public void remove(@NotNull ChickenController o) {
     invalidateTelemetryCache();
-    return motors.remove(o);
+    motors.remove(o);
   }
 
   public void remove(@NotNull ChickenController... os) {
@@ -146,7 +146,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public double getPercentOutputLimit() {
     double sum = 0;
     for (ChickenController currentMotors : motors.keySet()) {
-      sum += motors.get(currentMotors);
+      sum += motors.get(currentMotors).getCurrentPeakOutput();
     }
     return sum / motors.size();
   }
@@ -160,10 +160,11 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       return 0;
     }
     for (ChickenController currentMotor : motors.keySet()) {
-      double newLimit = motors.get(currentMotor) * limit;
-      if (newLimit > 1) {
-        overflow += newLimit - 1;
-        newLimit = 1;
+      double newLimit = motors.get(currentMotor).getCurrentPeakOutput() * limit;
+      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeiling();
+      if (newLimit > ceiling) {
+        overflow += newLimit - ceiling;
+        newLimit = ceiling;
       }
       if (newLimit < noiseThreshold) {
         // If the new limit is below the threshold, introduce some noise to keep it from being
@@ -172,7 +173,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       }
       currentMotor.configPeakOutputForward(newLimit);
       currentMotor.configPeakOutputReverse(-newLimit);
-      motors.put(currentMotor, newLimit);
+      motors.get(currentMotor).setCurrentPeakOutput(newLimit);
     }
     return overflow / motors.size();
   }
@@ -180,9 +181,10 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public void stopLimitingPower() {
     for (ChickenController currentMotor : motors.keySet()) {
-      currentMotor.configPeakOutputForward(1);
-      currentMotor.configPeakOutputReverse(-1);
-      motors.put(currentMotor, 1d);
+      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeiling();
+      currentMotor.configPeakOutputForward(ceiling);
+      currentMotor.configPeakOutputReverse(-ceiling);
+      motors.get(currentMotor).setCurrentPeakOutput(ceiling);
     }
   }
 
@@ -264,4 +266,39 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     builder.addBooleanProperty("telemetryCacheValid", this::isTelemetryCacheValid, null);
     builder.addDoubleProperty("noiseThreshold", this::getNoiseThreshold, this::setNoiseThreshold);
   }
+
+  public double getAbsolutePeakOutputCeiling(ChickenController m) {
+    return motors.get(m).getAbsolutePeakOutputCeiling();
+  }
+
+  public void setAbsolutePeakOutputCeiling(ChickenController m, double absolutePeakOutputCeiling) {
+    motors.get(m).setAbsolutePeakOutputCeiling(absolutePeakOutputCeiling);
+  }
+
+  public class MotorProperties {
+
+    @NotNull
+    private final AtomicLong currentPeakOutput = new AtomicLong(Double.doubleToLongBits(1.0));
+    @NotNull
+    private final AtomicLong absolutePeakOutputCeiling = new AtomicLong(Double.doubleToLongBits
+        (1.0));
+
+    public double getCurrentPeakOutput() {
+      return currentPeakOutput.doubleValue();
+    }
+
+    public void setCurrentPeakOutput(double currentPeakOutput) {
+      this.currentPeakOutput.set(Double.doubleToLongBits(currentPeakOutput));
+    }
+
+    public double getAbsolutePeakOutputCeiling() {
+      return absolutePeakOutputCeiling.doubleValue();
+    }
+
+    public void setAbsolutePeakOutputCeiling(double absolutePeakOutputCeiling) {
+      this.absolutePeakOutputCeiling.set(Double.doubleToLongBits(absolutePeakOutputCeiling));
+    }
+
+  }
+
 }
