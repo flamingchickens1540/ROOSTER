@@ -2,6 +2,8 @@ package org.team1540.base.power;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
@@ -21,24 +23,33 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
   void setPriority(double priority);
 
   /**
-   * Get the total power consumption of this subsystem.
+   * Gets the current percent output that the motors are being capped at.
    *
-   * @return The power consumption in watts.
+   * @return The current percent output from 0 to 1 (not enforced!)
    */
-  double getPowerConsumption();
+  double getPercentOutputLimit();
 
   /**
    * Set the percent of the current power draw this motor can draw.
    * e.g. if you were drawing .5 and set this to .5, you'll draw .25
-   * @param limit The percent of the current power draw to draw.
+   * @param limit The percent of the current power draw to draw, between 0 and 1 inclusive.
+   * @return Any excess percentOutput (i.e. any excess above 1.0, as that is the peak output of
+   * the motor.)
    */
-  void setPercentOutputLimit(double limit);
+  double setPercentOutputLimit(double limit);
 
   /**
    * Stop limiting the power.
    */
   void stopLimitingPower();
 
+  /**
+   * Gets the class responsible for grabbing the power telemetry, including power, current, and
+   * voltage.
+   *
+   * @return The PowerTelemetry contained in an optional, empty if it does not exist.
+   */
+  Optional<PowerTelemetry> getPowerTelemetry();
 
   /**
    * Compare two PowerManageables by priority.
@@ -47,15 +58,21 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    * @return (int) (getPriority() - o.getPriority())
    */
   @Override
-  default int compareTo(PowerManageable o) {
+  default int compareTo(@NotNull PowerManageable o) {
     return (int) (getPriority() - o.getPriority());
   }
 
   @Override
   default void initSendable(SendableBuilder builder) {
+    sendablePowerInfo(builder);
+  }
+
+  default void sendablePowerInfo(SendableBuilder builder) {
     builder.setSmartDashboardType("PowerManageable");
     builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
-    builder.addDoubleProperty("voltage", this::getPowerConsumption, null);
+    builder.addDoubleProperty("percentOutputLimit", this::getPercentOutputLimit,
+        this::setPercentOutputLimit
+    );
   }
 
 }
