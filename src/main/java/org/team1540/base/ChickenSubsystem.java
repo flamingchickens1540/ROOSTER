@@ -145,8 +145,8 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public double getPercentOutputLimit() {
     double sum = 0;
-    for (ChickenController currentMotors : motors.keySet()) {
-      sum += motors.get(currentMotors).getCurrentPeakOutput();
+    for (ChickenController currentMotor : motors.keySet()) {
+      sum += Math.abs(currentMotor.getMotorOutputPercent());
     }
     return sum / motors.size();
   }
@@ -160,31 +160,46 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       return 0;
     }
     for (ChickenController currentMotor : motors.keySet()) {
-      double newLimit = motors.get(currentMotor).getCurrentPeakOutput() * limit;
-      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeiling();
-      if (newLimit > ceiling) {
-        overflow += newLimit - ceiling;
-        newLimit = ceiling;
+      final double newLimit = Math.abs(currentMotor.getMotorOutputPercent()) * limit;
+      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
+
+      double forwardNewLimit = newLimit;
+      double reverseNewLimit = newLimit;
+      double forwardCeiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
+      double reverseCeiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingReverse();
+
+      if (forwardNewLimit > forwardCeiling) {
+        forwardNewLimit = ceiling;
+        overflow += forwardNewLimit - forwardCeiling;
       }
-      if (newLimit < noiseThreshold) {
-        // If the new limit is below the threshold, introduce some noise to keep it from being
-        // stuck at 0
-        newLimit = Math.random() * noiseThreshold;
+      if (reverseNewLimit > reverseCeiling) {
+        reverseNewLimit = ceiling;
+        overflow += reverseNewLimit - reverseCeiling;
       }
-      currentMotor.configPeakOutputForward(newLimit);
-      currentMotor.configPeakOutputReverse(-newLimit);
-      motors.get(currentMotor).setCurrentPeakOutput(newLimit);
+
+      // If the new limit is below the threshold, introduce some noise to keep it from being
+      // stuck at 0
+      if (forwardNewLimit < noiseThreshold) {
+        forwardNewLimit = Math.random() * noiseThreshold;
+      }
+      if (reverseNewLimit < noiseThreshold) {
+        reverseNewLimit = Math.random() * noiseThreshold;
+      }
+
+      currentMotor.configPeakOutputForward(forwardNewLimit);
+      currentMotor.configPeakOutputReverse(-reverseNewLimit);
     }
-    return overflow / motors.size();
+    // Average overflow (note the divide by two because of the forward and backwards)
+    // It's not perfect, but it should be good enough
+    return overflow / (motors.size() * 2);
   }
 
   @Override
   public void stopLimitingPower() {
     for (ChickenController currentMotor : motors.keySet()) {
-      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeiling();
+      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
       currentMotor.configPeakOutputForward(ceiling);
       currentMotor.configPeakOutputReverse(-ceiling);
-      motors.get(currentMotor).setCurrentPeakOutput(ceiling);
     }
   }
 
@@ -267,36 +282,87 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     builder.addDoubleProperty("noiseThreshold", this::getNoiseThreshold, this::setNoiseThreshold);
   }
 
-  public double getAbsolutePeakOutputCeiling(ChickenController m) {
-    return motors.get(m).getAbsolutePeakOutputCeiling();
+  /**
+   * Gets the maximum forward peak output.
+   *
+   * @param m The motor to get the maximum forward peak output of.
+   * @return Double 0 to 1 inclusive (always positive)
+   */
+  public double getAbsolutePeakOutputCeilingForward(ChickenController m) {
+    return motors.get(m).getAbsolutePeakOutputCeilingForward();
   }
 
-  public void setAbsolutePeakOutputCeiling(ChickenController m, double absolutePeakOutputCeiling) {
-    motors.get(m).setAbsolutePeakOutputCeiling(absolutePeakOutputCeiling);
+  /**
+   * Sets the maximum forward peak output.
+   * @param m The motor to get the maximum forward peak output of.
+   * @param absolutePeakOutputCeiling Double -1 to 1 inclusive. Negative numbers are made positive.
+   */
+  public void setAbsolutePeakOutputCeilingForward(ChickenController m,
+      double absolutePeakOutputCeiling) {
+    motors.get(m).setAbsolutePeakOutputCeilingForward(Math.abs(absolutePeakOutputCeiling));
+  }
+
+  /**
+   * Gets the maximum reverse peak output.
+   * @param m The motor to get the maximum reverse peak output of.
+   * @return Double 0 to 1 inclusive (always positive)
+   */
+  public double getAbsolutePeakOutputCeilingReverse(ChickenController m) {
+    return motors.get(m).getAbsolutePeakOutputCeilingReverse();
+  }
+
+  /**
+   * Sets the maximum reverse peak output.
+   * @param m The motor to get the maximum reverse peak output of.
+   * @param absolutePeakOutputCeiling Double -1 to 1 inclusive. Negative numbers are made positive.
+   */
+  public void setAbsolutePeakOutputCeilingReverse(ChickenController m,
+      double absolutePeakOutputCeiling) {
+    motors.get(m).setAbsolutePeakOutputCeilingReverse(Math.abs(absolutePeakOutputCeiling));
   }
 
   public class MotorProperties {
 
     @NotNull
-    private final AtomicLong currentPeakOutput = new AtomicLong(Double.doubleToLongBits(1.0));
-    @NotNull
-    private final AtomicLong absolutePeakOutputCeiling = new AtomicLong(Double.doubleToLongBits
-        (1.0));
+    private final AtomicLong absolutePeakOutputCeilingForward = new AtomicLong(Double
+        .doubleToLongBits(1.0));
+    private final AtomicLong absolutePeakOutputCeilingReverse = new AtomicLong(Double
+        .doubleToLongBits(1.0));
 
-    public double getCurrentPeakOutput() {
-      return currentPeakOutput.doubleValue();
+    /**
+     * Gets the maximum forward peak output.
+     * @return Double 0 to 1 inclusive (always positive)
+     */
+    public double getAbsolutePeakOutputCeilingForward() {
+      return absolutePeakOutputCeilingForward.doubleValue();
     }
 
-    public void setCurrentPeakOutput(double currentPeakOutput) {
-      this.currentPeakOutput.set(Double.doubleToLongBits(currentPeakOutput));
+    /**
+     * Sets the maximum forward peak output.
+     * @param absolutePeakOutputCeilingForward Double -1 to 1 inclusive. Negative numbers are
+     * made positive.
+     */
+    public void setAbsolutePeakOutputCeilingForward(double absolutePeakOutputCeilingForward) {
+      this.absolutePeakOutputCeilingForward
+          .set(Double.doubleToLongBits(absolutePeakOutputCeilingForward));
     }
 
-    public double getAbsolutePeakOutputCeiling() {
-      return absolutePeakOutputCeiling.doubleValue();
+    /**
+     * Gets the maximum reverse peak output.
+     * @return Double 0 to 1 inclusive (always positive)
+     */
+    public double getAbsolutePeakOutputCeilingReverse() {
+      return absolutePeakOutputCeilingReverse.doubleValue();
     }
 
-    public void setAbsolutePeakOutputCeiling(double absolutePeakOutputCeiling) {
-      this.absolutePeakOutputCeiling.set(Double.doubleToLongBits(absolutePeakOutputCeiling));
+    /**
+     * Sets the maximum reverse peak output.
+     * @param absolutePeakOutputCeilingReverse Double -1 to 1 inclusive. Negative numbers are
+     * made positive.
+     */
+    public void setAbsolutePeakOutputCeilingReverse(double absolutePeakOutputCeilingReverse) {
+      this.absolutePeakOutputCeilingReverse
+          .set(Double.doubleToLongBits(absolutePeakOutputCeilingReverse));
     }
 
   }
