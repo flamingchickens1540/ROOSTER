@@ -154,44 +154,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   @Override
   public double setPercentOutputLimit(double limit) {
     double overflow = 0;
-    if (Double.isNaN(limit)) {
-      DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to NaN, "
-          + "passing", false);
-      return 0;
-    }
     for (ChickenController currentMotor : motors.keySet()) {
-      final double newLimit = Math.abs(currentMotor.getMotorOutputPercent()) * limit;
-      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
-
-      double forwardNewLimit = newLimit;
-      double reverseNewLimit = newLimit;
-      double forwardCeiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
-      double reverseCeiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingReverse();
-
-      if (forwardNewLimit > forwardCeiling) {
-        forwardNewLimit = ceiling;
-        overflow += forwardNewLimit - forwardCeiling;
-      }
-      if (reverseNewLimit > reverseCeiling) {
-        reverseNewLimit = ceiling;
-        overflow += reverseNewLimit - reverseCeiling;
-      }
-
-      // If the new limit is below the threshold, introduce some noise to keep it from being
-      // stuck at 0
-      if (forwardNewLimit < noiseThreshold) {
-        forwardNewLimit = Math.random() * noiseThreshold;
-      }
-      if (reverseNewLimit < noiseThreshold) {
-        reverseNewLimit = Math.random() * noiseThreshold;
-      }
-
-      currentMotor.configPeakOutputForward(forwardNewLimit);
-      currentMotor.configPeakOutputReverse(-reverseNewLimit);
+      overflow += setPercentOutput(currentMotor, limit);
     }
     // Average overflow (note the divide by two because of the forward and backwards)
     // It's not perfect, but it should be good enough
-    return overflow / (motors.size() * 2);
+    return overflow / motors.size();
   }
 
   @Override
@@ -299,7 +267,12 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    */
   public void setAbsolutePeakOutputCeilingForward(ChickenController m,
       double absolutePeakOutputCeiling) {
-    motors.get(m).setAbsolutePeakOutputCeilingForward(Math.abs(absolutePeakOutputCeiling));
+    motors.get(m).setAbsolutePeakOutputCeilingForward(absolutePeakOutputCeiling);
+    // If the power management is running, we can just wait until its next tick deals with the
+    // ceilings. However, if it's not, we'll need to deal with the ceilings ourselves.
+    if (!PowerManager.getInstance().isLimiting()) {
+      m.configPeakOutputForward(Math.abs(absolutePeakOutputCeiling));
+    }
   }
 
   /**
@@ -318,12 +291,65 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
    */
   public void setAbsolutePeakOutputCeilingReverse(ChickenController m,
       double absolutePeakOutputCeiling) {
-    motors.get(m).setAbsolutePeakOutputCeilingReverse(Math.abs(absolutePeakOutputCeiling));
+    motors.get(m).setAbsolutePeakOutputCeilingReverse(absolutePeakOutputCeiling);
+    // If the power management is running, we can just wait until its next tick deals with the
+    // ceilings. However, if it's not, we'll need to deal with the ceilings ourselves.
+    if (!PowerManager.getInstance().isLimiting()) {
+      m.configPeakOutputReverse(-Math.abs(absolutePeakOutputCeiling));
+    }
+  }
+
+  /**
+   * Set the percent of the current power draw this motor can draw,
+   * e.g. if you were drawing .5 and set this to .5, you'll draw .25
+   *
+   * @param motor The motor to set.
+   * @param limit The percent of the current power draw to draw, between 0 and 1 inclusive.
+   * @return Any excess percentOutput (i.e. any excess above 1.0, as that is the peak output of
+   * the motor.)
+   */
+  private double setPercentOutput(ChickenController motor, double limit) {
+    if (Double.isNaN(limit)) {
+      DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to NaN for "
+          + "motor " + motor + ", passing", false);
+      return 0;
+    }
+
+    final double newLimit = motor.getMotorOutputPercent() * limit;
+    double overflow = 0;
+
+    double forwardNewLimit = newLimit;
+    double reverseNewLimit = newLimit;
+    double forwardCeiling = motors.get(motor).getAbsolutePeakOutputCeilingForward();
+    double reverseCeiling = motors.get(motor).getAbsolutePeakOutputCeilingReverse();
+
+    if (forwardNewLimit > forwardCeiling) {
+      forwardNewLimit = forwardCeiling;
+      overflow += forwardNewLimit - forwardCeiling;
+    }
+    if (reverseNewLimit > reverseCeiling) {
+      reverseNewLimit = reverseCeiling;
+      overflow += reverseNewLimit - reverseCeiling;
+    }
+
+    // If the new limit is below the threshold, introduce some noise to keep it from being
+    // stuck at 0
+    if (forwardNewLimit < noiseThreshold) {
+      forwardNewLimit = Math.random() * noiseThreshold;
+    }
+    if (reverseNewLimit < noiseThreshold) {
+      reverseNewLimit = Math.random() * noiseThreshold;
+    }
+
+    motor.configPeakOutputForward(forwardNewLimit);
+    motor.configPeakOutputReverse(-reverseNewLimit);
+
+    // Divide by two to account for forwards and reverse. It's not perfect, but it works.
+    return overflow / 2;
   }
 
   public class MotorProperties {
 
-    @NotNull
     private final AtomicLong absolutePeakOutputCeilingForward = new AtomicLong(Double
         .doubleToLongBits(1.0));
     private final AtomicLong absolutePeakOutputCeilingReverse = new AtomicLong(Double
