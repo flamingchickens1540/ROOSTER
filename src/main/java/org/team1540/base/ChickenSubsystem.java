@@ -360,7 +360,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
      * @return Double 0 to 1 inclusive (always positive)
      */
     public double getAbsolutePeakOutputCeilingForward() {
-      return absolutePeakOutputCeilingForward.doubleValue();
+      return Double.longBitsToDouble(absolutePeakOutputCeilingForward.get());
     }
 
     /**
@@ -378,7 +378,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
      * @return Double 0 to 1 inclusive (always positive)
      */
     public double getAbsolutePeakOutputCeilingReverse() {
-      return absolutePeakOutputCeilingReverse.doubleValue();
+      return Double.longBitsToDouble(absolutePeakOutputCeilingReverse.get());
     }
 
     /**
