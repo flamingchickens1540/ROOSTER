@@ -171,6 +171,20 @@ public interface ChickenController extends IMotorController {
    */
   ErrorCode configPeakOutputReverse(double percentOut);
 
+  /**
+   * Gets the forward peak output percentage.
+   *
+   * @return Double from -1 to 1 inclusive.
+   */
+  double getPeakOutputForward();
+
+  /**
+   * Gets the reverse peak output percentage.
+   *
+   * @return Double from -1 to 1 inclusive.
+   */
+  double getPeakOutputReverse();
+
   ErrorCode configRemoteFeedbackFilter(int deviceID, RemoteSensorSource remoteSensorSource,
       int remoteOrdinal);
 

@@ -36,7 +36,7 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
    * @return Any excess percentOutput (i.e. any excess above 1.0, as that is the peak output of
    * the motor.)
    */
-  double setPercentOutputLimit(double limit);
+  double setRelativePercentOutputLimit(double limit);
 
   /**
    * Stop limiting the power.
@@ -71,7 +71,7 @@ public interface PowerManageable extends Comparable<PowerManageable>, Sendable {
     builder.setSmartDashboardType("PowerManageable");
     builder.addDoubleProperty("priority", this::getPriority, this::setPriority);
     builder.addDoubleProperty("percentOutputLimit", this::getPercentOutputLimit,
-        this::setPercentOutputLimit
+        this::setRelativePercentOutputLimit
     );
   }
 

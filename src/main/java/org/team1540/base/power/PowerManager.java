@@ -415,7 +415,8 @@ public class PowerManager extends Thread implements Sendable {
               : cachedMathNoTelemetry, 1);
       // Set the percentToDecreaseTo. This will return any overflow, which we can multiply by the
       // unscaled current to get an actual value in amps and store away for later.
-      currentOverflow = currentProperties.manageable.setPercentOutputLimit(percentToDecreaseTo) *
+      currentOverflow =
+          currentProperties.manageable.setRelativePercentOutputLimit(percentToDecreaseTo) *
           currentProperties.getCurrentUnscaled().get();
     }
   }
