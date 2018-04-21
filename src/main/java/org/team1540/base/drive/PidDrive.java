@@ -35,7 +35,7 @@ public class PidDrive extends Command {
 
   PidDrive(PidDriveConfiguration pidDriveConfiguration) {
     requires(pidDriveConfiguration.subsystem);
-    // If the subsystem is a ChickenSubsystem, use setPercentOutputLimit
+    // If the subsystem is a ChickenSubsystem, use setRelativePercentOutputLimit
     // If not, use the good old configPeakOutput
 
     configPeakOutput = pidDriveConfiguration.subsystem instanceof ChickenSubsystem ?

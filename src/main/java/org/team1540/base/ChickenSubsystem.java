@@ -146,28 +146,63 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
   public double getPercentOutputLimit() {
     double sum = 0;
     for (ChickenController currentMotor : motors.keySet()) {
-      sum += Math.abs(currentMotor.getMotorOutputPercent());
+      // Use the lower bounds because I think it's nice.
+      sum += Math.min(Math.abs(currentMotor.getPeakOutputForward()), Math.abs(currentMotor
+          .getPeakOutputReverse()));
     }
     return sum / motors.size();
   }
 
   @Override
-  public double setPercentOutputLimit(double limit) {
+  public double setRelativePercentOutputLimit(double limit) {
     double overflow = 0;
-    for (ChickenController currentMotor : motors.keySet()) {
-      overflow += setPercentOutput(currentMotor, limit);
+    for (Map.Entry<ChickenController, MotorProperties> entry : motors.entrySet()) {
+      if (Double.isNaN(limit)) {
+        DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to " + limit
+            + " for motor " + entry.getKey() + ", passing", false);
+        return 0;
+      }
+
+      final double newLimit = entry.getKey().getMotorOutputPercent() * limit;
+
+      double forwardNewLimit = newLimit;
+      double reverseNewLimit = newLimit;
+      double forwardCeiling = entry.getValue().getAbsolutePeakOutputCeilingForward();
+      double reverseCeiling = entry.getValue().getAbsolutePeakOutputCeilingReverse();
+
+      if (forwardNewLimit > forwardCeiling) {
+        forwardNewLimit = forwardCeiling;
+        overflow += forwardNewLimit - forwardCeiling;
+      }
+      if (reverseNewLimit > reverseCeiling) {
+        reverseNewLimit = reverseCeiling;
+        overflow += reverseNewLimit - reverseCeiling;
+      }
+
+      // If the new limit is below the threshold, introduce some noise to keep it from being
+      // stuck at 0
+      if (forwardNewLimit < noiseThreshold) {
+        forwardNewLimit = Math.random() * noiseThreshold;
+      }
+      if (reverseNewLimit < noiseThreshold) {
+        reverseNewLimit = Math.random() * noiseThreshold;
+      }
+
+      entry.getKey().configPeakOutputForward(forwardNewLimit);
+      entry.getKey().configPeakOutputReverse(-reverseNewLimit);
     }
     // Average overflow (note the divide by two because of the forward and backwards)
+    // Also divide by two to account for forwards and reverse. It's not perfect, but it works.
     // It's not perfect, but it should be good enough
-    return overflow / motors.size();
+    return overflow / motors.size() / 2;
   }
 
   @Override
   public void stopLimitingPower() {
-    for (ChickenController currentMotor : motors.keySet()) {
-      final double ceiling = motors.get(currentMotor).getAbsolutePeakOutputCeilingForward();
-      currentMotor.configPeakOutputForward(ceiling);
-      currentMotor.configPeakOutputReverse(-ceiling);
+    for (Map.Entry<ChickenController, MotorProperties> entry : motors.entrySet()) {
+      final double ceiling = entry.getValue().getAbsolutePeakOutputCeilingForward();
+      entry.getKey().configPeakOutputForward(ceiling);
+      entry.getKey().configPeakOutputReverse(-ceiling);
     }
   }
 
@@ -299,56 +334,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
     }
   }
 
-  /**
-   * Set the percent of the current power draw this motor can draw,
-   * e.g. if you were drawing .5 and set this to .5, you'll draw .25
-   *
-   * @param motor The motor to set.
-   * @param limit The percent of the current power draw to draw, between 0 and 1 inclusive.
-   * @return Any excess percentOutput (i.e. any excess above 1.0, as that is the peak output of
-   * the motor.)
-   */
-  private double setPercentOutput(ChickenController motor, double limit) {
-    if (Double.isNaN(limit)) {
-      DriverStation.reportError(this.getName() + ": Cannot set percentOutputLimit to NaN for "
-          + "motor " + motor + ", passing", false);
-      return 0;
-    }
-
-    final double newLimit = motor.getMotorOutputPercent() * limit;
-    double overflow = 0;
-
-    double forwardNewLimit = newLimit;
-    double reverseNewLimit = newLimit;
-    double forwardCeiling = motors.get(motor).getAbsolutePeakOutputCeilingForward();
-    double reverseCeiling = motors.get(motor).getAbsolutePeakOutputCeilingReverse();
-
-    if (forwardNewLimit > forwardCeiling) {
-      forwardNewLimit = forwardCeiling;
-      overflow += forwardNewLimit - forwardCeiling;
-    }
-    if (reverseNewLimit > reverseCeiling) {
-      reverseNewLimit = reverseCeiling;
-      overflow += reverseNewLimit - reverseCeiling;
-    }
-
-    // If the new limit is below the threshold, introduce some noise to keep it from being
-    // stuck at 0
-    if (forwardNewLimit < noiseThreshold) {
-      forwardNewLimit = Math.random() * noiseThreshold;
-    }
-    if (reverseNewLimit < noiseThreshold) {
-      reverseNewLimit = Math.random() * noiseThreshold;
-    }
-
-    motor.configPeakOutputForward(forwardNewLimit);
-    motor.configPeakOutputReverse(-reverseNewLimit);
-
-    // Divide by two to account for forwards and reverse. It's not perfect, but it works.
-    return overflow / 2;
-  }
-
-  public class MotorProperties {
+  private class MotorProperties {
 
     private final AtomicLong absolutePeakOutputCeilingForward = new AtomicLong(Double
         .doubleToLongBits(1.0));
@@ -360,7 +346,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
      * @return Double 0 to 1 inclusive (always positive)
      */
     public double getAbsolutePeakOutputCeilingForward() {
-      return absolutePeakOutputCeilingForward.doubleValue();
+      return Double.longBitsToDouble(absolutePeakOutputCeilingForward.get());
     }
 
     /**
@@ -378,7 +364,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
      * @return Double 0 to 1 inclusive (always positive)
      */
     public double getAbsolutePeakOutputCeilingReverse() {
-      return absolutePeakOutputCeilingReverse.doubleValue();
+      return Double.longBitsToDouble(absolutePeakOutputCeilingReverse.get());
     }
 
     /**
