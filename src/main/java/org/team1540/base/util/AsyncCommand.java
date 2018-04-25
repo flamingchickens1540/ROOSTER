@@ -1,11 +1,12 @@
 package org.team1540.base.util;
 
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * A {@link Command} that spawns off a new {@link Thread} on initialization and interrupts it on
- * completion. That thread will call the {@link #run()} method at a user-specified interval with
- * precise timings.
+ * A {@link Command} that spawns off a new {@link Notifier} on initialization and stops it. That
+ * thread will call the {@link #runPeriodic()} ()} method at a user-specified interval with precise
+ * timings.
  *
  * @see Thread
  */
@@ -13,13 +14,10 @@ public abstract class AsyncCommand extends Command {
 
   private Thread thread;
 
-  private final Object intervalLock = new Object();
-
-  // should ONLY be accessed through getter and setter as those are synced. Unsyced long access
-  // runs the risk of reading half of the original value and half of the new value
   private long interval;
-  // booleans are thread-safe as long as you're just reading and writing
-  private boolean finished;
+  private boolean finished = false;
+
+  private Notifier notifier;
 
   /**
    * Constructs a new {@code AsyncCommand} with a preset periodic interval.
@@ -37,51 +35,66 @@ public abstract class AsyncCommand extends Command {
    * will be called in a seperate thread, and as such any public methods it calls, fields it uses,
    * etc. MUST be thread-safe.
    */
-  protected abstract void run();
+  protected void runPeriodic() {
+
+  }
+
+  /**
+   * Runs initialization code for this command.
+   *
+   * This is equivalent to the {@link Command#initialize()} method.
+   */
+  protected void runInitial() {
+
+  }
+
+  /**
+   * Called when the {@code AsyncCommand} ends peacefully. This is equivalent to {@link
+   * Command#end()}.
+   *
+   * This method is called when the command ends peacefully, i.e. when {@link #markAsFinished()} was
+   * called. However, it is possible that another command interrupts this command after {@link
+   * #markAsFinished()} was called but before the command was removed from the scheduler, and as
+   * such this method might not be called even if {@link #markAsFinished()} was called.
+   */
+  protected void runEnd() {
+
+  }
+
+  /**
+   * Called when the {@code AsyncCommand} is interrupted.
+   *
+   * This method serves an identical purpose to {@link Command#interrupted()}. By default, this
+   * method calls {@link #runEnd()}.
+   */
+  protected void runInterrupt() {
+    runEnd();
+  }
 
   @Override
-  protected void initialize() {
+  protected final void initialize() {
     finished = false;
-    // create a new thread and start it
-    thread = new Thread(() -> {
-      while (!finished) {
-        run();
-        if (!finished) {
-          try {
-            Thread.sleep(getInterval()); // get method to take advantage of synchronization
-          } catch (InterruptedException e) {
-            finished = true;
-          }
-        }
+    runInitial();
+
+    notifier = new Notifier(() -> {
+      if (!finished) {
+        runPeriodic();
       }
     });
 
-    thread.start();
+    notifier.startPeriodic(interval / 1000.0);
   }
 
-  /**
-   * Interrupts the spawned thread. This method is so that implementations can define overrides of
-   * {@link #interrupted()} that do not call {@link #end()}. Calling this on a command that is not
-   * running has no effect.
-   */
-  protected void interrupt() {
-    if (thread != null) {
-      thread.interrupt();
-      thread = null;
-    }
-  }
-
-
-  /**
-   * Interrupts the spawned thread, then calls {@link #end()}. Note that overrides of this method
-   * MUST call {@link #interrupt()} to cause thread execution to stop properly.
-   * <p>
-   * {@inheritDoc}
-   */
   @Override
-  protected void interrupted() {
-    interrupt();
-    end();
+  protected final void interrupted() {
+    notifier.stop();
+    runInterrupt();
+  }
+
+  @Override
+  protected final void end() {
+    notifier.stop();
+    runEnd();
   }
 
   @Override
@@ -103,9 +116,7 @@ public abstract class AsyncCommand extends Command {
    * @return The interval, in milliseconds.
    */
   public long getInterval() {
-    synchronized (intervalLock) {
-      return interval;
-    }
+    return interval;
   }
 
   /**
@@ -114,8 +125,6 @@ public abstract class AsyncCommand extends Command {
    * @param interval The interval, in milliseconds.
    */
   public void setInterval(long interval) {
-    synchronized (intervalLock) {
-      this.interval = interval;
-    }
+    this.interval = interval;
   }
 }
