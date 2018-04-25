@@ -47,12 +47,14 @@ public class RunMotionProfiles extends Command {
     this.motionProfiles = motionProfiles;
   }
 
+  @Override
   protected void initialize() {
     timer.start();
     lastTime = timer.get();
     isFinished = false;
   }
 
+  @Override
   protected void execute() {
     for (MotionProfilingProperties currentProperty : motionProfiles) {
       // Each controller's setpoint is calculated at a slightly different time, but this doesn't
@@ -85,6 +87,17 @@ public class RunMotionProfiles extends Command {
   }
 
   /**
+   * Sets the velocity to 0 for all properties and sets isFinished to true.
+   */
+  @Override
+  protected void interrupted() {
+    for (MotionProfilingProperties currentProperty : motionProfiles) {
+      currentProperty.getSetMotorVelocityFunction().accept(0);
+    }
+    isFinished = true;
+  }
+
+  /**
    * Calculate if a number is between (inclusive) two other numbers
    *
    * @param x The target
@@ -102,7 +115,7 @@ public class RunMotionProfiles extends Command {
   }
 
   @Override
-  protected boolean isFinished() {
+  public boolean isFinished() {
     return isFinished;
   }
 }

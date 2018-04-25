@@ -17,9 +17,12 @@ import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 public class ChickenVictor extends VictorSPX implements ChickenController {
+
   ControlMode controlMode = ControlMode.PercentOutput;
   int defaultPidIdx = 0;
   int defaultTimeoutMs = 0;
+  private double peakOutputForward = 1;
+  private double peakOutputReverse = -1;
 
   public ChickenVictor(int deviceNumber) {
     super(deviceNumber);
@@ -44,6 +47,11 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   @Override
   public ErrorCode configClosedloopRamp(double secondsFromNeutralToFull) {
     return super.configClosedloopRamp(secondsFromNeutralToFull, defaultTimeoutMs);
+  }
+
+  @Override
+  public ErrorCode configOpenloopRamp(double secondsFromNeutralToFull) {
+    return super.configOpenloopRamp(secondsFromNeutralToFull, defaultTimeoutMs);
   }
 
   @Override
@@ -115,18 +123,25 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   }
 
   @Override
-  public ErrorCode configOpenloopRamp(double secondsFromNeutralToFull) {
-    return super.configOpenloopRamp(secondsFromNeutralToFull, defaultTimeoutMs);
-  }
-
-  @Override
   public ErrorCode configPeakOutputForward(double percentOut) {
+    peakOutputForward = percentOut;
     return super.configPeakOutputForward(percentOut, defaultTimeoutMs);
   }
 
   @Override
   public ErrorCode configPeakOutputReverse(double percentOut) {
+    peakOutputReverse = percentOut;
     return super.configPeakOutputReverse(percentOut, defaultTimeoutMs);
+  }
+
+  @Override
+  public double getPeakOutputForward() {
+    return peakOutputForward;
+  }
+
+  @Override
+  public double getPeakOutputReverse() {
+    return peakOutputReverse;
   }
 
   @Override

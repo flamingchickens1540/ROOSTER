@@ -10,7 +10,10 @@ import edu.wpi.first.wpilibj.buttons.Button;
 public class DPadButton extends Button {
   /**
    * Enum representing the possible axes of a D-Pad.
+   *
+   * @deprecated Use {@link org.team1540.base.triggers.DPadAxis}
    */
+  @Deprecated
   public enum DPadAxis {
     UP, DOWN, LEFT, RIGHT
   }
@@ -18,7 +21,37 @@ public class DPadButton extends Button {
   private Joystick stick;
   private int pad;
 
-  private DPadAxis axis;
+  private org.team1540.base.triggers.DPadAxis axis;
+
+  /**
+   * Constructs a {@link DPadButton}.
+   *
+   * @deprecated Use {@link #DPadButton(Joystick, int, org.team1540.base.triggers.DPadAxis)}
+   *
+   * @param stick The joystick with the button.
+   * @param pad The ID of the d-pad.
+   * @param axis The axis of the button.
+   */
+  @Deprecated
+  public DPadButton(Joystick stick, int pad, DPadAxis axis) {
+    super();
+    this.stick = stick;
+    this.pad = pad;
+    switch (axis) {
+      case UP:
+        this.axis = org.team1540.base.triggers.DPadAxis.UP;
+        break;
+      case DOWN:
+        this.axis = org.team1540.base.triggers.DPadAxis.DOWN;
+        break;
+      case LEFT:
+        this.axis = org.team1540.base.triggers.DPadAxis.LEFT;
+        break;
+      case RIGHT:
+        this.axis = org.team1540.base.triggers.DPadAxis.RIGHT;
+        break;
+    }
+  }
 
   /**
    * Constructs a {@link DPadButton}.
@@ -27,7 +60,7 @@ public class DPadButton extends Button {
    * @param pad The ID of the d-pad.
    * @param axis The axis of the button.
    */
-  public DPadButton(Joystick stick, int pad, DPadAxis axis) {
+  public DPadButton(Joystick stick, int pad, org.team1540.base.triggers.DPadAxis axis) {
     super();
     this.stick = stick;
     this.pad = pad;
