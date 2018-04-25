@@ -5,6 +5,8 @@ import static java.lang.Math.abs;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
+import java.util.Objects;
+import org.team1540.base.ChickenSubsystem;
 import org.team1540.base.Utilities;
 import org.team1540.base.wrappers.ChickenController;
 
@@ -29,9 +31,25 @@ public class PidDrive extends Command {
   private int backTrigger;
   private double deadzone;
   private double brakeOverrideThresh;
+  private TriConsumer<ChickenController, Double, Double> configPeakOutput;
 
   PidDrive(PidDriveConfiguration pidDriveConfiguration) {
     requires(pidDriveConfiguration.subsystem);
+    // If the subsystem is a ChickenSubsystem, use setRelativePercentOutputLimit
+    // If not, use the good old configPeakOutput
+
+    configPeakOutput = pidDriveConfiguration.subsystem instanceof ChickenSubsystem ?
+        (motor, forward, reverse) -> {
+          ((ChickenSubsystem) pidDriveConfiguration.subsystem)
+              .setAbsolutePeakOutputCeilingForward(motor, forward);
+          ((ChickenSubsystem) pidDriveConfiguration.subsystem)
+              .setAbsolutePeakOutputCeilingReverse(motor, reverse);
+        }
+        : (motor, forward, reverse) -> {
+          motor.configPeakOutputForward(forward);
+          motor.configPeakOutputReverse(-Math.abs(reverse));
+        };
+
     this.left = pidDriveConfiguration.left;
     this.right = pidDriveConfiguration.right;
     this.maxVel = pidDriveConfiguration.maxVel;
@@ -80,7 +98,6 @@ public class PidDrive extends Command {
     left.set(ControlMode.Velocity, leftSetpoint * maxVel);
     right.set(ControlMode.Velocity, rightSetpoint * maxVel);
   }
-
 
   @Override
   protected void end() {
@@ -234,12 +251,25 @@ public class PidDrive extends Command {
       // process braking
       boolean goingForward =
           Utilities.invertIf(invertBrake, controller.getSelectedSensorVelocity()) > 0;
-
-      controller.configPeakOutputForward(goingForward ? 1 : maxBrakePct);
-      controller.configPeakOutputReverse(goingForward ? -maxBrakePct : -1);
+      configPeakOutput.accept(controller, goingForward ? 1 : maxBrakePct, goingForward ?
+          -maxBrakePct : -1);
     } else {
-      controller.configPeakOutputForward(1);
-      controller.configPeakOutputReverse(-1);
+      configPeakOutput.accept(controller, 1.0, -1.0);
+    }
+  }
+
+  @FunctionalInterface
+  public interface TriConsumer<T, U, V> {
+
+    public void accept(T t, U u, V v);
+
+    public default TriConsumer<T, U, V> andThen(
+        TriConsumer<? super T, ? super U, ? super V> after) {
+      Objects.requireNonNull(after);
+      return (a, b, c) -> {
+        accept(a, b, c);
+        after.accept(a, b, c);
+      };
     }
   }
 }
