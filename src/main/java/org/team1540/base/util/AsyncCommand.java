@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public abstract class AsyncCommand extends Command {
 
-  private Thread thread;
-
   private long interval;
   private boolean finished = false;
 
