@@ -2,6 +2,7 @@ package org.team1540.base.util;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.command.Command;
+import org.jetbrains.annotations.Contract;
 
 /**
  * A {@link Command} that spawns off a new {@link Notifier} on initialization and stops it. That
@@ -96,6 +97,7 @@ public abstract class AsyncCommand extends Command {
   }
 
   @Override
+  @Contract(pure = true)
   protected boolean isFinished() {
     return finished;
   }
@@ -113,6 +115,7 @@ public abstract class AsyncCommand extends Command {
    *
    * @return The interval, in milliseconds.
    */
+  @Contract(pure = true)
   public long getInterval() {
     return interval;
   }
