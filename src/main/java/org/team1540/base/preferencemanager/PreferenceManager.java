@@ -70,7 +70,7 @@ public class PreferenceManager {
 
         if (preferenceType == null) {
           DriverStation.reportError(
-              "Annotated tunable in class added to AdjustableManager is not of a supported type",
+              "Annotated preference in class added to PreferenceManager is not of a supported type",
               false);
           continue;
         }
@@ -81,7 +81,7 @@ public class PreferenceManager {
     }
     if (noneFound) {
       DriverStation.reportWarning(
-          "Object passed to AdjustableManager had no annotated adjustable fields",
+          "Object passed to PreferenceManager had no annotated adjustable fields",
           false);
     }
   }
