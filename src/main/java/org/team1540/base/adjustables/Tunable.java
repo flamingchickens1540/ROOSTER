@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * SmartDashboard/Shuffleboard will be reflected in this field, and as such it's useful for fields
  * like PID tuning values.
  *
- * @deprecated Use the {@link org.team1540.base.preferencemanager.PreferenceManager} and {@link *
+ * @deprecated Use the {@link org.team1540.base.preferencemanager.PreferenceManager} and {@link
  * org.team1540.base.preferencemanager.Preference} instead.
  */
 @Retention(RUNTIME)
