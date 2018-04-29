@@ -9,7 +9,9 @@ import org.team1540.base.adjustables.Telemetry;
 import org.team1540.base.adjustables.Tunable;
 import org.team1540.base.power.PowerManager;
 
+@Deprecated
 public class AdjustableTestRobot extends IterativeRobot {
+
   @Tunable("A boolean")
   public boolean b;
   @Tunable("A String")
