@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Contract;
  */
 public abstract class AsyncCommand extends Command {
 
-  private long interval;
+  private double interval;
   private boolean finished = false;
 
   private Notifier notifier;
@@ -24,7 +24,7 @@ public abstract class AsyncCommand extends Command {
    * @param interval The interval between {@link #run()} calls, in milliseconds.
    */
   public AsyncCommand(long interval) {
-    this.interval = interval;
+    this.interval = interval / 1000.0;
   }
 
   /**
@@ -81,7 +81,7 @@ public abstract class AsyncCommand extends Command {
       }
     });
 
-    notifier.startPeriodic(interval / 1000.0);
+    notifier.startPeriodic(interval);
   }
 
   @Override
@@ -117,7 +117,7 @@ public abstract class AsyncCommand extends Command {
    */
   @Contract(pure = true)
   public long getInterval() {
-    return interval;
+    return (long) interval * 1000;
   }
 
   /**
@@ -126,6 +126,6 @@ public abstract class AsyncCommand extends Command {
    * @param interval The interval, in milliseconds.
    */
   public void setInterval(long interval) {
-    this.interval = interval;
+    this.interval = interval / 1000.0;
   }
 }
