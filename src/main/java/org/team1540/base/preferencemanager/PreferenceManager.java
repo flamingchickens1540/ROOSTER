@@ -51,14 +51,10 @@ public class PreferenceManager {
     // reflection time
     Field[] fields = object.getClass().getFields();
 
-    boolean noneFound = true; // for logging to keep track if we have found at least one adjustable
-    for (Field field : fields) {
+    TuningClass tuningAnnotation = object.getClass().getAnnotation(TuningClass.class);
 
-      // process tunables
-      Preference preference = field.getAnnotation(Preference.class);
-
-      if (preference != null) {
-        // check if the field is of a supported type
+    if (tuningAnnotation != null) {
+      for (Field field : fields) {
         PreferenceType preferenceType = null;
         for (PreferenceType type : PreferenceType.values()) {
           //noinspection unchecked
@@ -70,19 +66,48 @@ public class PreferenceManager {
 
         if (preferenceType == null) {
           DriverStation.reportError(
-              "Annotated preference in class added to PreferenceManager is not of a supported type",
+              "Field in tuning class added to PreferenceManager is not of a supported type",
               false);
           continue;
         }
 
-        preferences.add(new PreferenceField(object, field, preferenceType, preference.value()));
-        noneFound = false;
+        preferences.add(new PreferenceField(object, field, preferenceType,
+            tuningAnnotation.value() + field.getName()));
       }
-    }
-    if (noneFound) {
-      DriverStation.reportWarning(
-          "Object passed to PreferenceManager had no annotated adjustable fields",
-          false);
+    } else {
+      boolean noneFound = true; // for logging to keep track if we have found at least one adjustable
+      for (Field field : fields) {
+
+        // process tunables
+        Preference preference = field.getAnnotation(Preference.class);
+
+        if (preference != null) {
+          // check if the field is of a supported type
+          PreferenceType preferenceType = null;
+          for (PreferenceType type : PreferenceType.values()) {
+            //noinspection unchecked
+            if (type.cls.isAssignableFrom(field.getType())) {
+              preferenceType = type;
+              break;
+            }
+          }
+
+          if (preferenceType == null) {
+            DriverStation.reportError(
+                "Annotated preference in class added to PreferenceManager is not of a supported type",
+                false);
+            continue;
+          }
+
+          preferences.add(new PreferenceField(object, field, preferenceType, preference.value()));
+          noneFound = false;
+        }
+      }
+      if (noneFound) {
+        DriverStation.reportWarning(
+            "Object passed to PreferenceManager had no annotated adjustable fields",
+            false);
+      }
     }
   }
 
