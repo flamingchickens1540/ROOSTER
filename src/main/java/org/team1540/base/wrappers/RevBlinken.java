@@ -9,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
  * setpoint by specifying the displayed color pattern (passing a {@link ColorPattern ColorPattern})
  * instead of the raw PWM output.
  */
-public class RevBlinken {
-
-  private final Spark controller;
-
+public class RevBlinken extends Spark {
   /**
    * Constructor.
    *
@@ -21,7 +18,7 @@ public class RevBlinken {
    * @throws IndexOutOfBoundsException If the specified PWM channel does not exist.
    */
   public RevBlinken(int channel) {
-    this.controller = new Spark(channel);
+    super(channel);
   }
 
   /**
@@ -31,7 +28,7 @@ public class RevBlinken {
    * @throws NullPointerException If pattern is null.
    */
   public void set(@NotNull ColorPattern pattern) {
-    controller.set(pattern.setpoint);
+    super.set(pattern.setpoint);
   }
 
   /**
@@ -40,7 +37,7 @@ public class RevBlinken {
    * @param manualSetpoint The manual setpoint to be sent over PWM.
    */
   public void set(double manualSetpoint) {
-    controller.set(manualSetpoint);
+    super.set(manualSetpoint);
   }
 
   /**
