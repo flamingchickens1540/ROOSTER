@@ -1,9 +1,13 @@
 package org.team1540.base.wrappers;
 
 import edu.wpi.first.wpilibj.Spark;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Wrapper class for controlling a REV Blinken LED controller.
+ * Wrapper class for controlling a REV Blinken LED controller. This class is a wrapper around a
+ * {@link Spark} instance for sending the actual PWM signals, but provides a way to set the PWM
+ * setpoint by specifying the displayed color pattern (passing a {@link ColorPattern ColorPattern})
+ * instead of the raw PWM output.
  */
 public class RevBlinken {
 
@@ -14,6 +18,7 @@ public class RevBlinken {
    *
    * @param channel The PWM channel that the Blinken is attached to. 0-9 are on-board, 10-19 are on
    * the MXP port
+   * @throws IndexOutOfBoundsException If the specified PWM channel does not exist.
    */
   public RevBlinken(int channel) {
     this.controller = new Spark(channel);
@@ -23,8 +28,9 @@ public class RevBlinken {
    * Sets the light pattern.
    *
    * @param pattern The pattern to use
+   * @throws NullPointerException If pattern is null.
    */
-  public void set(ColorPattern pattern) {
+  public void set(@NotNull ColorPattern pattern) {
     controller.set(pattern.setpoint);
   }
 
