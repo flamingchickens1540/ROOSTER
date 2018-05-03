@@ -1,0 +1,43 @@
+import jaci.openrio.gradle.GradleRIOPlugin
+import jaci.openrio.gradle.frc.FRCJavaArtifact
+import jaci.openrio.gradle.frc.RoboRIO
+
+plugins {
+    id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
+}
+
+dependencies {
+    compile project(":lib")
+    compile wpilib()
+    compile ctre()
+    compile navx()
+    compile pathfinder()
+}
+
+def TEAM = 1540
+def ROBOT_CLASS = "org.team1540.base.testing.XXX"
+
+deploy {
+    targets {
+        target("roborio", RoboRIO) {
+            team = TEAM
+        }
+    }
+    artifacts {
+        artifact('frcJava', FRCJavaArtifact) {
+            targets << "roborio"
+            /*
+            IMPORTANT: With this line in the buildscript, the robot code will not start until
+            you connect your debugger to the robot. Connect by running the "Remote Robot Debug"
+            run configuration which should be shared through version control. Alternatively,
+            remove this line and redeploy.
+            */
+            debug = true
+        }
+    }
+}
+
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+}
