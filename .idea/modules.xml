@@ -3,8 +3,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ROOSTER.iml" filepath="$PROJECT_DIR$/.idea/modules/ROOSTER.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ROOSTER_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ROOSTER_main.iml" group="ROOSTER" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ROOSTER_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ROOSTER_test.iml" group="ROOSTER" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib.iml" group="lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib_main.iml" group="lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib_test.iml" group="lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test.iml" group="test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test_main.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test_main.iml" group="test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test_test.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test_test.iml" group="test" />
     </modules>
   </component>
 </project>
