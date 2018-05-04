@@ -1,88 +1,15 @@
-import jaci.openrio.gradle.GradleRIOPlugin
-import jaci.openrio.gradle.frc.FRCJavaArtifact
-import jaci.openrio.gradle.frc.RoboRIO
-
-plugins {
-    id "java"
-    id "idea"
-    id "maven"
-    id "jaci.openrio.gradle.GradleRIO" version "2018.02.17"
-}
-
-group = 'org.team1540'
-
-// for JitPack
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-javadoc {
-    options {
-        header '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
-        links 'http://first.wpi.edu/FRC/roborio/release/docs/java/', 'http://www.ctr-electronics.com/downloads/api/java/html/'
-        linksOffline('https://docs.oracle.com/javase/8/docs/api/', 'https://docs.oracle.com/javase/8/docs/api/')
-    }
-    options.addBooleanOption("-allow-script-in-comments", true)
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile wpilib()
-    compile ctre()
-    compile navx()
-    compile pathfinder()
-    compile 'org.jetbrains:annotations:15.0'
-}
-
-def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.testing.XXX"
-
-deploy {
-    targets {
-        target("roborio", RoboRIO) {
-            team = TEAM
-        }
-    }
-    artifacts {
-        artifact('frcJava', FRCJavaArtifact) {
-            targets << "roborio"
-            /*
-            IMPORTANT: With this line in the buildscript, the robot code will not start until
-            you connect your debugger to the robot. Connect by running the "Remote Robot Debug"
-            run configuration which should be shared through version control. Alternatively,
-            remove this line and redeploy.
-            */
-            debug = true
-        }
-    }
-}
-
-jar {
-    def jp = System.getenv("JITPACK")
-    if (jp == null || jp == "false") {
-        // Since we're deploying to the RIO, create a "fat jar"
-        println "Creating Fat Jar"
-        from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-        manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
-    } else {
-        println "Using JitPack"
-    }
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '4.4'
+}
+
+subprojects {
+    apply plugin: "java"
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.jetbrains:annotations:15.0'
+    }
 }
