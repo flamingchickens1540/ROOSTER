@@ -3,6 +3,7 @@ package org.team1540.base.adjustables;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+@Deprecated
 enum TelemetryType {
   STRING(String.class, SmartDashboard::putString),
   INT(Integer.TYPE, (SmartDashboardPut<Integer>) SmartDashboard::putNumber),

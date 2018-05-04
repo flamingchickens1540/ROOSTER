@@ -2,6 +2,7 @@ package org.team1540.base.adjustables;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+@Deprecated
 enum TunableType {
   STRING(String.class, SmartDashboard::putString, SmartDashboard::getString),
   INT(Integer.TYPE, (SmartDashboardPut<Integer>) SmartDashboard::putNumber,

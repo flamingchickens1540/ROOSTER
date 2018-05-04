@@ -11,7 +11,10 @@ import org.team1540.base.util.SimpleLoopCommand;
  * Class to manage creating and updating adjustables (tunables and telemetry values.) Add an object
  * containing fields marked with {@link Tunable} or {@link Telemetry} to have those values show up
  * on the SmartDashboard/Shuffleboard.
+ *
+ * @deprecated Use the {@link org.team1540.base.preferencemanager.PreferenceManager}.
  */
+@Deprecated
 public class AdjustableManager {
 
   private static AdjustableManager instance = new AdjustableManager();
@@ -29,6 +32,7 @@ public class AdjustableManager {
     managerUpdate.start();
   }
 
+  @Deprecated
   public static AdjustableManager getInstance() {
     return instance;
   }
@@ -38,7 +42,9 @@ public class AdjustableManager {
    *
    * @param object The object to add. One or more of the fields in this object should be marked with
    * {@link Telemetry} or {@link Tunable}.
+   * @deprecated Use the {@link org.team1540.base.preferencemanager.PreferenceManager}.
    */
+  @Deprecated
   public void add(Object object) {
     synchronized (lock) {
       // reflection time
@@ -176,10 +182,12 @@ public class AdjustableManager {
     }
   }
 
+  @Deprecated
   public boolean isEnabled() {
     return enabled;
   }
 
+  @Deprecated
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
