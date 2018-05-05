@@ -139,6 +139,7 @@ public class RevBlinken extends Spark {
     BLUE(0.87),
     BLUE_VIOLET(0.89),
     VIOLET(0.91),
+    WHITE(0.93),
     GRAY(0.95),
     DARK_GRAY(0.97),
     BLACK(0.99);
