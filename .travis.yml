@@ -20,7 +20,7 @@ deploy:
   - provider: pages # Javadoc deployment to Github Pages
     local-dir: lib/build/docs/javadoc/
     skip-cleanup: true
-    github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+    github-token: $GITHUB_TOKEN
     keep-history: true
     on:
       branch: master
