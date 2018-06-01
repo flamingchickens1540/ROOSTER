@@ -1,9 +1,28 @@
+buildscript {
+    ext.kotlin_version = '1.2.31'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '4.4'
 }
 
 subprojects {
     apply plugin: "java"
+    apply plugin: "kotlin"
+
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
 
     repositories {
         mavenCentral()
@@ -11,5 +30,6 @@ subprojects {
 
     dependencies {
         compile 'org.jetbrains:annotations:15.0'
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     }
 }
