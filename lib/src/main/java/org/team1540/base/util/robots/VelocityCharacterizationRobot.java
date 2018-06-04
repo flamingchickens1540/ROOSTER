@@ -43,6 +43,11 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
   @Preference("Voltage Ramp Rate")
   public double rampRate = 0.020833333;
 
+  @Preference("Invert Left Motor")
+  public boolean invertLeft = false;
+  @Preference("Invert Right Motor")
+  public boolean invertRight = true;
+
   private double appliedOutput = 0;
 
   public long lastTime;
@@ -67,6 +72,7 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     if (joystick.getRawButton(1)) { // if button A is pressed
       if (csvWriter == null) {
         // create a new CSV writer, reset everything
+        reset();
         try {
           csvWriter = new PrintWriter(new File(
               "/home/lvuser/dtmeasure/measure-" + System.currentTimeMillis() + ".csv"));
@@ -101,6 +107,7 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     lastTime = System.currentTimeMillis();
   }
 
+  @SuppressWarnings("Duplicates")
   public void reset() {
     driveLeftMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
     driveRightMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
@@ -108,13 +115,13 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     driveLeftMotorA.setSensorPhase(true);
 
     for (ChickenTalon talon : driveLeftMotors) {
-      talon.setInverted(false);
+      talon.setInverted(invertLeft);
     }
 
     driveRightMotorA.setSensorPhase(true);
 
     for (ChickenTalon talon : driveRightMotors) {
-      talon.setInverted(true);
+      talon.setInverted(invertRight);
     }
 
     driveLeftMotorB.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
