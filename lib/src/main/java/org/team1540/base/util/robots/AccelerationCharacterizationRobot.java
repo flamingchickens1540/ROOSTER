@@ -22,7 +22,9 @@ import org.team1540.base.wrappers.ChickenTalon;
  * When deployed to a three-motor-per-side robot with left motors on motors 1, 2, and 3 and right
  * motors on motors 4, 5, and 6, whenever the A button is pressed and held during teleop the robot
  * will carry out an acceleration characterization as described in Eli Barnett's paper "FRC
- * Drivetrain Characterization" until the button is released.
+ * Drivetrain Characterization" until the button is released. (Encoders should be on motors 1 and
+ * 4.) The results will be saved in a file in the /home/lvuser/dtmeasure directory named
+ * "measureaccel-" followed by the Unix timestamp of the test start and ".csv".
  */
 public class AccelerationCharacterizationRobot extends IterativeRobot {
 
@@ -31,16 +33,24 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
   @Preference("VIntercept")
   public double vIntercept;
 
+  @Preference("Invert Left Motor")
+  public boolean invertLeft = false;
+  @Preference("Invert Right Motor")
+  public boolean invertRight = true;
+
 
   private ChickenTalon driveLeftMotorA = new ChickenTalon(1);
   private ChickenTalon driveLeftMotorB = new ChickenTalon(2);
   private ChickenTalon driveLeftMotorC = new ChickenTalon(3);
-  private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveLeftMotorC};
+  private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
+      driveLeftMotorC};
   private ChickenTalon driveRightMotorA = new ChickenTalon(4);
   private ChickenTalon driveRightMotorB = new ChickenTalon(5);
   private ChickenTalon driveRightMotorC = new ChickenTalon(6);
-  private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB, driveRightMotorC};
-  private ChickenTalon[] driveMotorAll = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveLeftMotorC, driveRightMotorA, driveRightMotorB, driveRightMotorC};
+  private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB,
+      driveRightMotorC};
+  private ChickenTalon[] driveMotorAll = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
+      driveLeftMotorC, driveRightMotorA, driveRightMotorB, driveRightMotorC};
   private ChickenTalon[] driveMotorMasters = new ChickenTalon[]{driveLeftMotorA, driveRightMotorA};
 
   private PrintWriter csvWriter = null;
@@ -87,6 +97,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
     if (joystick.getRawButton(1)) { // if button A is pressed
       if (csvWriter == null) {
         // create a new CSV writer, reset everything
+        reset();
         try {
           csvWriter = new PrintWriter(new File(
               "/home/lvuser/dtmeasure/measureaccel-" + System.currentTimeMillis() + ".csv"));
@@ -138,7 +149,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
     reset();
     notifier.startPeriodic(0.01);
 
-    SmartDashboard.setDefaultNumber("Setpoint",  0.6);
+    SmartDashboard.setDefaultNumber("Setpoint", 0.6);
   }
 
   @Override
@@ -153,6 +164,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
 
   @Override
   public void teleopInit() {
+    reset();
     for (ChickenTalon talon : driveMotorAll) {
       talon.setBrake(true);
     }
@@ -173,13 +185,13 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
     driveLeftMotorA.setSensorPhase(true);
 
     for (ChickenTalon talon : driveLeftMotors) {
-      talon.setInverted(false);
+      talon.setInverted(invertLeft);
     }
 
     driveRightMotorA.setSensorPhase(true);
 
     for (ChickenTalon talon : driveRightMotors) {
-      talon.setInverted(true);
+      talon.setInverted(invertRight);
     }
 
     driveLeftMotorB.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
