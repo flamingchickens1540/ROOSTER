@@ -8,12 +8,73 @@ A common library of useful classes and systems intended to be used for all Team 
 
 ## Using ROOSTER
 
-### Using Gradle
+### What's In The Jar
+
+[Javadoc hosted on Github Pages](https://flamingchickens1540.github.io/ROOSTER)
+
+#### Drive Code
+
+`org.team1540.base.drive`
+
+Advanced closed-loop drive code for a tank drive.
+
+#### Motion Profiling
+
+`org.team1540.base.motionprofiling`
+
+A system for executing Pathfinder motion profiles on a tank drive.
+
+#### Power Management
+
+`org.team1540.base.power`
+
+A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
+
+#### Preferences
+
+`org.team1540.base.preferencemanager`
+
+A system to easily set tuning fields through WPILib `Preferences`.
+
+#### Triggers
+
+`org.team1540.base.triggers`
+
+Simple triggers that extend WPILib's joystick binding functionality. 
+
+- `AxisButton` allows using a joystick axis (triggers or joysticks) as a button–the button will trigger when the axis passes a user-defined threshold.
+- `DPadButton` and `StrictDPadButton` allow using any axis of a controller D-Pad as a button.
+- `SimpleButton` allows using a generic `BooleanSupplier` as a button.
+
+#### Utilities
+
+`org.team1540.base.Utilities`
+
+Functions and classes for common tasks.
+
+- Deadzone processing
+- Capping an output
+- Inverting an input/output depending on a boolean
+
+#### Utility Classes
+
+`org.team1540.base.util`
+
+Classes (mostly WPILib `Commands`) to make life easier.
+
+- `AsyncCommand` to execute a command in a separate thread on a loop.
+- `SimpleCommand`/`SimpleLoopCommand` to quickly create a one-shot or loop command from a lambda.
+- `SimpleConditionalCommand` to quickly create a `ConditionalCommand` from a lambda.
+
+### Installation
+
+#### Using Gradle
 Add the library by adding these lines in your `build.gradle` file:
 
 ```Gradle
 repositories {
-     // other repositories
+	// other repositories
+     mavenCentral() // needed for JetBrains Annotations
      maven { url 'https://jitpack.io' }
 }
 
@@ -31,29 +92,29 @@ If needed, you can build off of specific commits or branches. See the [JitPack p
 
 _Note: If you need to use changes that have just been pushed to master, you may need to force Gradle to check for a new version instead of using an already-cached older version.  Open a terminal in your project and run `./gradlew build --refresh-dependencies`._
 
-### Manually
+#### Manually
 
-Download the latest version from the [releases page](https://github.com/flamingchickens1540/ROOSTER/releases) and attach it to your project.
+Download the latest version from the [releases page](https://github.com/flamingchickens1540/ROOSTER/releases) and attach it to your project. 
 
-## Manifest
+You'll also need ROOSTER's dependencies:
 
-[Javadoc hosted on Github Pages](https://flamingchickens1540.github.io/ROOSTER)
+- WPILibJ version 2018.3.2 or higher
+- CTRE Phoenix version 5.3.1.0 or higher
+- [Kauai's NavX library](https://www.pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/) 3.0.346 or higher
+- [Jaci's Pathfinder](https://github.com/JacisNonsense/Pathfinder) version 1.8 or higher
+- [MatchData](https://github.com/Open-RIO/2018-MatchData) version 2018.01.07 or higher
+- [Jetbrains Annotations](https://mvnrepository.com/artifact/org.jetbrains/annotations/15.0) version 15.0 or higher
 
-### Power Management
-`org.team1540.base.power`
-- A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
+## Developing ROOSTER
 
-### Adjustables 
-`org.team1540.base.adjustables`
-- A system for fields that need to be tuned on the fly.
-- Simply annotate a field as `Tunable`, pass the enclosing class to the `AdjustableManager`, and call `AdjustableManager.update()` in your main robot loop to have your field show up and be editable on the SmartDashboard and Shuffleboard.
+### Project Structure
 
-### Triggers
-`org.team1540.base.triggers`
-- Simple triggers that extend WPILib's joystick binding functionality. 
-- `AxisButton` allows using a joystick axis (triggers or joysticks) as a button–the button will trigger when the axis passes a user-defined threshold.
-- `DPadButton` allows using any axis of a controller D-Pad as a button.
+ROOSTER is made up of two separate Gradle projects, `lib` (the actual ROOSTER library) and `test` (self-contained robot classes to test library components). Anything in `lib` gets packaged into the distribution JARs, while `test` is only for testing the components from `lib` (and as such includes GradleRIO etc. for deploying to a robot).
 
-## Building
+### Building
 
 We recommend using IntelliJ IDEA to develop ROOSTER. To import the project, on IntelliJ IDEA's main menu screen or from the `File > New` menu, select `Project from Version Control > GitHub`. Enter `https://github.com/flamingchickens1540/ROOSTER.git` as the Git Repository URL, and set the Parent Directory and Directory name functions according to your preference. The project should configure itself automatically.
+
+### Code Style
+
+Team 1540 (and ROOSTER) uses [Google Java Style](https://google.github.io/styleguide/javaguide.html) for all code. Additionally, all new code should have proper nullability annotations on all public-facing parameters and return types. (`@NotNull` for parameters that must not be `null` or methods that never return `null`, `@Nullable` for the opposite.)
