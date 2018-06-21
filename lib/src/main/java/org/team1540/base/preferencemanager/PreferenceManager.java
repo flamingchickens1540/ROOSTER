@@ -16,7 +16,8 @@ import org.team1540.base.util.SimpleLoopCommand;
 /**
  * Class to manage creating and updating robot preferences. Add an object containing fields marked
  * with {@link Preference} to have those values be controlled by what is saved in the robot's {@link
- * Preferences}.
+ * Preferences}. The PreferenceManager also supports storing non-persistent values via the {@link
+ * SmartDashboard}.
  */
 public class PreferenceManager {
 
