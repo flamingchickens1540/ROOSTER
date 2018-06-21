@@ -19,4 +19,12 @@ public @interface Preference {
    * @return the SmartDashboard/Shuffleboard label.
    */
   String value();
+
+  /**
+   * Whether the value should be persisted between code restarts. If {@code true}, value is saved
+   * through the {@link edu.wpi.first.wpilibj.Preferences} API; if false, value is set through the
+   * {@link edu.wpi.first.wpilibj.smartdashboard.SmartDashboard} API.
+   * @return Whether the value should be persistent.
+   */
+  boolean persistent() default true;
 }

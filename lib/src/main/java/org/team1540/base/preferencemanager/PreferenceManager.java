@@ -2,6 +2,7 @@ package org.team1540.base.preferencemanager;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class PreferenceManager {
         }
 
         preferences.add(new PreferenceField(object, field, preferenceType,
-            tuningAnnotation.value() + field.getName()));
+            true, tuningAnnotation.value() + field.getName()));
       }
     } else {
       boolean noneFound = true; // for logging to keep track if we have found at least one adjustable
@@ -99,7 +100,7 @@ public class PreferenceManager {
             continue;
           }
 
-          preferences.add(new PreferenceField(object, field, preferenceType, preference.value()));
+          preferences.add(new PreferenceField(object, field, preferenceType, preference.persistent(), preference.value()));
           noneFound = false;
         }
       }
@@ -116,13 +117,16 @@ public class PreferenceManager {
       for (PreferenceField preference : preferences) {
         try {
           if (!Preferences.getInstance().containsKey(preference.label)) {
+            BiConsumer putFunc = preference.persistent ? preference.type.putFunction
+                : preference.type.nonPersistentPutFunction;
             //noinspection unchecked
-            preference.type.putFunction
-                .accept(preference.label, preference.field.get(preference.obj));
+            putFunc.accept(preference.label, preference.field.get(preference.obj));
           } else {
+            BiFunction getFunc = preference.persistent ? preference.type.getFunction
+                : preference.type.nonPersistentGetFunction;
             //noinspection unchecked
-            preference.field.set(preference.obj, preference.type.getFunction
-                .apply(preference.label, preference.field.get(preference.obj)));
+            preference.field.set(preference.obj,
+                getFunc.apply(preference.label, preference.field.get(preference.obj)));
           }
         } catch (IllegalAccessException e) {
           DriverStation.reportError(e.getMessage(), true);
@@ -139,12 +143,15 @@ public class PreferenceManager {
     Object obj;
     Field field;
     PreferenceType type;
+    boolean persistent;
     String label;
 
-    public PreferenceField(Object obj, Field field, PreferenceType type, String label) {
+    public PreferenceField(Object obj, Field field, PreferenceType type, boolean persistent,
+        String label) {
       this.obj = obj;
       this.field = field;
       this.type = type;
+      this.persistent = persistent;
       this.label = label;
     }
   }
@@ -158,22 +165,34 @@ public class PreferenceManager {
   }
 
   private enum PreferenceType {
-    STRING(String.class, Preferences.getInstance()::putString,
-        Preferences.getInstance()::getString),
-    INT(Integer.TYPE, Preferences.getInstance()::putInt, Preferences.getInstance()::getInt),
-    DOUBLE(Double.TYPE, Preferences.getInstance()::putDouble, Preferences.getInstance()::getDouble),
-    BOOLEAN(Boolean.TYPE, Preferences.getInstance()::putBoolean,
-        Preferences.getInstance()::getBoolean);
+    STRING(String.class,
+        Preferences.getInstance()::putString, SmartDashboard::putString,
+        Preferences.getInstance()::getString, SmartDashboard::getString),
+    INT(Integer.TYPE,
+        Preferences.getInstance()::putInt, (BiConsumer<String, Integer>) SmartDashboard::putNumber,
+        Preferences.getInstance()::getInt,
+        (key, defaultValue) -> (int) SmartDashboard.getNumber(key, defaultValue)),
+    DOUBLE(Double.TYPE,
+        Preferences.getInstance()::putDouble, SmartDashboard::putNumber,
+        Preferences.getInstance()::getDouble, SmartDashboard::getNumber),
+    BOOLEAN(Boolean.TYPE,
+        Preferences.getInstance()::putBoolean, SmartDashboard::putBoolean,
+        Preferences.getInstance()::getBoolean, SmartDashboard::getBoolean);
 
     final Class cls;
+    final BiConsumer nonPersistentPutFunction;
     final BiFunction getFunction;
+    final BiFunction nonPersistentGetFunction;
     final BiConsumer putFunction;
 
     <T> PreferenceType(Class<T> cls, BiConsumer<String, T> putFunction,
-        BiFunction<String, T, T> getFunction) {
+        BiConsumer<String, T> nonPersistentPutFunction,
+        BiFunction<String, T, T> getFunction, BiFunction<String, T, T> nonPersistentGetFunction) {
       this.cls = cls;
       this.putFunction = putFunction;
+      this.nonPersistentPutFunction = nonPersistentPutFunction;
       this.getFunction = getFunction;
+      this.nonPersistentGetFunction = nonPersistentGetFunction;
     }
   }
 }
