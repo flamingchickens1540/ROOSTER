@@ -117,7 +117,7 @@ public class PreferenceManager {
     if (enabled) {
       for (PreferenceField preference : preferences) {
         try {
-          if (!Preferences.getInstance().containsKey(preference.label)) {
+          if ((preference.persistent && !Preferences.getInstance().containsKey(preference.label)) || (!preference.persistent && !SmartDashboard.containsKey(preference.label))) {
             BiConsumer putFunc = preference.persistent ? preference.type.putFunction
                 : preference.type.nonPersistentPutFunction;
             //noinspection unchecked
