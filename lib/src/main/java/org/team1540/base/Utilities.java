@@ -100,4 +100,8 @@ public class Utilities {
       return input;
     }
   }
+
+  // should never be instantiated
+  private Utilities() {
+  }
 }
