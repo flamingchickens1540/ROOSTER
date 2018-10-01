@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.IterativeRobot
+import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.command.Subsystem
@@ -12,12 +13,19 @@ import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import jaci.pathfinder.modifiers.TankModifier
+import org.team1540.base.Utilities
 import org.team1540.base.motionprofiling.FollowProfileFactory
 import org.team1540.base.motionprofiling.MotionProfileUtils
 import org.team1540.base.preferencemanager.Preference
 import org.team1540.base.preferencemanager.PreferenceManager
+import org.team1540.base.util.Executable
+import org.team1540.base.util.SimpleCommand
+import org.team1540.base.util.SimpleLoopCommand
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier
+import javax.rmi.CORBA.Util
+
+private val driver = Joystick(0)
 
 class MotionProfileTestingRobot : IterativeRobot() {
     lateinit var factory: FollowProfileFactory
@@ -202,6 +210,10 @@ private object DriveTrain : Subsystem() {
         }
 
     override fun initDefaultCommand() {
+        defaultCommand = SimpleLoopCommand("Teleop Drive", Executable {
+            left1.set(ControlMode.PercentOutput, Utilities.processDeadzone(driver.getRawAxis(1), 0.1))
+            right1.set(ControlMode.PercentOutput, Utilities.processDeadzone(driver.getRawAxis(5), 0.1))
+        }, this)
     }
 
     fun reset() {
