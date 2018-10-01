@@ -22,7 +22,7 @@ Advanced closed-loop drive code for a tank drive.
 
 `org.team1540.base.motionprofiling`
 
-A system for executing Pathfinder motion profiles on a tank drive.
+A system for executing motion profiles on a tank drive.
 
 #### Power Management
 
