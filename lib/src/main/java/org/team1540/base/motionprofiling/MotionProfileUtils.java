@@ -3,6 +3,11 @@ package org.team1540.base.motionprofiling;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
+import jaci.pathfinder.Trajectory;
+import java.util.Arrays;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.team1540.base.motionprofiling.MotionProfile.Point;
 
 public class MotionProfileUtils {
 
@@ -34,4 +39,18 @@ public class MotionProfileUtils {
             .set(ControlMode.Position, setpoint * adjustment, DemandType.ArbitraryFeedForward,
                 bump);
   }
+
+  /**
+   * Creates a ROOSTER {@link MotionProfile} from a Pathfinder {@link Trajectory}.
+   *
+   * @param trajectory The {@link Trajectory} to convert.
+   * @return A {@link MotionProfile} containing the same points. Profile points are copied over, so
+   * subsequent changes to the {@link Trajectory} will not affect the produced {@link MotionProfile}.
+   */
+  @Contract("_ -> new")
+  @NotNull
+  public static MotionProfile createProfile(@NotNull Trajectory trajectory) {
+    return new MotionProfile((Point[]) Arrays.stream(trajectory.segments).map(s -> new Point(s.dt, s.x, s.y, s.position, s.velocity, s.acceleration, s.jerk, s.heading)).toArray());
+  }
+
 }
