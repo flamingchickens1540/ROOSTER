@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple way to construct a {@link Command} which executes every tick. <p> To create a {@code
@@ -30,13 +32,15 @@ public class SimpleLoopCommand extends Command {
    * SimpleCommand.
    * @param action The code to run when the command executes.
    * @param requirements The {@link Subsystem Subsystems} required by the command (if any).
+   * @throws IllegalArgumentException If any parameters are {@code null}.
    */
-  public SimpleLoopCommand(String name, Executable action, Subsystem... requirements) {
-    super(name);
-    executable = action;
+  public SimpleLoopCommand(@NotNull String name, @NotNull Executable action,
+      @NotNull Subsystem... requirements) {
+    super(Objects.requireNonNull(name));
+    executable = Objects.requireNonNull(action);
 
     for (Subsystem requirement : requirements) {
-      requires(requirement); // java_irl
+      requires(Objects.requireNonNull(requirement));
     }
   }
 

@@ -1,5 +1,7 @@
 package org.team1540.base;
 
+import org.jetbrains.annotations.Contract;
+
 /**
  * Static utility functions.
  */
@@ -33,6 +35,7 @@ public class Utilities {
    * @param deadzone The deadzone to use.
    * @return The axis value processed with respect to the specified deadzone.
    */
+  @Contract(pure = true)
   public static double processDeadzone(double axis, double deadzone) {
     double baseDeadzone = (Math.abs(axis) > Math.abs(deadzone)) ? axis : 0;
     return baseDeadzone != 0 ? (baseDeadzone - Math.copySign(deadzone, baseDeadzone)) / (1
@@ -46,6 +49,7 @@ public class Utilities {
    * @param toInvert The number to invert.
    * @return If {@code shouldInvert} is {@code true}, {@code -toInvert}; otherwise, {@code toInvert}
    */
+  @Contract(pure = true)
   public static double invertIf(boolean shouldInvert, double toInvert) {
     return (shouldInvert ? -1 : 1) * toInvert;
   }
@@ -61,6 +65,7 @@ public class Utilities {
    * @return If {@code input} &gt; {@code cap}, return {@code cap}; if {@code input} &lt; {@code
    * -cap}, return {@code -cap}; otherwise, return {@code input}.
    */
+  @Contract(pure = true)
   public static double constrain(double input, double cap) {
     if (cap < 0) {
       throw new IllegalArgumentException("Cap cannot be negative");
@@ -81,6 +86,7 @@ public class Utilities {
    * @return If {@code input} &gt; {@code upperCap}, return {@code upperCap}; if {@code input} &lt;
    * {@code lowerCap}, return {@code lowerCap}; otherwise, return {@code input}.
    */
+  @Contract(pure = true)
   public static double constrain(double input, double lowerCap, double upperCap) {
     if (lowerCap > upperCap) {
       throw new IllegalArgumentException("Lower cap cannot be less than upper cap");
@@ -93,5 +99,9 @@ public class Utilities {
     } else {
       return input;
     }
+  }
+
+  // should never be instantiated
+  private Utilities() {
   }
 }
