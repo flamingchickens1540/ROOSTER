@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.command.InstantCommand;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple way to construct an {@link InstantCommand}. <p> To create a {@code SimpleCommand}
@@ -30,13 +32,15 @@ public class SimpleCommand extends InstantCommand {
    * SimpleCommand.
    * @param action The code to run when the command executes.
    * @param requirements The {@link Subsystem Subsystems} required by the command (if any).
+   * @throws IllegalArgumentException If any parameters are {@code null}.
    */
-  public SimpleCommand(String name, Executable action, Subsystem... requirements) {
-    super(name);
-    executable = action;
+  public SimpleCommand(@NotNull String name, @NotNull Executable action,
+      @NotNull Subsystem... requirements) {
+    super(Objects.requireNonNull(name));
+    executable = Objects.requireNonNull(action);
 
     for (Subsystem requirement : requirements) {
-      requires(requirement); // java_irl
+      requires(Objects.requireNonNull(requirement));
     }
   }
 

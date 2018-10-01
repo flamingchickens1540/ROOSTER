@@ -2,6 +2,9 @@ package org.team1540.base.triggers;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
+import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Version of {@link DPadButton} that ignores diagonal inputs.
@@ -19,15 +22,22 @@ public class StrictDPadButton extends Button {
    * @param stick The joystick with the button.
    * @param pad The ID of the d-pad.
    * @param axis The axis of the button.
+   * @throws NullPointerException If {@code stick} or {@code axis} is {@code null}.
+   * @throws IllegalArgumentException If {@code pad} is negative.
    */
-  public StrictDPadButton(Joystick stick, int pad, DPadAxis axis) {
+  public StrictDPadButton(@NotNull Joystick stick, int pad, @NotNull org.team1540.base.triggers.DPadAxis axis) {
     super();
-    this.stick = stick;
+    if (pad < 0) {
+      throw new IllegalArgumentException("Pad cannot be negative");
+    }
+
+    this.stick = Objects.requireNonNull(stick);
     this.pad = pad;
-    this.axis = axis;
+    this.axis = Objects.requireNonNull(axis);
   }
 
   @Override
+  @Contract(pure = true)
   public boolean get() {
     int pov = stick.getPOV(pad);
 
