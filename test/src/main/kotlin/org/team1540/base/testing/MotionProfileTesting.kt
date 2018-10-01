@@ -155,7 +155,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
                 maxJerk
         ))).modify(wheelbase).trajectories
 
-        val command = factory.create(leftTrajectory, rightTrajectory)
+        val command = factory.create(MotionProfileUtils.createProfile(leftTrajectory), MotionProfileUtils.createProfile(rightTrajectory))
 
         command.start()
     }
