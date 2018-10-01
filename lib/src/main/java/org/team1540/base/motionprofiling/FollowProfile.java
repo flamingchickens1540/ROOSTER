@@ -2,11 +2,10 @@ package org.team1540.base.motionprofiling;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Trajectory.Segment;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.base.motionprofiling.MotionProfile.Point;
 import org.team1540.base.util.AsyncCommand;
 
 /**
@@ -27,9 +26,9 @@ import org.team1540.base.util.AsyncCommand;
 public class FollowProfile extends AsyncCommand {
 
   @NotNull
-  Trajectory left;
+  MotionProfile left;
   @NotNull
-  Trajectory right;
+  MotionProfile right;
 
   @NotNull
   private SetpointConsumer leftSetpointConsumer;
@@ -76,7 +75,7 @@ public class FollowProfile extends AsyncCommand {
    * @param headingI The I coefficient for the heading controller, in profile units per
    * radian-second.
    */
-  public FollowProfile(@NotNull Trajectory left, @NotNull Trajectory right,
+  public FollowProfile(@NotNull MotionProfile left, @NotNull MotionProfile right,
       @NotNull Subsystem[] subsystems,
       @NotNull SetpointConsumer leftSetpointConsumer,
       @NotNull SetpointConsumer rightSetpointConsumer, @NotNull DoubleSupplier headingSupplier,
@@ -97,25 +96,25 @@ public class FollowProfile extends AsyncCommand {
     this.headingP = headingP;
     this.headingI = headingI;
 
-    profTime = Arrays.stream(left.segments).mapToDouble(s -> s.dt).sum();
+    profTime = Arrays.stream(left.points).mapToDouble(s -> s.dt).sum();
   }
 
-  private Segment getCurrentSegment(Trajectory trajectory, double currentTime) {
+  private Point getCurrentSegment(MotionProfile trajectory, double currentTime) {
     // Start from the current time and find the closest point.
-    int startIndex = Math.toIntExact(Math.round(currentTime / trajectory.segments[0].dt));
+    int startIndex = Math.toIntExact(Math.round(currentTime / trajectory.get(0).dt));
 
-    int length = trajectory.segments.length;
+    int length = trajectory.size();
     int index = startIndex;
     if (startIndex >= length - 1) {
       index = length - 1;
     }
-    return trajectory.segments[index];
+    return trajectory.get(index);
   }
 
   @Override
   protected void runPeriodic() {
-    Segment leftSegment = getCurrentSegment(left, timer.get());
-    Segment rightSegment = getCurrentSegment(right, timer.get());
+    Point leftSegment = getCurrentSegment(left, timer.get());
+    Point rightSegment = getCurrentSegment(right, timer.get());
     // check finish status
     if (timer.get() > profTime) {
       markAsFinished();

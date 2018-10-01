@@ -303,8 +303,9 @@ public class FollowProfileFactory {
 
   /**
    * Creates a new {@link FollowProfile} command to follow the provided profile. This is a
-   * convinience method that calls {@link #create(Trajectory, Trajectory)} after loading the
-   * trajectories using {@link Pathfinder#readFromCSV(File)}.
+   * convinience method that calls {@link #create(MotionProfile, MotionProfile)} after loading the
+   * trajectories using {@link Pathfinder#readFromCSV(File)} and converting them using {@link
+   * MotionProfileUtils#createProfile(Trajectory)}.
    *
    * @param leftFile The file to load the left profile from; should be a pathfinder-formatted CSV.
    * @param rightFile The file to load the right profile from; should be a pathfinder-formatted
@@ -314,19 +315,20 @@ public class FollowProfileFactory {
    */
   @NotNull
   public FollowProfile create(@NotNull File leftFile, @NotNull File rightFile) {
-    return create(Pathfinder.readFromCSV(leftFile), Pathfinder.readFromCSV(rightFile));
+    return create(MotionProfileUtils.createProfile(Pathfinder.readFromCSV(leftFile)),
+        MotionProfileUtils.createProfile(Pathfinder.readFromCSV(rightFile)));
   }
 
   /**
    * Creates a new {@link FollowProfile} command to follow the provided profile.
    *
-   * @param left The trajectory for the left side.
-   * @param right The trajectory for the right side.
+   * @param left The profile for the left side.
+   * @param right The profile for the right side.
    * @return A new {@link FollowProfile} command with the previously configured settings following *
    * the provided profile.
    */
   @NotNull
-  public FollowProfile create(@NotNull Trajectory left, @NotNull Trajectory right) {
+  public FollowProfile create(@NotNull MotionProfile left, @NotNull MotionProfile right) {
     return new FollowProfile(left, right, subsystems, leftSetpointConsumer, rightSetpointConsumer,
         headingSupplier, loopFreq, velCoeff, velIntercept, accelCoeff, headingP, headingI);
   }
