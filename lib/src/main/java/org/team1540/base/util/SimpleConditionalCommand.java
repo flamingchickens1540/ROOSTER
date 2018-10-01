@@ -2,7 +2,10 @@ package org.team1540.base.util;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.ConditionalCommand;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -18,9 +21,11 @@ public class SimpleConditionalCommand extends ConditionalCommand {
    * BooleanSupplier} to determine whether to execute the provided {@link Command}.
    *
    * @param condition The {@code BooleanSupplier} to call for the condition.
-   * @param onTrue The command to execute when the supplier supplies a true value.
+   * @param onTrue The command to execute when the supplier supplies a true value, or {@code null}
+   * if no command should be executed.
+   * @throws NullPointerException If {@code condition} is {@code null}.
    */
-  public SimpleConditionalCommand(BooleanSupplier condition, Command onTrue) {
+  public SimpleConditionalCommand(@NotNull BooleanSupplier condition, @Nullable Command onTrue) {
     this(condition, onTrue, null);
   }
 
@@ -29,12 +34,16 @@ public class SimpleConditionalCommand extends ConditionalCommand {
    * BooleanSupplier} to determine which command to execute.
    *
    * @param condition The {@code BooleanSupplier} to call for the condition.
-   * @param onTrue The command to execute when the supplier supplies a true value.
-   * @param onFalse The command to execute when the supplier supplies a false value.
+   * @param onTrue The command to execute when the supplier supplies a true value, or {@code null} *
+   * if no command should be executed.
+   * @param onFalse The command to execute when the supplier supplies a false value, or {@code null}
+   * if no command should be executed.
+   * @throws NullPointerException If {@code condition} is {@code null}.
    */
-  public SimpleConditionalCommand(BooleanSupplier condition, Command onTrue, Command onFalse) {
+  public SimpleConditionalCommand(@NotNull BooleanSupplier condition, @Nullable Command onTrue,
+      @Nullable Command onFalse) {
     super(onTrue, onFalse);
-    this.condition = condition;
+    this.condition = Objects.requireNonNull(condition);
   }
 
   @Override
@@ -42,11 +51,12 @@ public class SimpleConditionalCommand extends ConditionalCommand {
     return condition.getAsBoolean();
   }
 
+  @NotNull
   public BooleanSupplier getCondition() {
     return condition;
   }
 
-  public void setCondition(BooleanSupplier condition) {
+  public void setCondition(@NotNull BooleanSupplier condition) {
     this.condition = condition;
   }
 }
