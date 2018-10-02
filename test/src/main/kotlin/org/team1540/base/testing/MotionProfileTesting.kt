@@ -28,9 +28,9 @@ import javax.rmi.CORBA.Util
 private val driver = Joystick(0)
 
 class MotionProfileTestingRobot : IterativeRobot() {
-    lateinit var factory: FollowProfileFactory
+    private lateinit var factory: FollowProfileFactory
 
-    val navx = AHRS(SPI.Port.kMXP)
+    private val navx = AHRS(SPI.Port.kMXP)
 
     @JvmField
     @Preference("kV")
@@ -216,7 +216,7 @@ private object DriveTrain : Subsystem() {
         }, this)
     }
 
-    fun reset() {
+    private fun reset() {
         left1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder)
         right1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder)
 
