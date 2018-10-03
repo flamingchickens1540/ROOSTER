@@ -2,8 +2,10 @@ package org.team1540.base.util.robots;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.team1540.base.Utilities;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
 import org.team1540.base.wrappers.ChickenTalon;
@@ -41,11 +43,15 @@ public class PositionPIDTuningRobot extends IterativeRobot {
   public int motor3ID;
   @Preference("Motor 4 ID")
   public int motor4ID;
+  @Preference("Enable PID")
+  public boolean enablePID;
 
   private ChickenTalon motor1 = null;
   private ChickenTalon motor2 = null;
   private ChickenTalon motor3 = null;
   private ChickenTalon motor4 = null;
+
+  private Joystick joystick = new Joystick(0);
 
   @Override
   public void robotInit() {
@@ -90,12 +96,16 @@ public class PositionPIDTuningRobot extends IterativeRobot {
   @Override
   public void teleopPeriodic() {
     if (motor1 != null) {
-      motor1.set(ControlMode.Position, setpoint);
       motor1.config_kP(0, p);
       motor1.config_kI(0, i);
       motor1.config_kD(0, d);
       motor1.config_IntegralZone(0, iZone);
       motor1.configMaxIntegralAccumulator(0, maxIAccum);
+      if (enablePID) {
+        motor1.set(ControlMode.Position, setpoint);
+      } else {
+        motor1.set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(1), 0.1));
+      }
     }
   }
 
