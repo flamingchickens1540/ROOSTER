@@ -47,6 +47,11 @@ public class PositionPIDTuningRobot extends IterativeRobot {
 
   @Override
   public void robotInit() {
+    System.out.println("Initializing Position PID Tuner Robot");
+    System.out.println(
+        "To change the motors to be tuned, change the preference values and then restart the robot code to\n"
+            + " * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be \n"
+            + " * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.");
     PreferenceManager.getInstance().add(this);
     Scheduler.getInstance().run();
     if (motor1ID != -1) {
