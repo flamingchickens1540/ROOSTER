@@ -18,7 +18,7 @@ public @interface Preference {
    *
    * @return the SmartDashboard/Shuffleboard label.
    */
-  String value();
+  String value() default "";
 
   /**
    * Whether the value should be persisted between code restarts. If {@code true}, value is saved

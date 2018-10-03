@@ -101,7 +101,9 @@ public class PreferenceManager {
             continue;
           }
 
-          preferences.add(new PreferenceField(object, field, preferenceType, preference.persistent(), preference.value()));
+          preferences.add(
+              new PreferenceField(object, field, preferenceType, preference.persistent(),
+                  !preference.value().equals("") ? preference.value() : field.getName()));
           noneFound = false;
         }
       }
