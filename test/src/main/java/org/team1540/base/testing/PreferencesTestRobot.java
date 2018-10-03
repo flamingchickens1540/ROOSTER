@@ -29,6 +29,12 @@ public class PreferencesTestRobot extends IterativeRobot {
   @Preference(value = "An NP int", persistent = false)
   public int i2 = 2;
 
+  @Preference
+  public int thisIsADefaultValue = 2;
+
+  @Preference(persistent = false)
+  public int thisIsANonPersistentDefaultValue = 2;
+
   @Override
   public void robotInit() {
     PreferenceManager.getInstance().add(this);
@@ -42,6 +48,8 @@ public class PreferencesTestRobot extends IterativeRobot {
       System.out.println("Current NP String value: " + string2);
       System.out.println("Current NP double value: " + d2);
       System.out.println("Current NP int value: " + i2);
+      System.out.println("Current default value:" + thisIsADefaultValue);
+      System.out.println("Current default value:" + thisIsANonPersistentDefaultValue);
     }).startPeriodic(1);
   }
 
