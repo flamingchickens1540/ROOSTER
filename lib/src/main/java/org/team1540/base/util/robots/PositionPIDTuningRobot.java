@@ -12,7 +12,7 @@ import org.team1540.base.wrappers.ChickenTalon;
  * Robot class to tune a position PID controller.
  *
  * To change the motors to be tuned, change the preference values and then restart the robot code to
- * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be 
+ * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be
  * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.
  */
 public class PositionPIDTuningRobot extends IterativeRobot {
@@ -25,6 +25,8 @@ public class PositionPIDTuningRobot extends IterativeRobot {
   public double d;
   @Preference("I-Zone")
   public int iZone;
+  @Preference("Max I-Accum")
+  public int maxIAccum;
   @Preference("Setpoint")
   public double setpoint;
   @Preference("Invert Sensor")
@@ -53,7 +55,7 @@ public class PositionPIDTuningRobot extends IterativeRobot {
             + " * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be \n"
             + " * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.");
     PreferenceManager.getInstance().add(this);
-    Scheduler.getInstance().run();
+    Scheduler.getInstance().run(); // allow the PreferenceManager to update
     if (motor1ID != -1) {
       motor1 = new ChickenTalon(motor1ID);
     } else {
@@ -93,6 +95,7 @@ public class PositionPIDTuningRobot extends IterativeRobot {
       motor1.config_kI(0, i);
       motor1.config_kD(0, d);
       motor1.config_IntegralZone(0, iZone);
+      motor1.configMaxIntegralAccumulator(0, maxIAccum);
     }
   }
 
