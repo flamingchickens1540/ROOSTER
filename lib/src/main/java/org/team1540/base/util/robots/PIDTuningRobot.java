@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.Utilities;
 import org.team1540.base.preferencemanager.Preference;
@@ -17,7 +18,7 @@ import org.team1540.base.wrappers.ChickenTalon;
  * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be
  * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.
  */
-public class MotionMagicTuningRobot extends IterativeRobot {
+public class PIDTuningRobot extends IterativeRobot {
 
   @Preference("P")
   public double p;
@@ -59,15 +60,23 @@ public class MotionMagicTuningRobot extends IterativeRobot {
 
   private Joystick joystick = new Joystick(0);
 
+  private SendableChooser<ControlMode> controlModeChooser = new SendableChooser<>();
+
   @Override
   public void robotInit() {
-    System.out.println("Initializing Position PID Tuner Robot");
+    System.out.println("Initializing PID Tuner Robot");
     System.out.println(
         "To change the motors to be tuned, change the preference values and then restart the robot code to\n"
             + " * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be \n"
             + " * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.");
     PreferenceManager.getInstance().add(this);
     Scheduler.getInstance().run(); // allow the PreferenceManager to update
+
+    controlModeChooser.addDefault("Position", ControlMode.Position);
+    controlModeChooser.addDefault("Velocity", ControlMode.Velocity);
+    controlModeChooser.addDefault("MotionMagic", ControlMode.MotionMagic);
+
+    SmartDashboard.putData("Control Mode Chooser", controlModeChooser);
     if (motor1ID != -1) {
       motor1 = new ChickenTalon(motor1ID);
     } else {
@@ -110,7 +119,7 @@ public class MotionMagicTuningRobot extends IterativeRobot {
       motor1.configMotionCruiseVelocity(maxVel);
       motor1.configMotionAcceleration(maxAccel);
       if (enablePID) {
-        motor1.set(ControlMode.MotionMagic, setpoint);
+        motor1.set(controlModeChooser.getSelected(), setpoint);
       } else {
         motor1
             .set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(1), 0.1));
