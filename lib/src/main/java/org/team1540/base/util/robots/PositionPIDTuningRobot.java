@@ -80,6 +80,7 @@ public class PositionPIDTuningRobot extends IterativeRobot {
         motor.configPeakOutputForward(1);
         motor.configPeakOutputReverse(-1);
         motor.enableCurrentLimit(false);
+        motor.config_kF(0, 0);
       }
     }
   }
