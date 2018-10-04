@@ -33,59 +33,59 @@ class MotionProfileTestingRobot : IterativeRobot() {
     private val navx = AHRS(SPI.Port.kMXP)
 
     @JvmField
-    @Preference("kV")
+    @Preference("kV", persistent = false)
     var kV = 0.0
 
     @JvmField
-    @Preference("kA")
+    @Preference("kA", persistent = false)
     var kA = 0.0
 
     @JvmField
-    @Preference("VIntercept")
+    @Preference("VIntercept", persistent = false)
     var vIntercept = 0.0
 
     @JvmField
-    @Preference("MP Loop Freq")
+    @Preference("MP Loop Freq", persistent = false)
     var loopFreqMs = 0L
 
     @JvmField
-    @Preference("MP Heading P")
+    @Preference("MP Heading P", persistent = false)
     var hdgP = 0.0
 
     @JvmField
-    @Preference("MP Heading I")
+    @Preference("MP Heading I", persistent = false)
     var hdgI = 0.0
 
     @JvmField
-    @Preference("MP Drive P")
+    @Preference("MP Drive P", persistent = false)
     var driveP = 0.0
 
     @JvmField
-    @Preference("MP Drive D")
+    @Preference("MP Drive D", persistent = false)
     var driveD = 0.0
 
     @JvmField
-    @Preference("MP Delta-T")
+    @Preference("MP Delta-T", persistent = false)
     var deltaT = 0.0
 
     @JvmField
-    @Preference("MP Max Vel")
+    @Preference("MP Max Vel", persistent = false)
     var maxVel = 0.0
 
     @JvmField
-    @Preference("MP Max Accel")
+    @Preference("MP Max Accel", persistent = false)
     var maxAccel = 0.0
 
     @JvmField
-    @Preference("MP Max Jerk")
+    @Preference("MP Max Jerk", persistent = false)
     var maxJerk = 0.0
 
     @JvmField
-    @Preference("Wheelbase")
+    @Preference("Wheelbase", persistent = false)
     var wheelbase = 0.0
 
     @JvmField
-    @Preference("Drive TPU")
+    @Preference("Drive TPU", persistent = false)
     var tpu = 0.0
 
     override fun robotInit() {
