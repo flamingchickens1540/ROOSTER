@@ -20,37 +20,37 @@ import org.team1540.base.wrappers.ChickenTalon;
  */
 public class PIDTuningRobot extends IterativeRobot {
 
-  @Preference("P")
+  @Preference(value = "P", persistent = false)
   public double p;
-  @Preference("I")
+  @Preference(value = "I", persistent = false)
   public double i;
-  @Preference("D")
+  @Preference(value = "D", persistent = false)
   public double d;
-  @Preference("F")
+  @Preference(value = "F", persistent = false)
   public double f;
-  @Preference("I-Zone")
+  @Preference(value = "I-Zone", persistent = false)
   public int iZone;
-  @Preference("Max I-Accum")
+  @Preference(value = "Max I-Accum", persistent = false)
   public int maxIAccum;
-  @Preference("Max Acceleration")
+  @Preference(value = "Max Acceleration", persistent = false)
   public int maxAccel;
-  @Preference("Max Velocity")
+  @Preference(value = "Max Velocity", persistent = false)
   public int maxVel;
-  @Preference("Setpoint")
+  @Preference(value = "Setpoint", persistent = false)
   public double setpoint;
-  @Preference("Invert Sensor")
+  @Preference(value = "Invert Sensor", persistent = false)
   public boolean invertSensor;
-  @Preference("Invert Output")
+  @Preference(value = "Invert Output", persistent = false)
   public boolean invertOutput;
-  @Preference("Motor 1 ID")
+  @Preference(value = "Motor 1 ID", persistent = false)
   public int motor1ID;
-  @Preference("Motor 2 ID")
+  @Preference(value = "Motor 2 ID", persistent = false)
   public int motor2ID;
-  @Preference("Motor 3 ID")
+  @Preference(value = "Motor 3 ID", persistent = false)
   public int motor3ID;
-  @Preference("Motor 4 ID")
+  @Preference(value = "Motor 4 ID", persistent = false)
   public int motor4ID;
-  @Preference("Enable PID")
+  @Preference(value = "Enable PID", persistent = false)
   public boolean enablePID;
 
   private ChickenTalon motor1 = null;
