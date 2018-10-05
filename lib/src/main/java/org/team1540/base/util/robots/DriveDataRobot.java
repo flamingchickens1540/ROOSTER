@@ -58,7 +58,7 @@ public class DriveDataRobot extends IterativeRobot {
   public void robotInit() {
     System.out.println("Initializing Drive Data Collection Robot");
     System.out.println(
-        "To change the motors to be tuned, change the preference values and then restart the robot code to "
+        "To change the motors to be tuned, change the preference values and then run the Reset command to "
             + "allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be "
             + "configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.");
 
