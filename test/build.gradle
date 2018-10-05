@@ -15,7 +15,13 @@ dependencies {
 }
 
 def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.testing.XXX"
+
+if (!project.hasProperty("robotClass")) {
+    println "Robot class not set! Pass a value in on the command line by adding -ProbotClass=<your robot class>"
+}
+
+def ROBOT_CLASS = project.robotClass
+println "Deploying robot $ROBOT_CLASS"
 
 deploy {
     targets {
