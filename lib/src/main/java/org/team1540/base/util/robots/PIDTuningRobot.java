@@ -113,6 +113,13 @@ public class PIDTuningRobot extends IterativeRobot {
     reset.start();
     SmartDashboard.putData(reset);
 
+    Command zero = new SimpleCommand("Zero Position", () -> {
+      if (motor1 != null) {
+        motor1.setSelectedSensorPosition(0);
+      }
+    });
+    zero.setRunWhenDisabled(true);
+    SmartDashboard.putData(zero);
   }
 
   @Override
