@@ -3,12 +3,14 @@ package org.team1540.base.util.robots;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.Utilities;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
+import org.team1540.base.util.SimpleCommand;
 import org.team1540.base.wrappers.ChickenTalon;
 
 /**
@@ -77,34 +79,40 @@ public class PIDTuningRobot extends IterativeRobot {
     controlModeChooser.addDefault("MotionMagic", ControlMode.MotionMagic);
 
     SmartDashboard.putData("Control Mode Chooser", controlModeChooser);
-    if (motor1ID != -1) {
-      motor1 = new ChickenTalon(motor1ID);
-    } else {
-      System.err.println("Motor 1 must be set!");
-      return;
-    }
-    if (motor2ID != -1) {
-      motor2 = new ChickenTalon(motor2ID);
-      motor2.set(ControlMode.Follower, motor1.getDeviceID());
-    }
-    if (motor3ID != -1) {
-      motor3 = new ChickenTalon(motor3ID);
-      motor3.set(ControlMode.Follower, motor1.getDeviceID());
-    }
-    if (motor4ID != -1) {
-      motor4 = new ChickenTalon(motor4ID);
-      motor4.set(ControlMode.Follower, motor1.getDeviceID());
-    }
-
-    for (ChickenTalon motor : new ChickenTalon[]{motor1, motor2, motor3, motor4}) {
-      if (motor != null) {
-        motor.configClosedloopRamp(0);
-        motor.configOpenloopRamp(0);
-        motor.configPeakOutputForward(1);
-        motor.configPeakOutputReverse(-1);
-        motor.enableCurrentLimit(false);
+    Command reset = new SimpleCommand("Reset", () -> {
+      if (motor1ID != -1) {
+        motor1 = new ChickenTalon(motor1ID);
+      } else {
+        System.err.println("Motor 1 must be set!");
+        return;
       }
-    }
+      if (motor2ID != -1) {
+        motor2 = new ChickenTalon(motor2ID);
+        motor2.set(ControlMode.Follower, motor1.getDeviceID());
+      }
+      if (motor3ID != -1) {
+        motor3 = new ChickenTalon(motor3ID);
+        motor3.set(ControlMode.Follower, motor1.getDeviceID());
+      }
+      if (motor4ID != -1) {
+        motor4 = new ChickenTalon(motor4ID);
+        motor4.set(ControlMode.Follower, motor1.getDeviceID());
+      }
+
+      for (ChickenTalon motor : new ChickenTalon[]{motor1, motor2, motor3, motor4}) {
+        if (motor != null) {
+          motor.configClosedloopRamp(0);
+          motor.configOpenloopRamp(0);
+          motor.configPeakOutputForward(1);
+          motor.configPeakOutputReverse(-1);
+          motor.enableCurrentLimit(false);
+        }
+      }
+    });
+    reset.setRunWhenDisabled(true);
+    reset.start();
+    SmartDashboard.putData(reset);
+
   }
 
   @Override
