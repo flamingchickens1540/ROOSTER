@@ -6,6 +6,10 @@ plugins {
     id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
 }
 
+wpi {
+    ctreVersion = "5.3.1.0"
+}
+
 dependencies {
     compile project(":lib")
     compile wpilib()
@@ -15,7 +19,7 @@ dependencies {
 }
 
 def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.testing.XXX"
+def ROBOT_CLASS = "org.team1540.base.util.robots.PIDTuningRobot"
 
 deploy {
     targets {
@@ -32,7 +36,7 @@ deploy {
             run configuration which should be shared through version control. Alternatively,
             remove this line and redeploy.
             */
-            debug = true
+            debug = false
         }
     }
 }
