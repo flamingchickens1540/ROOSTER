@@ -40,8 +40,9 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
 
   private Joystick joystick = new Joystick(0);
 
-  @Preference("Voltage Ramp Rate")
-  public double rampRate = 0.020833333;
+  private static final double SATURATION_VOLTAGE = 12;
+  @Preference("Voltage Ramp Rate (V/sec)")
+  public double rampRate = 0.25;
 
   @Preference("Invert Left Motor")
   public boolean invertLeft = false;
@@ -90,7 +91,8 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
             + driveRightMotorA.getMotorOutputVoltage() + ","
             + driveRightMotorA.getSelectedSensorVelocity());
 
-        appliedOutput += rampRate * ((System.currentTimeMillis() - lastTime) / 1000.0);
+        appliedOutput +=
+            (rampRate / SATURATION_VOLTAGE) * ((System.currentTimeMillis() - lastTime) / 1000.0);
         lastTime = System.currentTimeMillis();
         driveLeftMotorA.set(ControlMode.PercentOutput, appliedOutput);
         driveRightMotorA.set(ControlMode.PercentOutput, appliedOutput);
@@ -140,6 +142,8 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
       talon.configPeakOutputForward(1);
       talon.configPeakOutputReverse(-1);
       talon.enableCurrentLimit(false);
+      talon.configVoltageCompSaturation(12);
+      talon.enableVoltageCompensation(true);
     }
   }
 }
