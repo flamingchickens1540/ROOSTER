@@ -104,6 +104,7 @@ You'll also need ROOSTER's dependencies:
 - [Jaci's Pathfinder](https://github.com/JacisNonsense/Pathfinder) version 1.8 or higher
 - [MatchData](https://github.com/Open-RIO/2018-MatchData) version 2018.01.07 or higher
 - [Jetbrains Annotations](https://mvnrepository.com/artifact/org.jetbrains/annotations/15.0) version 15.0 or higher
+- [Apache Commons Math 3](https://mvnrepository.com/artifact/org.apache.commons/commons-math3/3.6.1) version 3.6.1 or higher
 
 ## Developing ROOSTER
 
