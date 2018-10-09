@@ -16,13 +16,6 @@ dependencies {
 
 def TEAM = 1540
 
-if (!project.hasProperty("robotClass")) {
-    println "Robot class not set! Pass a value in on the command line by adding -ProbotClass=<your robot class>. Using a default"
-}
-
-def ROBOT_CLASS = project.hasProperty("robotClass") ? project.robotClass : "org.team1540.base.testing.HelloWorldTestRobot"
-println "Will deploy robot $ROBOT_CLASS"
-
 deploy {
     targets {
         target("roborio", RoboRIO) {
@@ -44,6 +37,24 @@ deploy {
 }
 
 jar {
+    // declare the robot class property as an input, as normally since we
+    // set it at runtime this wouldn't run if the class changed due to up-to-date checking
+    inputs.property("robotClass", project.hasProperty("robotClass") ? project.robotClass : "")
+    gradle.taskGraph.whenReady {
+        /* 
+        check if we are deploying to the robot. If we're building in CI, for example, the 
+        robot class doesn't need to be set.
+        this is inside the gradle.taskGraph.whenReady so that we don't check if the deploy
+        task is being run before Gradle has figured it out. 
+        */
+        if (gradle.taskGraph.hasTask(":test:deploy")) { // fully qualified task name is needed
+            if (!project.hasProperty("robotClass")) {
+                throw new GradleException("Robot class not set. Pass a value in on the command line by adding -ProbotClass=<your robot class>.")
+            } else {
+                println "Creating JAR for robot ${project.robotClass}"
+            }
+            manifest GradleRIOPlugin.javaManifest(project.robotClass)
+        }
+    }
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
 }
