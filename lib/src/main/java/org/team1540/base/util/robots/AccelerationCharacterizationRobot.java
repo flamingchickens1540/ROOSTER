@@ -99,6 +99,10 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
         // create a new CSV writer, reset everything
         reset();
         try {
+          File dir = new File("/home/lvuser/dtmeasure/");
+          if (!dir.exists()) {
+            dir.mkdirs();
+          }
           csvWriter = new PrintWriter(new File(
               "/home/lvuser/dtmeasure/measureaccel-" + System.currentTimeMillis() + ".csv"));
           csvWriter.println("lvoltage,laccel,rvoltage,raccel");
