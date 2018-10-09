@@ -19,7 +19,7 @@ dependencies {
 }
 
 def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.util.robots.PIDTuningRobot"
+def ROBOT_CLASS = "org.team1540.base.testing.XXX"
 
 deploy {
     targets {
@@ -36,7 +36,7 @@ deploy {
             run configuration which should be shared through version control. Alternatively,
             remove this line and redeploy.
             */
-            debug = false
+            debug = true
         }
     }
 }
