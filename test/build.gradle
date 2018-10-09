@@ -19,7 +19,6 @@ dependencies {
 }
 
 def TEAM = 1540
-def ROBOT_CLASS = "org.team1540.base.testing.XXX"
 
 deploy {
     targets {
@@ -31,17 +30,35 @@ deploy {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
             /*
-            IMPORTANT: With this line in the buildscript, the robot code will not start until
-            you connect your debugger to the robot. Connect by running the "Remote Robot Debug"
-            run configuration which should be shared through version control. Alternatively,
-            remove this line and redeploy.
+            IMPORTANT: With the "deploy-debug" property set (i.e. -Pdeploy-debug is on the
+            command line), the robot code will not start until you connect your debugger to the
+            robot. Connect by running the "Remote Robot Debug" run configuration which should be
+            shared through version control. Alternatively, remove this line and redeploy.
             */
-            debug = true
+            debug = project.hasProperty("deploy-debug")
         }
     }
 }
 
 jar {
+    // declare the robot class property as an input, as normally since we
+    // set it at runtime this wouldn't run if the class changed due to up-to-date checking
+    inputs.property("robotClass", project.hasProperty("robotClass") ? project.robotClass : "")
+    gradle.taskGraph.whenReady {
+        /* 
+        check if we are deploying to the robot. If we're building in CI, for example, the 
+        robot class doesn't need to be set.
+        this is inside the gradle.taskGraph.whenReady so that we don't check if the deploy
+        task is being run before Gradle has figured it out. 
+        */
+        if (gradle.taskGraph.hasTask(":test:deploy")) { // fully qualified task name is needed
+            if (!project.hasProperty("robotClass")) {
+                throw new GradleException("Robot class not set. Pass a value in on the command line by adding -ProbotClass=<your robot class>.")
+            } else {
+                println "Creating JAR for robot ${project.robotClass}"
+            }
+            manifest GradleRIOPlugin.javaManifest(project.robotClass)
+        }
+    }
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
 }
