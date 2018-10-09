@@ -5,9 +5,9 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.jetbrains.annotations.NotNull;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
 import org.team1540.base.wrappers.ChickenTalon;
@@ -18,7 +18,8 @@ import org.team1540.base.wrappers.ChickenTalon;
  * When deployed to a three-motor-per-side robot with left motors on motors 1, 2, and 3 and right
  * motors on motors 4, 5, and 6, whenever the A button is pressed and held during teleop the robot
  * will carry out a quasi-static velocity characterization as described in Eli Barnett's paper "FRC
- * Drivetrain Characterization" until the button is released.
+ * Drivetrain Characterization" until the button is released. The results (kV, vIntercept, and an
+ * R^2 value) are output to the SmartDashboard.
  */
 public class VelocityCharacterizationRobot extends IterativeRobot {
 
@@ -36,7 +37,9 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
       driveLeftMotorC, driveRightMotorA, driveRightMotorB, driveRightMotorC};
   private ChickenTalon[] driveMotorMasters = new ChickenTalon[]{driveLeftMotorA, driveRightMotorA};
 
-  private PrintWriter csvWriter = null;
+  private SimpleRegression leftRegression = new SimpleRegression();
+  private SimpleRegression rightRegression = new SimpleRegression();
+  private boolean running = false;
 
   private Joystick joystick = new Joystick(0);
 
@@ -59,37 +62,48 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     reset();
   }
 
+  private static void putRegressionData(@NotNull SimpleRegression regression, String prefix) {
+    // getSlope, getIntercept, and getRSquare all have the same criteria for returning NaN
+    if (!Double.isNaN(regression.getSlope())) {
+      SmartDashboard.putNumber(prefix + " Calculated kV", regression.getSlope());
+      SmartDashboard.putNumber(prefix + " Calculated vIntercept", regression.getIntercept());
+      SmartDashboard.putNumber(prefix + " rSquared", regression.getRSquare());
+    } else {
+      SmartDashboard.putNumber(prefix + " Calculated kV", 0);
+      SmartDashboard.putNumber(prefix + " Calculated vIntercept", 0);
+      SmartDashboard.putNumber(prefix + " rSquared", 0);
+    }
+  }
+
   @Override
   public void robotPeriodic() {
-    if (!isOperatorControl() && csvWriter != null) {
-      csvWriter.close();
-      csvWriter = null;
-    }
+    putRegressionData(leftRegression, "Left");
+    putRegressionData(rightRegression, "Right");
     Scheduler.getInstance().run();
   }
 
   @Override
   public void teleopPeriodic() {
     if (joystick.getRawButton(1)) { // if button A is pressed
-      if (csvWriter == null) {
-        // create a new CSV writer, reset everything
+      if (!running) {
+        // reset everything
         reset();
-        try {
-          csvWriter = new PrintWriter(new File(
-              "/home/lvuser/dtmeasure/measure-" + System.currentTimeMillis() + ".csv"));
-          csvWriter.println("lvoltage,lvelocity,rvoltage,rvelocity");
-        } catch (FileNotFoundException e) {
-          throw new RuntimeException(e);
-        }
+        running = true;
+        leftRegression.clear();
+        rightRegression.clear();
         appliedOutput = 0;
         driveLeftMotorA.set(ControlMode.PercentOutput, 0);
         driveRightMotorA.set(ControlMode.PercentOutput, 0);
       } else {
+        double leftVelocity = driveLeftMotorA.getSelectedSensorVelocity();
+        if (leftVelocity != 0) {
+          leftRegression.addData(leftVelocity, driveLeftMotorA.getMotorOutputVoltage());
+        }
 
-        csvWriter.println(driveLeftMotorA.getMotorOutputVoltage() + ","
-            + driveLeftMotorA.getSelectedSensorVelocity() + ","
-            + driveRightMotorA.getMotorOutputVoltage() + ","
-            + driveRightMotorA.getSelectedSensorVelocity());
+        double rightVelocity = driveRightMotorA.getSelectedSensorVelocity();
+        if (rightVelocity != 0) {
+          rightRegression.addData(leftVelocity, driveRightMotorA.getMotorOutputVoltage());
+        }
 
         appliedOutput +=
             (rampRate / SATURATION_VOLTAGE) * ((System.currentTimeMillis() - lastTime) / 1000.0);
@@ -99,12 +113,9 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
       }
     } else {
       appliedOutput = 0;
-      if (csvWriter != null) {
-        csvWriter.close();
-        csvWriter = null;
-      }
       driveLeftMotorA.set(ControlMode.PercentOutput, 0);
       driveRightMotorA.set(ControlMode.PercentOutput, 0);
+      running = false;
     }
     lastTime = System.currentTimeMillis();
   }
