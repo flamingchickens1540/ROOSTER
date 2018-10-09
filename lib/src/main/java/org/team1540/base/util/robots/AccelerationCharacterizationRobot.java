@@ -214,6 +214,8 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
       talon.configPeakOutputForward(1);
       talon.configPeakOutputReverse(-1);
       talon.enableCurrentLimit(false);
+      talon.configVoltageCompSaturation(12);
+      talon.enableVoltageCompensation(true);
     }
   }
 
