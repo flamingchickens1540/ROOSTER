@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
 import org.team1540.base.wrappers.ChickenTalon;
@@ -220,16 +221,10 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
   }
 
   private static double bestFitSlope(List<Double> xVals, List<Double> yVals) {
-    double avgX = xVals.stream().mapToDouble(x -> x).sum() / xVals.size();
-    double avgY = yVals.stream().mapToDouble(y -> y).sum() / yVals.size();
-
-    double sumXY = 0;
-    double sumXSquared = 0;
+    SimpleRegression reg = new SimpleRegression();
     for (int i = 0; i < xVals.size(); i++) {
-      sumXY += (xVals.get(i) - avgX) * (yVals.get(i) - avgY);
-      sumXSquared += (xVals.get(i) - avgX) * (xVals.get(i) - avgX);
+      reg.addData(xVals.get(i), yVals.get(i));
     }
-
-    return sumXY / sumXSquared;
+    return reg.getSlope();
   }
 }
