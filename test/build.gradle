@@ -26,12 +26,12 @@ deploy {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
             /*
-            IMPORTANT: With this line in the buildscript, the robot code will not start until
-            you connect your debugger to the robot. Connect by running the "Remote Robot Debug"
-            run configuration which should be shared through version control. Alternatively,
-            remove this line and redeploy.
+            IMPORTANT: With the "deploy-debug" property set (i.e. -Pdeploy-debug is on the
+            command line), the robot code will not start until you connect your debugger to the
+            robot. Connect by running the "Remote Robot Debug" run configuration which should be
+            shared through version control. Alternatively, remove this line and redeploy.
             */
-            debug = true
+            debug = project.hasProperty("deploy-debug")
         }
     }
 }
