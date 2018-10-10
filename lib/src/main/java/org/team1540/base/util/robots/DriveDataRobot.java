@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 import org.team1540.base.Utilities;
 import org.team1540.base.preferencemanager.Preference;
+import org.team1540.base.preferencemanager.PreferenceManager;
 import org.team1540.base.util.SimpleCommand;
 import org.team1540.base.wrappers.ChickenTalon;
 
@@ -56,6 +57,7 @@ public class DriveDataRobot extends IterativeRobot {
 
   @Override
   public void robotInit() {
+    PreferenceManager.getInstance().add(this);
     System.out.println("Initializing Drive Data Collection Robot");
     System.out.println(
         "To change the motors to be tuned, change the preference values and then run the Reset command to "
