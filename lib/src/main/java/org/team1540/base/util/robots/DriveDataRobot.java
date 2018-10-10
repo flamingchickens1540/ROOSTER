@@ -159,31 +159,36 @@ public class DriveDataRobot extends IterativeRobot {
   public void robotPeriodic() {
     Scheduler.getInstance().run();
 
-    SmartDashboard.putNumber("LPOS", lMotor1.getSelectedSensorPosition());
-    SmartDashboard.putNumber("RPOS", rMotor1.getSelectedSensorPosition());
-    SmartDashboard.putNumber("LVEL", lMotor1.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("RVEL", rMotor1.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("LTHROT", lMotor1.getMotorOutputPercent());
-    SmartDashboard.putNumber("RTHROT", rMotor1.getMotorOutputPercent());
-    SmartDashboard.putNumber("LCURR", lMotor1.getOutputCurrent());
-    SmartDashboard.putNumber("RCURR", rMotor1.getOutputCurrent());
-    SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
-    SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
-
+    if (lMotor1 != null && rMotor1 != null) {
+      SmartDashboard.putNumber("LPOS", lMotor1.getSelectedSensorPosition());
+      SmartDashboard.putNumber("RPOS", rMotor1.getSelectedSensorPosition());
+      SmartDashboard.putNumber("LVEL", lMotor1.getSelectedSensorVelocity());
+      SmartDashboard.putNumber("RVEL", rMotor1.getSelectedSensorVelocity());
+      SmartDashboard.putNumber("LTHROT", lMotor1.getMotorOutputPercent());
+      SmartDashboard.putNumber("RTHROT", rMotor1.getMotorOutputPercent());
+      SmartDashboard.putNumber("LCURR", lMotor1.getOutputCurrent());
+      SmartDashboard.putNumber("RCURR", rMotor1.getOutputCurrent());
+      SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
+      SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
+    }
     if (!(isOperatorControl() && logDataToCSV) && csvWriter != null) {
       csvWriter.close();
       csvWriter = null;
       System.out.println("Finished writing CSV file");
     }
 
-    lMotor1.setSensorPhase(invertLeftSensor);
+    if (lMotor1 != null) {
+      lMotor1.setSensorPhase(invertLeftSensor);
+    }
     for (ChickenTalon talon : new ChickenTalon[]{lMotor1, lMotor2, lMotor3}) {
       if (talon != null) {
         talon.setInverted(invertLeftMotor);
       }
     }
 
-    rMotor1.setSensorPhase(invertRightSensor);
+    if (rMotor1 != null) {
+      rMotor1.setSensorPhase(invertRightSensor);
+    }
     for (ChickenTalon talon : new ChickenTalon[]{rMotor1, rMotor2, rMotor3}) {
       if (talon != null) {
         talon.setInverted(invertRightMotor);
