@@ -102,6 +102,7 @@ public class DriveDataRobot extends IterativeRobot {
           motor.configPeakOutputForward(1);
           motor.configPeakOutputReverse(-1);
           motor.enableCurrentLimit(false);
+          motor.setBrake(true);
         }
       }
     });
