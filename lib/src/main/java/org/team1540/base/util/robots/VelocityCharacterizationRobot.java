@@ -66,7 +66,7 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     // getSlope, getIntercept, and getRSquare all have the same criteria for returning NaN
     if (!Double.isNaN(regression.getSlope())) {
       SmartDashboard.putNumber(prefix + " Calculated kV", regression.getSlope());
-      SmartDashboard.putNumber(prefix + " Calculated vIntercept", regression.getIntercept());
+      SmartDashboard.putNumber(prefix + " Calculated vIntercept", regression.predict(0));
       SmartDashboard.putNumber(prefix + " rSquared", regression.getRSquare());
     } else {
       SmartDashboard.putNumber(prefix + " Calculated kV", 0);
