@@ -43,6 +43,8 @@ public class DriveDataRobot extends IterativeRobot {
   public boolean invertLeftSensor = false;
   @Preference(persistent = false)
   public boolean invertRightSensor = false;
+  @Preference(persistent = false)
+  public boolean brake = false;
 
   private ChickenTalon lMotor1;
   private ChickenTalon lMotor2;
@@ -102,7 +104,7 @@ public class DriveDataRobot extends IterativeRobot {
           motor.configPeakOutputForward(1);
           motor.configPeakOutputReverse(-1);
           motor.enableCurrentLimit(false);
-          motor.setBrake(true);
+          motor.setBrake(brake);
         }
       }
     });
