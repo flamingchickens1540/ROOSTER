@@ -8,9 +8,9 @@ import org.team1540.base.motionprofiling.ProfileFollower.ProfileDriveSignal;
 import org.team1540.base.util.AsyncCommand;
 
 /**
- * {@link edu.wpi.first.wpilibj.command.Command Command} to execute a motion profile. This is
- * an {@link AsyncCommand}-based wrapper around {@link ProfileFollower} which handles creating
- * the instance, running it in a fast loop, and sending the output to the motors.
+ * {@link edu.wpi.first.wpilibj.command.Command Command} to execute a motion profile. This is an
+ * {@link AsyncCommand}-based wrapper around {@link ProfileFollower} which handles creating the
+ * instance, running it in a fast loop, and sending the output to the motors.
  *
  * @see FollowProfileFactory
  * @see ProfileFollower
@@ -85,6 +85,26 @@ public class FollowProfile extends AsyncCommand {
 
     follower = new ProfileFollower(left, right, velCoeff, velIntercept, accelCoeff, headingP,
         headingI);
+  }
+
+  /**
+   * Get the time since starting the motion profile.
+   *
+   * @return The time, in seconds, since beginning to execute a motion profile, or 0 if not
+   * currently executing a profile.
+   */
+  public double getExecutionTime() {
+    return isRunning() ? timer.get() : 0;
+  }
+
+  /**
+   * Get the underlying {@link ProfileFollower}
+   *
+   * @return The underlying {@link ProfileFollower}. Any modifications to this object will affect
+   * this command.
+   */
+  public ProfileFollower getFollower() {
+    return follower;
   }
 
   @Override
