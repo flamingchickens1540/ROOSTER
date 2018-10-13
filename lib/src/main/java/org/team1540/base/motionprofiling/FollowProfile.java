@@ -30,9 +30,9 @@ import org.team1540.base.util.AsyncCommand;
 public class FollowProfile extends AsyncCommand {
 
   @NotNull
-  MotionProfile left;
+  private MotionProfile left;
   @NotNull
-  MotionProfile right;
+  private MotionProfile right;
 
   @NotNull
   private SetpointConsumer leftSetpointConsumer;
