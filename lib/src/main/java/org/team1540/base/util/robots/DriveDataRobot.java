@@ -174,8 +174,12 @@ public class DriveDataRobot extends IterativeRobot {
       }
     }
 
-    lMotor1.set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(1), 0.1));
-    rMotor1.set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(5), 0.1));
+    double trigger = Utilities.processDeadzone(joystick.getRawAxis(2), 0.1) - Utilities
+        .processDeadzone(joystick.getRawAxis(3), 0.1);
+    lMotor1.set(ControlMode.PercentOutput,
+        Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(1), 0.1) + trigger, 1));
+    rMotor1.set(ControlMode.PercentOutput,
+        Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(5), 0.1) + trigger, 1));
   }
 
   @Override
