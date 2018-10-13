@@ -38,6 +38,8 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
   public boolean invertLeft = false;
   @Preference("Invert Right Motor")
   public boolean invertRight = true;
+  @Preference(persistent = false)
+  public int accelMeasurementWindow = 6;
 
   @Preference(persistent = false)
   public double setpoint = 0.6;
@@ -66,8 +68,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
       csvWriter.close();
       csvWriter = null;
     }
-    Scheduler.getInstance().run();
-    if (leftVelocities.size() == 4) {
+    if (leftVelocities.size() == accelMeasurementWindow) {
       leftVelocities.remove(0);
       rightVelocities.remove(0);
       leftVoltages.remove(0);
@@ -90,7 +91,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
     rightVoltages.add(accelCausingVoltageRight);
     times.add((double) System.currentTimeMillis() / 1000.0);
 
-    if (leftVelocities.size() == 4) {
+    if (leftVelocities.size() == accelMeasurementWindow) {
       double lAccel = bestFitSlope(times, leftVelocities);
       double rAccel = bestFitSlope(times, rightVelocities);
       SmartDashboard.putNumber("Left Accel", lAccel);
@@ -120,7 +121,7 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
         SmartDashboard.putNumber("Right Output", driveRightMotorA.getMotorOutputPercent());
         SmartDashboard.putNumber("Right Velocity", rightVelocity);
 
-        if (leftVelocities.size() == 4) {
+        if (leftVelocities.size() == accelMeasurementWindow) {
           double lAccel = bestFitSlope(times, leftVelocities);
           double rAccel = bestFitSlope(times, rightVelocities);
           csvWriter.println(
