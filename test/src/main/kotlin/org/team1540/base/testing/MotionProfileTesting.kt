@@ -262,6 +262,21 @@ private object DriveTrain : Subsystem() {
         }
     }
 
+    override fun periodic() {
+        SmartDashboard.putNumber("LPOS", left1.selectedSensorPosition)
+        SmartDashboard.putNumber("RPOS", right1.selectedSensorPosition)
+        SmartDashboard.putNumber("LVEL", left1.selectedSensorVelocity)
+        SmartDashboard.putNumber("RVEL", right1.selectedSensorVelocity)
+        SmartDashboard.putNumber("LTHROT", left1.motorOutputPercent)
+        SmartDashboard.putNumber("RTHROT", right1.motorOutputPercent)
+        SmartDashboard.putNumber("LCURR", left1.outputCurrent + left2.outputCurrent + left3.outputCurrent)
+        SmartDashboard.putNumber("RCURR", right1.outputCurrent + right2.outputCurrent + right3.outputCurrent)
+        SmartDashboard.putNumber("LVOLT", left1.motorOutputVoltage)
+        SmartDashboard.putNumber("RVOLT", right1.motorOutputVoltage)
+        SmartDashboard.putNumber("LERR", left1.closedLoopError.toDouble())
+        SmartDashboard.putNumber("RERR", right1.closedLoopError.toDouble())
+    }
+
     init {
         reset()
     }
