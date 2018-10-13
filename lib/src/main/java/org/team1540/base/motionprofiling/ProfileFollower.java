@@ -128,7 +128,6 @@ public class ProfileFollower {
     lastTime = -1;
   }
 
-
   /**
    * Get the current integral accumulator for the gyro PI controller.
    *
@@ -136,6 +135,43 @@ public class ProfileFollower {
    */
   public double getGyroIAccum() {
     return gyroIAccum;
+  }
+
+
+  /**
+   * Get the current gyro error being fed into the PI controller.
+   *
+   * @param heading The current gyro heading reading, in radians from 0 to 2&pi;.
+   * @param time The current time, in seconds.
+   * @return The heading error, in radians.
+   */
+  public double getGyroError(double heading, double time) {
+    double tgtHeading = getCurrentPointLeft(time).heading;
+
+    return atan2(sin(heading - tgtHeading), cos(heading - tgtHeading));
+  }
+
+  /**
+   * Get the currently executing {@code Point} on the left side.
+   *
+   * @param time The current time, in seconds.
+   * @return The current {@code Point}.
+   */
+  @NotNull
+  public Point getCurrentPointLeft(double time) {
+    return getCurrentSegment(left, time);
+  }
+
+
+  /**
+   * Get the currently executing {@code Point} on the right side.
+   *
+   * @param time The current time, in seconds.
+   * @return The current {@code Point}.
+   */
+  @NotNull
+  public Point getCurrentPointRight(double time) {
+    return getCurrentSegment(right, time);
   }
 
   /**
