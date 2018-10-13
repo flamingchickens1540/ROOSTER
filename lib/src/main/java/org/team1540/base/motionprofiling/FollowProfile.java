@@ -83,6 +83,8 @@ public class FollowProfile extends AsyncCommand {
     this.headingP = headingP;
     this.headingI = headingI;
 
+    follower = new ProfileFollower(left, right, velCoeff, velIntercept, accelCoeff, headingP,
+        headingI);
   }
 
   @Override
@@ -100,9 +102,7 @@ public class FollowProfile extends AsyncCommand {
 
   @Override
   protected void runInitial() {
-    // create a new follower since ProfileFollower is very stateful/doesn't do resets
-    follower = new ProfileFollower(left, right, velCoeff, velIntercept, accelCoeff, headingP,
-        headingI);
+    follower.reset();
     timer.start();
   }
 

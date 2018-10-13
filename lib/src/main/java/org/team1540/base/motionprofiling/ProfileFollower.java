@@ -19,6 +19,11 @@ import org.team1540.base.motionprofiling.MotionProfile.Point;
  * <p>
  * It is designed to use native Talon SRX position PID control with a throttle bump, but the output
  * could instead be used to control a RIO-side PID loop.
+ * <p>
+ * This class is stateful; it keeps track of the last time {@link #get(double, double)} get()} was
+ * called, and also has an integral accumulator for the gyro PI controller. With that in mind, if
+ * using a {@code FollowProfile} instance multiple times, call {@link #reset()} before beginning to
+ * execute the second, third, etc. profiles.
  */
 public class ProfileFollower {
 
@@ -111,6 +116,26 @@ public class ProfileFollower {
         rightSegment.position + gyroPOut + gyroIOut,
         rightVelFOut + rightVelInterceptOut + rightAccelFOut
     );
+  }
+
+  /**
+   * Reset the profile follower.
+   *
+   * This resets the follower so that it can be used multiple times.
+   */
+  public void reset() {
+    gyroIAccum = 0;
+    lastTime = -1;
+  }
+
+
+  /**
+   * Get the current integral accumulator for the gyro PI controller.
+   *
+   * @return The integral accumulator.
+   */
+  public double getGyroIAccum() {
+    return gyroIAccum;
   }
 
   /**
