@@ -76,10 +76,20 @@ public class DriveDataRobot extends IterativeRobot {
       if (lMotor2ID != -1) {
         lMotor2 = new ChickenTalon(lMotor2ID);
         lMotor2.set(ControlMode.Follower, lMotor1.getDeviceID());
+      } else {
+        if (lMotor2 != null) {
+          lMotor2.set(ControlMode.PercentOutput, 0);
+        }
+        lMotor2 = null;
       }
       if (lMotor3ID != -1) {
         lMotor3 = new ChickenTalon(lMotor3ID);
         lMotor3.set(ControlMode.Follower, lMotor1.getDeviceID());
+      } else {
+        if (lMotor3 != null) {
+          lMotor3.set(ControlMode.PercentOutput, 0);
+        }
+        lMotor3 = null;
       }
 
       if (rMotor1ID != -1) {
@@ -91,10 +101,20 @@ public class DriveDataRobot extends IterativeRobot {
       if (rMotor2ID != -1) {
         rMotor2 = new ChickenTalon(rMotor2ID);
         rMotor2.set(ControlMode.Follower, rMotor1.getDeviceID());
+      } else {
+        if (rMotor2 != null) {
+          rMotor2.set(ControlMode.PercentOutput, 0);
+        }
+        rMotor2 = null;
       }
       if (rMotor3ID != -1) {
         rMotor3 = new ChickenTalon(rMotor3ID);
         rMotor3.set(ControlMode.Follower, rMotor1.getDeviceID());
+      } else {
+        if (rMotor3 != null) {
+          rMotor3.set(ControlMode.PercentOutput, 0);
+        }
+        rMotor3 = null;
       }
       for (ChickenTalon motor : new ChickenTalon[]{lMotor1, lMotor2, lMotor3, rMotor1, rMotor2,
           rMotor3}) {
