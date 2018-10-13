@@ -14,16 +14,16 @@ import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import jaci.pathfinder.modifiers.TankModifier
 import org.team1540.base.Utilities
+import org.team1540.base.motionprofiling.FollowProfile
 import org.team1540.base.motionprofiling.FollowProfileFactory
 import org.team1540.base.motionprofiling.MotionProfileUtils
 import org.team1540.base.preferencemanager.Preference
 import org.team1540.base.preferencemanager.PreferenceManager
 import org.team1540.base.util.Executable
-import org.team1540.base.util.SimpleCommand
 import org.team1540.base.util.SimpleLoopCommand
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier
-import javax.rmi.CORBA.Util
+import kotlin.math.PI
 
 private val driver = Joystick(0)
 
@@ -31,6 +31,8 @@ class MotionProfileTestingRobot : IterativeRobot() {
     private lateinit var factory: FollowProfileFactory
 
     private val navx = AHRS(SPI.Port.kMXP)
+
+    private var command: FollowProfile? = null
 
     @JvmField
     @Preference("kV", persistent = false)
@@ -108,9 +110,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
             loopFreq = loopFreqMs
             headingP = hdgP
             headingI = hdgI
-            headingSupplier = DoubleSupplier {
-                Math.toRadians(navx.yaw.let { if (it < 0) it + 180 else it }.toDouble())
-            }
+            headingSupplier = DoubleSupplier { processedHeading }
         }
     }
 
@@ -121,6 +121,11 @@ class MotionProfileTestingRobot : IterativeRobot() {
         Scheduler.getInstance().run()
         if (DriveTrain.p != driveP) DriveTrain.p = driveP
         if (DriveTrain.d != driveP) DriveTrain.d = driveD
+        SmartDashboard.putNumber("Raw heading", navx.yaw.toDouble())
+        SmartDashboard.putNumber("Processed heading", processedHeading)
+        SmartDashboard.putNumber("Heading Error", command?.follower?.getGyroError(processedHeading, command?.executionTime
+                ?: 0.0) ?: 0.0)
+        SmartDashboard.putNumber("Heading IAccum", command?.follower?.gyroIAccum ?: 0.0)
     }
 
     override fun disabledInit() {
@@ -132,6 +137,12 @@ class MotionProfileTestingRobot : IterativeRobot() {
 
     override fun teleopPeriodic() {
     }
+
+    val processedHeading: Double
+        get() {
+            val yaw = Math.toRadians(navx.yaw.toDouble())
+            return if (yaw < 0) PI - yaw else PI + yaw
+        }
 
     override fun autonomousInit() {
         DriveTrain.brake = true
@@ -163,9 +174,9 @@ class MotionProfileTestingRobot : IterativeRobot() {
                 maxJerk
         ))).modify(wheelbase).trajectories
 
-        val command = factory.create(MotionProfileUtils.createProfile(leftTrajectory), MotionProfileUtils.createProfile(rightTrajectory))
+        command = factory.create(MotionProfileUtils.createProfile(leftTrajectory), MotionProfileUtils.createProfile(rightTrajectory))
 
-        command.start()
+        command?.start()
     }
 
     override fun teleopInit() {
