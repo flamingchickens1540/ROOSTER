@@ -39,6 +39,8 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
   @Preference("Invert Right Motor")
   public boolean invertRight = true;
 
+  @Preference(persistent = false)
+  public double setpoint = 0.6;
 
   private ChickenTalon driveLeftMotorA = new ChickenTalon(1);
   private ChickenTalon driveLeftMotorB = new ChickenTalon(2);
@@ -127,8 +129,8 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
           System.out.println(times.toString());
           System.out.println(lAccel);
         }
-        driveLeftMotorA.set(ControlMode.PercentOutput, SmartDashboard.getNumber("Setpoint", 0.6));
-        driveRightMotorA.set(ControlMode.PercentOutput, SmartDashboard.getNumber("Setpoint", 0.6));
+        driveLeftMotorA.set(ControlMode.PercentOutput, setpoint);
+        driveRightMotorA.set(ControlMode.PercentOutput, setpoint);
       }
     } else {
       if (csvWriter != null) {
