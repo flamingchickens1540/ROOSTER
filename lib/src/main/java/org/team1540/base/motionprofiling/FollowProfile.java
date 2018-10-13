@@ -1,5 +1,9 @@
 package org.team1540.base.motionprofiling;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import java.util.Arrays;
@@ -128,8 +132,7 @@ public class FollowProfile extends AsyncCommand {
     double error3 = heading - headingTarget - 2 * Math.PI;
 
     // basically magic https://stackoverflow.com/a/2007279
-    double headingError = Math
-        .atan2(Math.sin(heading - headingTarget), Math.cos(heading - headingTarget));
+    double headingError = atan2(sin(heading - headingTarget), cos(heading - headingTarget));
 
     gyroIAccum += headingError * execTimer.get();
     execTimer.reset();
