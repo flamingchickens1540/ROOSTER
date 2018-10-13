@@ -189,8 +189,12 @@ public class DriveDataRobot extends IterativeRobot {
       SmartDashboard.putNumber("RVEL", rMotor1.getSelectedSensorVelocity());
       SmartDashboard.putNumber("LTHROT", lMotor1.getMotorOutputPercent());
       SmartDashboard.putNumber("RTHROT", rMotor1.getMotorOutputPercent());
-      SmartDashboard.putNumber("LCURR", lMotor1.getOutputCurrent());
-      SmartDashboard.putNumber("RCURR", rMotor1.getOutputCurrent());
+      SmartDashboard.putNumber("LCURR",
+          lMotor1.getOutputCurrent() + (lMotor2 != null ? lMotor2.getOutputCurrent() : 0) + (
+              lMotor3 != null ? lMotor3.getOutputCurrent() : 0));
+      SmartDashboard.putNumber("RCURR",
+          rMotor1.getOutputCurrent() + (rMotor2 != null ? rMotor2.getOutputCurrent() : 0) + (
+              rMotor3 != null ? rMotor3.getOutputCurrent() : 0));
       SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
       SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
     }
