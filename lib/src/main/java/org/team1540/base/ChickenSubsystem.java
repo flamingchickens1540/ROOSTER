@@ -37,7 +37,7 @@ public class ChickenSubsystem extends Subsystem implements PowerManageable {
       double sum = 0;
       for (ChickenController motor : motors.keySet()) {
         if (motor instanceof ChickenTalon) {
-          sum += motor.getOutputCurrent();
+          sum += ((ChickenTalon) motor).getOutputCurrent();
         }
       }
       return sum;

@@ -6,10 +6,16 @@ plugins {
     id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
 }
 
+repositories {
+    maven { url "http://devsite.ctr-electronics.com/maven/release/"}
+}
+
 dependencies {
     compile project(":lib")
     compile wpilib()
-    compile ctre()
+    compile "com.ctre.phoenix:wpiapi-java:5.8.1"
+    compile "com.ctre.phoenix:api-java:5.8.1"
+    nativeZip "com.ctre.phoenix:cci:5.8.1:linuxathena@zip"
     compile navx()
     compile pathfinder()
 }

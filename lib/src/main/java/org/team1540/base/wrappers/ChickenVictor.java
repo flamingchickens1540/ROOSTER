@@ -256,21 +256,6 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   }
 
   @Override
-  public int getAnalogIn() {
-    return getSensorCollection().getAnalogIn();
-  }
-
-  @Override
-  public int getAnalogInRaw() {
-    return getSensorCollection().getAnalogInRaw();
-  }
-
-  @Override
-  public int getAnalogInVel() {
-    return getSensorCollection().getAnalogInVel();
-  }
-
-  @Override
   public int getClosedLoopError() {
     return super.getClosedLoopError(defaultPidIdx);
   }
@@ -327,61 +312,6 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   }
 
   @Override
-  public boolean getPinStateQuadA() {
-    return getSensorCollection().getPinStateQuadA();
-  }
-
-  @Override
-  public boolean getPinStateQuadB() {
-    return getSensorCollection().getPinStateQuadB();
-  }
-
-  @Override
-  public boolean getPinStateQuadIdx() {
-    return getSensorCollection().getPinStateQuadIdx();
-  }
-
-  @Override
-  public int getPulseWidthPosition() {
-    return getSensorCollection().getPulseWidthPosition();
-  }
-
-  @Override
-  public int getPulseWidthRiseToFallUs() {
-    return getSensorCollection().getPulseWidthRiseToFallUs();
-  }
-
-  @Override
-  public int getPulseWidthRiseToRiseUs() {
-    return getSensorCollection().getPulseWidthRiseToRiseUs();
-  }
-
-  @Override
-  public int getPulseWidthVelocity() {
-    return getSensorCollection().getPulseWidthVelocity();
-  }
-
-  @Override
-  public int getQuadraturePosition() {
-    return getSensorCollection().getQuadraturePosition();
-  }
-
-  @Override
-  public int getQuadratureVelocity() {
-    return getSensorCollection().getQuadratureVelocity();
-  }
-
-  @Override
-  public double getSelectedSensorPosition() {
-    return super.getSelectedSensorPosition(defaultPidIdx);
-  }
-
-  @Override
-  public double getSelectedSensorVelocity() {
-    return super.getSelectedSensorVelocity(defaultPidIdx);
-  }
-
-  @Override
   public int getStatusFramePeriod(StatusFrameEnhanced frame) {
     return super.getStatusFramePeriod(frame, defaultTimeoutMs);
   }
@@ -397,16 +327,6 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   }
 
   @Override
-  public boolean isFwdLimitSwitchClosed() {
-    return getSensorCollection().isFwdLimitSwitchClosed();
-  }
-
-  @Override
-  public boolean isRevLimitSwitchClosed() {
-    return getSensorCollection().isRevLimitSwitchClosed();
-  }
-
-  @Override
   public void selectProfileSlot(int slotIdx) {
     super.selectProfileSlot(slotIdx, defaultPidIdx);
   }
@@ -414,11 +334,6 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   @Override
   public void set(double outputValue) {
     super.set(controlMode, outputValue);
-  }
-
-  @Override
-  public ErrorCode setAnalogPosition(int newPosition) {
-    return getSensorCollection().setAnalogPosition(newPosition, defaultTimeoutMs);
   }
 
   @Override
@@ -434,16 +349,6 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
   @Override
   public ErrorCode setIntegralAccumulator(double iaccum) {
     return super.setIntegralAccumulator(iaccum, defaultPidIdx, defaultTimeoutMs);
-  }
-
-  @Override
-  public ErrorCode setPulseWidthPosition(int newPosition) {
-    return getSensorCollection().setPulseWidthPosition(newPosition, defaultTimeoutMs);
-  }
-
-  @Override
-  public ErrorCode setQuadraturePosition(int newPosition) {
-    return getSensorCollection().setQuadraturePosition(newPosition, defaultTimeoutMs);
   }
 
   @Override
