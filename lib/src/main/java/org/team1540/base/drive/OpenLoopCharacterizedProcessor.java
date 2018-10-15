@@ -71,4 +71,26 @@ public class OpenLoopCharacterizedProcessor implements Function<TankDriveData, T
         command.heading,
         command.turningRate);
   }
+
+  /**
+   * Data structure for a drive's left and right throttles.
+   */
+  private static class OpenLoopDriveSignal {
+
+    private final double leftThrottle;
+    private final double rightThrottle;
+
+    public OpenLoopDriveSignal(double leftThrottle, double rightThrottle) {
+      this.leftThrottle = leftThrottle;
+      this.rightThrottle = rightThrottle;
+    }
+
+    public double getLeftThrottle() {
+      return leftThrottle;
+    }
+
+    public double getRightThrottle() {
+      return rightThrottle;
+    }
+  }
 }
