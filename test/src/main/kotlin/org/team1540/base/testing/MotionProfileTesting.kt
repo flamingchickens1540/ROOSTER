@@ -283,6 +283,8 @@ private object DriveTrain : Subsystem() {
         SmartDashboard.putNumber("RVOLT", right1.motorOutputVoltage)
         SmartDashboard.putNumber("LERR", left1.closedLoopError.toDouble())
         SmartDashboard.putNumber("RERR", right1.closedLoopError.toDouble())
+        SmartDashboard.putNumber("LTGT", right1.getClosedLoopTarget(0).toDouble())
+        SmartDashboard.putNumber("RTGT", right1.getClosedLoopTarget(0).toDouble())
     }
 
     init {
