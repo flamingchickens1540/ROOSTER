@@ -26,8 +26,8 @@ public class MotionProfileUtils {
   }
 
   /**
-   * Create a {@link SetpointConsumer} that sets the setpoint of the provided CTRE motor
-   * controller, multiplying the position setpoint by the adjustmant.
+   * Create a {@link SetpointConsumer} that sets the setpoint of the provided CTRE motor controller,
+   * multiplying the position setpoint by the adjustmant.
    *
    * @param motorController The motor controller.
    * @return A {@code SetpointConsumer} to use for motion profiling.
@@ -45,12 +45,15 @@ public class MotionProfileUtils {
    *
    * @param trajectory The {@link Trajectory} to convert.
    * @return A {@link MotionProfile} containing the same points. Profile points are copied over, so
-   * subsequent changes to the {@link Trajectory} will not affect the produced {@link MotionProfile}.
+   * subsequent changes to the {@link Trajectory} will not affect the produced {@link
+   * MotionProfile}.
    */
   @Contract("_ -> new")
   @NotNull
   public static MotionProfile createProfile(@NotNull Trajectory trajectory) {
-    return new MotionProfile((Point[]) Arrays.stream(trajectory.segments).map(s -> new Point(s.dt, s.x, s.y, s.position, s.velocity, s.acceleration, s.jerk, s.heading)).toArray());
+    return new MotionProfile(Arrays.stream(trajectory.segments).map(
+        s -> new Point(s.dt, s.x, s.y, s.position, s.velocity, s.acceleration, s.jerk, s.heading))
+        .toArray(Point[]::new));
   }
 
 }
