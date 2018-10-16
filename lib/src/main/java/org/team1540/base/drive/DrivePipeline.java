@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  * <li>An <em>output</em> turns values from a processor into commands for motors. An output for
  * Talon SRX motors might just pass a setpoint to the Talons' native closed-loop functionality,
  * while an output for PWM motors might perform additional PID logic.</li>
- * <ul>
+ * </ul>
  *
  * @param <I> The type given by the input stage.
  * @param <O> The type requested by the output stage.
