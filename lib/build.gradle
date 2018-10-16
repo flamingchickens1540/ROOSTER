@@ -30,6 +30,7 @@ javadoc {
     options.addStringOption("doctitle", "ROOSTER API")
     options.addStringOption("windowtitle", "ROOSTER API")
     options.addBooleanOption("-allow-script-in-comments", true)
+    options.addBooleanOption('Xdoclint:all,-missing', true)
 }
 
 
