@@ -48,7 +48,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
 
     @JvmField
     @Preference("MP Loop Freq", persistent = false)
-    var loopFreqMs = 0L
+    var loopFreqMs = 0
 
     @JvmField
     @Preference("MP Heading P", persistent = false)
@@ -107,7 +107,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
             velIntercept = vIntercept
             velCoeff = kV
             accelCoeff = kA
-            loopFreq = loopFreqMs
+            loopFreq = loopFreqMs.toLong()
             headingP = hdgP
             headingI = hdgI
             headingSupplier = DoubleSupplier { processedHeading }
@@ -150,7 +150,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
             velIntercept = vIntercept
             velCoeff = kV
             accelCoeff = kA
-            loopFreq = loopFreqMs
+            loopFreq = loopFreqMs.toLong()
             headingP = hdgP
             headingI = hdgI
             leftSetpointConsumer = MotionProfileUtils.createSetpointConsumer(DriveTrain.left1, tpu)
