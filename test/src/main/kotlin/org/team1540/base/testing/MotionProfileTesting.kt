@@ -146,6 +146,7 @@ class MotionProfileTestingRobot : IterativeRobot() {
 
     override fun autonomousInit() {
         DriveTrain.brake = true
+        DriveTrain.zero()
         factory.apply {
             velIntercept = vIntercept
             velCoeff = kV
@@ -225,6 +226,11 @@ private object DriveTrain : Subsystem() {
             left1.set(ControlMode.PercentOutput, Utilities.processDeadzone(driver.getRawAxis(1), 0.1))
             right1.set(ControlMode.PercentOutput, Utilities.processDeadzone(driver.getRawAxis(5), 0.1))
         }, this)
+    }
+
+    fun zero() {
+        left1.setSelectedSensorPosition(0)
+        right1.setSelectedSensorPosition(0)
     }
 
     private fun reset() {
