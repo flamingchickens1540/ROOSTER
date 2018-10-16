@@ -75,6 +75,7 @@ Add the library by adding these lines in your `build.gradle` file:
 repositories {
 	// other repositories
      mavenCentral() // needed for JetBrains Annotations
+     maven { url "http://devsite.ctr-electronics.com/maven/release/" }
      maven { url 'https://jitpack.io' }
 }
 
