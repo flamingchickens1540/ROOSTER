@@ -1,9 +1,9 @@
-import jaci.openrio.gradle.GradleRIOPlugin
-import jaci.openrio.gradle.frc.FRCJavaArtifact
-import jaci.openrio.gradle.frc.RoboRIO
+import edu.wpi.first.gradlerio.GradleRIOPlugin
+import edu.wpi.first.gradlerio.frc.FRCJavaArtifact
+import edu.wpi.first.gradlerio.frc.RoboRIO
 
 plugins {
-    id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
+    id "edu.wpi.first.GradleRIO" version "2019.0.0-alpha-3"
 }
 
 repositories {
