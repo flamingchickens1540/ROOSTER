@@ -265,6 +265,8 @@ private object DriveTrain : Subsystem() {
             talon.config_kD(0, d)
             talon.config_kF(0, 0.0)
             talon.config_IntegralZone(0, 0)
+            talon.configVoltageCompSaturation(12.0)
+            talon.enableVoltageCompensation(true)
         }
     }
 
