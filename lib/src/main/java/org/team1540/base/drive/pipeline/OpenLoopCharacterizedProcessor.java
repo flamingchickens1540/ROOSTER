@@ -1,4 +1,4 @@
-package org.team1540.base.drive;
+package org.team1540.base.drive.pipeline;
 
 
 /*
@@ -12,8 +12,6 @@ be plugged into a motion profile executor.
 import java.util.OptionalDouble;
 import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
-import org.team1540.base.drive.pipeline.DriveData;
-import org.team1540.base.drive.pipeline.TankDriveData;
 
 public class OpenLoopCharacterizedProcessor implements Function<TankDriveData, TankDriveData> {
 
