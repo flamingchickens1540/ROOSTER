@@ -57,8 +57,14 @@ public class DriveDataRobot extends IterativeRobot {
 
   private PrintWriter csvWriter = null;
 
+  private double lPowerTot = 0;
+  private double rPowerTot = 0;
+
+  private double lastMeasureTime;
+
   @Override
   public void robotInit() {
+    lastMeasureTime = System.currentTimeMillis();
     PreferenceManager.getInstance().add(this);
     System.out.println("Initializing Drive Data Collection Robot");
     System.out.println(
@@ -140,6 +146,9 @@ public class DriveDataRobot extends IterativeRobot {
       if (rMotor1 != null) {
         rMotor1.setSelectedSensorPosition(0);
       }
+
+      lPowerTot = 0;
+      rPowerTot = 0;
     });
     zero.setRunWhenDisabled(true);
     SmartDashboard.putData(zero);
@@ -201,12 +210,32 @@ public class DriveDataRobot extends IterativeRobot {
               rMotor3 != null ? rMotor3.getOutputCurrent() : 0));
       SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
       SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
+
+      double currentPowerLeft = ((lMotor1.getOutputCurrent() * lMotor1.getMotorOutputVoltage())
+          + (lMotor2 != null ? (lMotor2.getOutputCurrent() * lMotor2.getMotorOutputVoltage()) : 0)
+          + (lMotor3 != null ? (lMotor3.getOutputCurrent() * lMotor3.getMotorOutputVoltage()) : 0));
+      double currentPowerRight = ((rMotor1.getOutputCurrent() * rMotor1.getMotorOutputVoltage())
+          + (rMotor2 != null ? (rMotor2.getOutputCurrent() * rMotor2.getMotorOutputVoltage()) : 0)
+          + (rMotor3 != null ? (rMotor3.getOutputCurrent() * rMotor3.getMotorOutputVoltage()) : 0));
+
+      SmartDashboard.putNumber("LPWR", currentPowerLeft);
+      SmartDashboard.putNumber("RPWR", currentPowerRight);
+
+      if (isOperatorControl()) {
+        lPowerTot += ((System.currentTimeMillis() - lastMeasureTime) / 1000.0) * currentPowerLeft;
+        rPowerTot += ((System.currentTimeMillis() - lastMeasureTime) / 1000.0) * currentPowerRight;
+      }
+
+      SmartDashboard.putNumber("LPWRTOT", lPowerTot);
+      SmartDashboard.putNumber("RPWRTOT", rPowerTot);
     }
     if (!(isOperatorControl() && logDataToCSV) && csvWriter != null) {
       csvWriter.close();
       csvWriter = null;
       System.out.println("Finished writing CSV file");
     }
+
+    lastMeasureTime = System.currentTimeMillis();
 
     if (lMotor1 != null) {
       lMotor1.setSensorPhase(invertLeftSensor);
