@@ -61,6 +61,8 @@ public class DriveDataRobot extends IterativeRobot {
   private double rPowerTot = 0;
 
   private double lastMeasureTime;
+  private double currentPowerRight;
+  private double currentPowerLeft;
 
   @Override
   public void robotInit() {
@@ -165,7 +167,9 @@ public class DriveDataRobot extends IterativeRobot {
                   + ".csv");
           System.out.println("Creating new CSV file at " + file.toString());
           csvWriter = new PrintWriter(file);
-          csvWriter.println("lpos,lvel,lvolt,lcurr,lthrot,rpos,rvel,rvolt,rcurr,rthrot");
+          csvWriter.println(
+              "lpos,lvel,lvolt,lcurr,lthrot,lpwr,lpwrtot,rpos,rvel,rvolt,rcurr,rthrot,rpwr,rpwrtot"
+          );
         } catch (FileNotFoundException e) {
           throw new RuntimeException(e);
         }
@@ -175,11 +179,15 @@ public class DriveDataRobot extends IterativeRobot {
             + lMotor1.getMotorOutputVoltage() + ","
             + lMotor1.getOutputCurrent() + ","
             + lMotor1.getMotorOutputPercent() + ","
+            + currentPowerLeft + ","
+            + lPowerTot + ","
             + rMotor1.getSelectedSensorPosition() + ","
             + rMotor1.getSelectedSensorVelocity() + ","
             + rMotor1.getMotorOutputVoltage() + ","
             + rMotor1.getOutputCurrent() + ","
-            + rMotor1.getMotorOutputPercent());
+            + rMotor1.getMotorOutputPercent() + ","
+            + currentPowerRight + ","
+            + rPowerTot);
       }
     }
 
@@ -211,10 +219,10 @@ public class DriveDataRobot extends IterativeRobot {
       SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
       SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
 
-      double currentPowerLeft = ((lMotor1.getOutputCurrent() * lMotor1.getMotorOutputVoltage())
+      currentPowerLeft = ((lMotor1.getOutputCurrent() * lMotor1.getMotorOutputVoltage())
           + (lMotor2 != null ? (lMotor2.getOutputCurrent() * lMotor2.getMotorOutputVoltage()) : 0)
           + (lMotor3 != null ? (lMotor3.getOutputCurrent() * lMotor3.getMotorOutputVoltage()) : 0));
-      double currentPowerRight = ((rMotor1.getOutputCurrent() * rMotor1.getMotorOutputVoltage())
+      currentPowerRight = ((rMotor1.getOutputCurrent() * rMotor1.getMotorOutputVoltage())
           + (rMotor2 != null ? (rMotor2.getOutputCurrent() * rMotor2.getMotorOutputVoltage()) : 0)
           + (rMotor3 != null ? (rMotor3.getOutputCurrent() * rMotor3.getMotorOutputVoltage()) : 0));
 
@@ -224,6 +232,9 @@ public class DriveDataRobot extends IterativeRobot {
       if (isOperatorControl()) {
         lPowerTot += ((System.currentTimeMillis() - lastMeasureTime) / 1000.0) * currentPowerLeft;
         rPowerTot += ((System.currentTimeMillis() - lastMeasureTime) / 1000.0) * currentPowerRight;
+      } else {
+        currentPowerLeft = 0;
+        currentPowerRight = 0;
       }
 
       SmartDashboard.putNumber("LPWRTOT", lPowerTot);
