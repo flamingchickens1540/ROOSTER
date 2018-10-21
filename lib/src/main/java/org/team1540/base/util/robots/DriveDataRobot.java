@@ -18,6 +18,73 @@ import org.team1540.base.wrappers.ChickenTalon;
 
 /**
  * Class for collecting various drive data.
+ * <p>
+ * <h1>Summary</h1>
+ * The {@code DriveDataRobot} can be used to control a robot drive and collect various data about
+ * it. It can control 2-6 Talon SRX motor controllers on a robot drivetrain.
+ * <h1>How to Use</h1>
+ * <h2>Joystick Control</h2>
+ *
+ * The robot is controlled tank-style from controller 0, with the left side bound to axis 1 (left
+ * stick Y-axis on Xbox controllers) and the right side bound to the negation of axis 5 (right stick
+ * Y-axis). Additionally, axis 2 (left trigger) is added to the output of both sides and axis 3
+ * (right trigger) subtracted from it; this has the effect that the robot can be driven straight
+ * forward with the right trigger and straight backwards with the left.
+ *
+ * <h2>SmartDashboard Inputs</h2>
+ * All settings, with the exception of {@code logDataToCSV}, are applied only when the Reset command
+ * is run.
+ * <ul>
+ * <li>{@code logDataToCSV}: Whether data should be logged to a CSV file on the robot as described
+ * below.</li>
+ * <li>{@code lMotor1ID}: The CAN ID of the left master Talon SRX (i.e. the one with an encoder
+ * connected).</li>
+ * <li>{@code lMotor2ID}: The CAN ID of the first left slave Talon SRX, or -1 if not present.</li>
+ * <li>{@code lMotor3ID}: The CAN ID of the second left slave Talon SRX, or -1 if not present.</li>
+ * <li>{@code rMotor1ID}: The CAN ID of the right master Talon SRX (i.e. the one with an encoder
+ * connected).</li>
+ * <li>{@code rMotor2ID}: The CAN ID of the first right slave Talon SRX, or -1 if not present.</li>
+ * <li>{@code rMotor3ID}: The CAN ID of the second right slave Talon SRX, or -1 if not
+ * present.</li>
+ * <li>{@code invertLeftMotor}: Whether to invert the output of the left motors. (Note that due to
+ * a bug in CTRE's library, motors in a follower group cannot have differing inversion settings; if
+ * you need different directions, reverse the polarity of the physical wires.)</li>
+ * <li>{@code invertRightMotor}: Whether to invert the output of the right motors. (See above
+ * note.)</li>
+ * <li>{@code invertLeftSensor}: Whether to invert the left-side sensor output.</li>
+ * <li>{@code invertRightSensor}: Whether to invert the right-side sensor output.</li>
+ * <li>{@code brake}: Whether brake mode should be enabled on the Talons.</li>
+ * </ul>
+ * <h2>SmartDashboard Commands</h2>
+ * <ul>
+ * <li>{@code Zero}: Zeros motor position and total power consumption readouts.</li>
+ * <li>{@code Reset}: Re-initializes motors based on the currently configured mapping.</li>
+ * </ul>
+ * <h2>SmartDashboard Outputs</h2>
+ * <ul>
+ * <li>{@code LPOS}: The position (in native encoder ticks) of the left drive motors.</li>
+ * <li>{@code RPOS}: The position (in native encoder ticks) of the right drive motors.</li>
+ * <li>{@code LVEL}: The velocity (in native encoder ticks per decisecond) of the left drive
+ * motors.</li>
+ * <li>{@code RVEL}: The velocity (in native encoder ticks per decisecond) of the right drive
+ * motors.</li>
+ * <li>{@code LTHROT}: The current output setpoint (from -1 to 1) of the left drive motors.</li>
+ * <li>{@code RTHROT}: The current output setpoint (from -1 to 1) of the right drive motors.</li>
+ * <li>{@code LCURR}: The total current (in amps) of the left drive motors.</li>
+ * <li>{@code RCURR}: The total current (in amps) of the right drive motors.</li>
+ * <li>{@code LVOLT}: The voltage (in volts) of the left drive motors.</li>
+ * <li>{@code RVOLT}: The voltage (in volts) of the right drive motors.</li>
+ * <li>{@code LPWR}: The total power (in watts) of the left drive motors.</li>
+ * <li>{@code RPWR}: The total power (in watts) of the right drive motors.</li>
+ * <li>{@code LPWRTOT}: The total power consumption (in joules) of the left drive motors.</li>
+ * <li>{@code RPWRTOT}: The total power consumption (in joules) of the right drive motors.</li>
+ * </ul>
+ * <h2>CSV Outputs</h2>
+ * CSV files are placed in /home/lvuser/drivedata/ and timestamped by their creation time, and a new
+ * file is created whenever {@code logDataToCSV} is set to {@code true} (after being set to {@code
+ * false}) or whenever the robot enters teleop with logging enabled. CSV files are closed (and data
+ * stops being written) when the robot is disabled or when CSV logging is disabled. CSV file columns
+ * correspond to data outputted to the SmartDashboard.
  */
 public class DriveDataRobot extends IterativeRobot {
 
@@ -196,7 +263,7 @@ public class DriveDataRobot extends IterativeRobot {
     lMotor1.set(ControlMode.PercentOutput,
         Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(1), 0.1) + trigger, 1));
     rMotor1.set(ControlMode.PercentOutput,
-        Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(5), 0.1) + trigger, 1));
+        Utilities.constrain(Utilities.processDeadzone(-joystick.getRawAxis(5), 0.1) + trigger, 1));
   }
 
   @Override
