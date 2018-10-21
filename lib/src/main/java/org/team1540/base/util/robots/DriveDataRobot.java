@@ -1,8 +1,8 @@
 package org.team1540.base.util.robots;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -86,7 +86,7 @@ import org.team1540.base.wrappers.ChickenTalon;
  * stops being written) when the robot is disabled or when CSV logging is disabled. CSV file columns
  * correspond to data outputted to the SmartDashboard.
  */
-public class DriveDataRobot extends IterativeRobot {
+public class DriveDataRobot extends TimedRobot {
 
   @Preference(persistent = false)
   public boolean logDataToCSV = false;
