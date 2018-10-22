@@ -26,7 +26,7 @@ import org.team1540.base.wrappers.ChickenTalon;
  * <h2>Joystick Control</h2>
  *
  * The robot is controlled tank-style from controller 0, with the left side bound to axis 1 (left
- * stick Y-axis on Xbox controllers) and the right side bound to the negation of axis 5 (right stick
+ * stick Y-axis on Xbox controllers) and the right side bound to axis 5 (right stick
  * Y-axis). Additionally, axis 2 (left trigger) is added to the output of both sides and axis 3
  * (right trigger) subtracted from it; this has the effect that the robot can be driven straight
  * forward with the right trigger and straight backwards with the left.
@@ -263,7 +263,7 @@ public class DriveDataRobot extends TimedRobot {
     lMotor1.set(ControlMode.PercentOutput,
         Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(1), 0.1) + trigger, 1));
     rMotor1.set(ControlMode.PercentOutput,
-        Utilities.constrain(Utilities.processDeadzone(-joystick.getRawAxis(5), 0.1) + trigger, 1));
+        Utilities.constrain(Utilities.processDeadzone(joystick.getRawAxis(5), 0.1) + trigger, 1));
   }
 
   @Override
