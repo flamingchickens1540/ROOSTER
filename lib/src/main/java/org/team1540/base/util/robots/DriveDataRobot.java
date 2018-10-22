@@ -286,10 +286,10 @@ public class DriveDataRobot extends TimedRobot {
       SmartDashboard.putNumber("LVOLT", lMotor1.getMotorOutputVoltage());
       SmartDashboard.putNumber("RVOLT", rMotor1.getMotorOutputVoltage());
 
-      currentPowerLeft = ((lMotor1.getOutputCurrent() * lMotor1.getMotorOutputVoltage())
+      currentPowerLeft = Math.abs((lMotor1.getOutputCurrent() * lMotor1.getMotorOutputVoltage())
           + (lMotor2 != null ? (lMotor2.getOutputCurrent() * lMotor2.getMotorOutputVoltage()) : 0)
           + (lMotor3 != null ? (lMotor3.getOutputCurrent() * lMotor3.getMotorOutputVoltage()) : 0));
-      currentPowerRight = ((rMotor1.getOutputCurrent() * rMotor1.getMotorOutputVoltage())
+      currentPowerRight = Math.abs((rMotor1.getOutputCurrent() * rMotor1.getMotorOutputVoltage())
           + (rMotor2 != null ? (rMotor2.getOutputCurrent() * rMotor2.getMotorOutputVoltage()) : 0)
           + (rMotor3 != null ? (rMotor3.getOutputCurrent() * rMotor3.getMotorOutputVoltage()) : 0));
 
