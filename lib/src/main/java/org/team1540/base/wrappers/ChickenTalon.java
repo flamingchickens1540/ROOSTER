@@ -507,6 +507,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return the 24bit analog value. The bottom ten bits is the ADC (0 - 1023) on the analog pin of
    * the Talon. The upper 14 bits tracks the overflows and underflows (continuous sensor).
    */
+  @Override
   public int getAnalogIn() {
     return getSensorCollection().getAnalogIn();
   }
@@ -517,6 +518,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the ADC (0 - 1023) on analog pin of the Talon.
    */
+  @Override
   public int getAnalogInRaw() {
     return getSensorCollection().getAnalogInRaw();
   }
@@ -527,6 +529,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
+  @Override
   public int getAnalogInVel() {
     return getSensorCollection().getAnalogInVel();
   }
@@ -625,6 +628,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pin state quad a.
    */
+  @Override
   public boolean getPinStateQuadA() {
     return getSensorCollection().getPinStateQuadA();
   }
@@ -634,6 +638,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return Digital level of QUADB pin.
    */
+  @Override
   public boolean getPinStateQuadB() {
     return getSensorCollection().getPinStateQuadB();
   }
@@ -643,6 +648,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return Digital level of QUAD Index pin.
    */
+  @Override
   public boolean getPinStateQuadIdx() {
     return getSensorCollection().getPinStateQuadIdx();
   }
@@ -652,6 +658,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width position.
    */
+  @Override
   public int getPulseWidthPosition() {
     return getSensorCollection().getPulseWidthPosition();
   }
@@ -661,6 +668,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width rise to fall us.
    */
+  @Override
   public int getPulseWidthRiseToFallUs() {
     return getSensorCollection().getPulseWidthRiseToFallUs();
   }
@@ -670,6 +678,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width rise to rise us.
    */
+  @Override
   public int getPulseWidthRiseToRiseUs() {
     return getSensorCollection().getPulseWidthRiseToRiseUs();
   }
@@ -679,6 +688,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width velocity.
    */
+  @Override
   public int getPulseWidthVelocity() {
     return getSensorCollection().getPulseWidthVelocity();
   }
@@ -689,6 +699,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the Error code of the request.
    */
+  @Override
   public int getQuadraturePosition() {
     return getSensorCollection().getQuadraturePosition();
   }
@@ -699,6 +710,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
+  @Override
   public int getQuadratureVelocity() {
     return getSensorCollection().getQuadratureVelocity();
   }
@@ -709,7 +721,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return Position of selected sensor in raw sensor units per decisecond.
    */
   @Override
-  public int getSelectedSensorPosition() {
+  public double getSelectedSensorPosition() {
     return super.getSelectedSensorPosition(defaultPidIdx);
   }
 
@@ -719,7 +731,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return Velocity of selected sensor in raw sensor units per decisecond.
    */
   @Override
-  public int getSelectedSensorVelocity() {
+  public double getSelectedSensorVelocity() {
     return super.getSelectedSensorVelocity(defaultPidIdx);
   }
 
@@ -756,6 +768,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return '1' iff forward limit switch is closed, 0 iff switch is open. This function works
    * regardless if limit switch feature is enabled.
    */
+  @Override
   public boolean isFwdLimitSwitchClosed() {
     return getSensorCollection().isFwdLimitSwitchClosed();
   }
@@ -766,6 +779,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return '1' iff reverse limit switch is closed, 0 iff switch is open. This function works
    * regardless if limit switch feature is enabled.
    */
+  @Override
   public boolean isRevLimitSwitchClosed() {
     return getSensorCollection().isRevLimitSwitchClosed();
   }
@@ -801,6 +815,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The new position.
    * @return an ErrorCode.
    */
+  @Override
   public ErrorCode setAnalogPosition(int newPosition) {
     return getSensorCollection().setAnalogPosition(newPosition, defaultTimeoutMs);
   }
@@ -844,6 +859,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The position value to apply to the sensor.
    * @return an ErrErrorCode
    */
+  @Override
   public ErrorCode setPulseWidthPosition(int newPosition) {
     return getSensorCollection().setPulseWidthPosition(newPosition, defaultTimeoutMs);
   }
@@ -856,6 +872,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The position value to apply to the sensor.
    * @return error code.
    */
+  @Override
   public ErrorCode setQuadraturePosition(int newPosition) {
     return getSensorCollection().setQuadraturePosition(newPosition, defaultTimeoutMs);
   }

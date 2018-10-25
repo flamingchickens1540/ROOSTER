@@ -19,10 +19,6 @@ repositories {
     maven { url "http://first.wpi.edu/FRC/roborio/maven/release" }
     maven { url "http://dev.imjac.in/maven/" }
     maven { url "https://raw.githubusercontent.com/Open-RIO/Maven-Mirror/master/m2" }
-    maven {
-        name "CTRE"
-        url "http://devsite.ctr-electronics.com/maven/release/"
-    }
 }
 
 javadoc {
@@ -43,8 +39,7 @@ dependencies {
     compile "edu.wpi.first.wpiutil:wpiutil-java:3.1.0"
     compile "org.opencv:opencv-java:3.2.0"
     compile "edu.wpi.first.cscore:cscore-java:1.2.0"
-    compile "com.ctre.phoenix:wpiapi-java:5.8.1"
-    compile "com.ctre.phoenix:api-java:5.8.1"
+    compile "openrio.mirror.third.ctre:CTRE-phoenix-java:5.3.1.0"
     compile "openrio.mirror.third.kauailabs:navx-java:3.0.346"
     compile "jaci.pathfinder:Pathfinder-Java:1.8"
     compile "openrio.powerup:MatchData:2018.01.07"
