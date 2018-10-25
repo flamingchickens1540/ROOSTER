@@ -26,10 +26,10 @@ import org.team1540.base.wrappers.ChickenTalon;
  * <h2>Joystick Control</h2>
  *
  * The robot is controlled tank-style from controller 0, with the left side bound to axis 1 (left
- * stick Y-axis on Xbox controllers) and the right side bound to axis 5 (right stick
- * Y-axis). Additionally, axis 2 (left trigger) is added to the output of both sides and axis 3
- * (right trigger) subtracted from it; this has the effect that the robot can be driven straight
- * forward with the right trigger and straight backwards with the left.
+ * stick Y-axis on Xbox controllers) and the right side bound to axis 5 (right stick Y-axis).
+ * Additionally, axis 2 (left trigger) is added to the output of both sides and axis 3 (right
+ * trigger) subtracted from it; this has the effect that the robot can be driven straight forward
+ * with the right trigger and straight backwards with the left.
  *
  * <h2>SmartDashboard Inputs</h2>
  * All settings, with the exception of {@code logDataToCSV}, are applied only when the Reset command
