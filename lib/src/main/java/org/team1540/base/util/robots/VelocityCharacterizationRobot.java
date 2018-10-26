@@ -1,41 +1,62 @@
 package org.team1540.base.util.robots;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
+import org.team1540.base.util.SimpleCommand;
 import org.team1540.base.wrappers.ChickenTalon;
+
+//TODO MORE DOCS
 
 /**
  * Self-contained robot class to characterize a drivetrain's velocity term.
  *
- * When deployed to a three-motor-per-side robot with left motors on motors 1, 2, and 3 and right
- * motors on motors 4, 5, and 6, whenever the A button is pressed and held during teleop the robot
- * will carry out a quasi-static velocity characterization as described in Eli Barnett's paper "FRC
- * Drivetrain Characterization" until the button is released. The results (kV, vIntercept, and an
- * R^2 value) are output to the SmartDashboard.
+ * Whenever the A button is pressed and held during teleop the robot will carry out a quasi-static
+ * velocity characterization as described in Eli Barnett's paper "FRC Drivetrain Characterization"
+ * until the button is released. The results (kV, vIntercept, and an R^2 value) are output to the
+ * SmartDashboard.
  */
 public class VelocityCharacterizationRobot extends IterativeRobot {
 
-  private ChickenTalon driveLeftMotorA = new ChickenTalon(1);
-  private ChickenTalon driveLeftMotorB = new ChickenTalon(2);
-  private ChickenTalon driveLeftMotorC = new ChickenTalon(3);
-  private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
-      driveLeftMotorC};
-  private ChickenTalon driveRightMotorA = new ChickenTalon(4);
-  private ChickenTalon driveRightMotorB = new ChickenTalon(5);
-  private ChickenTalon driveRightMotorC = new ChickenTalon(6);
-  private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB,
-      driveRightMotorC};
-  private ChickenTalon[] driveMotorAll = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
-      driveLeftMotorC, driveRightMotorA, driveRightMotorB, driveRightMotorC};
-  private ChickenTalon[] driveMotorMasters = new ChickenTalon[]{driveLeftMotorA, driveRightMotorA};
+  @Preference(persistent = false)
+  public int lMotor1ID = -1;
+  @Preference(persistent = false)
+  public int lMotor2ID = -1;
+  @Preference(persistent = false)
+  public int lMotor3ID = -1;
+  @Preference(persistent = false)
+  public int rMotor1ID = -1;
+  @Preference(persistent = false)
+  public int rMotor2ID = -1;
+  @Preference(persistent = false)
+  public int rMotor3ID = -1;
+  @Preference(persistent = false)
+  public boolean invertLeftMotor = false;
+  @Preference(persistent = false)
+  public boolean invertRightMotor = false;
+  @Preference(persistent = false)
+  public boolean invertLeftSensor = false;
+  @Preference(persistent = false)
+  public boolean invertRightSensor = false;
+  @Preference(persistent = false)
+  public boolean brake = false;
+  @Preference(persistent = false)
+  public double tpu = 1;
+
+
+  private ChickenTalon driveLeftMotorA;
+  private ChickenTalon driveLeftMotorB;
+  private ChickenTalon driveLeftMotorC;
+  private ChickenTalon driveRightMotorA;
+  private ChickenTalon driveRightMotorB;
+  private ChickenTalon driveRightMotorC;
 
   private SimpleRegression leftRegression = new SimpleRegression();
   private SimpleRegression rightRegression = new SimpleRegression();
@@ -59,7 +80,84 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
   @Override
   public void robotInit() {
     PreferenceManager.getInstance().add(this);
-    reset();
+    Command reset = new SimpleCommand("Reset", () -> {
+      if (lMotor1ID != -1) {
+        driveLeftMotorA = new ChickenTalon(lMotor1ID);
+      } else {
+        System.err.println("Left Motor 1 must be set!");
+        return;
+      }
+      if (lMotor2ID != -1) {
+        driveLeftMotorB = new ChickenTalon(lMotor2ID);
+        driveLeftMotorB.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
+      } else {
+        if (driveLeftMotorB != null) {
+          driveLeftMotorB.set(ControlMode.PercentOutput, 0);
+        }
+        driveLeftMotorB = null;
+      }
+      if (lMotor3ID != -1) {
+        driveLeftMotorC = new ChickenTalon(lMotor3ID);
+        driveLeftMotorC.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
+      } else {
+        if (driveLeftMotorC != null) {
+          driveLeftMotorC.set(ControlMode.PercentOutput, 0);
+        }
+        driveLeftMotorC = null;
+      }
+
+      if (rMotor1ID != -1) {
+        driveRightMotorA = new ChickenTalon(rMotor1ID);
+      } else {
+        System.err.println("Right Motor 1 must be set!");
+        return;
+      }
+      if (rMotor2ID != -1) {
+        driveRightMotorB = new ChickenTalon(rMotor2ID);
+        driveRightMotorB.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
+      } else {
+        if (driveRightMotorB != null) {
+          driveRightMotorB.set(ControlMode.PercentOutput, 0);
+        }
+        driveRightMotorB = null;
+      }
+      if (rMotor3ID != -1) {
+        driveRightMotorC = new ChickenTalon(rMotor3ID);
+        driveRightMotorC.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
+      } else {
+        if (driveRightMotorC != null) {
+          driveRightMotorC.set(ControlMode.PercentOutput, 0);
+        }
+        driveRightMotorC = null;
+      }
+      for (ChickenTalon motor : new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
+          driveLeftMotorC, driveRightMotorA, driveRightMotorB,
+          driveRightMotorC}) {
+        if (motor != null) {
+          motor.configClosedloopRamp(0);
+          motor.configOpenloopRamp(0);
+          motor.configPeakOutputForward(1);
+          motor.configPeakOutputReverse(-1);
+          motor.enableCurrentLimit(false);
+          motor.setBrake(brake);
+        }
+      }
+    });
+    reset.setRunWhenDisabled(true);
+    reset.start();
+    SmartDashboard.putData(reset);
+
+    Command zero = new SimpleCommand("Zero", () -> {
+      if (driveLeftMotorA != null) {
+        driveLeftMotorA.setSelectedSensorPosition(0);
+      }
+
+      if (driveRightMotorA != null) {
+        driveRightMotorA.setSelectedSensorPosition(0);
+      }
+    });
+    zero.setRunWhenDisabled(true);
+    SmartDashboard.putData(zero);
   }
 
   private static void putRegressionData(@NotNull SimpleRegression regression, String prefix) {
@@ -80,6 +178,25 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     putRegressionData(leftRegression, "Left");
     putRegressionData(rightRegression, "Right");
     Scheduler.getInstance().run();
+    if (driveLeftMotorA != null) {
+      driveLeftMotorA.setSensorPhase(invertLeftSensor);
+    }
+    for (ChickenTalon talon : new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB,
+        driveLeftMotorC}) {
+      if (talon != null) {
+        talon.setInverted(invertLeftMotor);
+      }
+    }
+
+    if (driveRightMotorA != null) {
+      driveRightMotorA.setSensorPhase(invertRightSensor);
+    }
+    for (ChickenTalon talon : new ChickenTalon[]{driveRightMotorA, driveRightMotorB,
+        driveRightMotorC}) {
+      if (talon != null) {
+        talon.setInverted(invertRightMotor);
+      }
+    }
   }
 
   @Override
@@ -87,7 +204,6 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
     if (joystick.getRawButton(1)) { // if button A is pressed
       if (!running) {
         // reset everything
-        reset();
         running = true;
         leftRegression.clear();
         rightRegression.clear();
@@ -95,12 +211,12 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
         driveLeftMotorA.set(ControlMode.PercentOutput, 0);
         driveRightMotorA.set(ControlMode.PercentOutput, 0);
       } else {
-        double leftVelocity = driveLeftMotorA.getSelectedSensorVelocity();
+        double leftVelocity = (driveLeftMotorA.getSelectedSensorVelocity() * 10) / tpu;
         if (leftVelocity != 0) {
           leftRegression.addData(leftVelocity, driveLeftMotorA.getMotorOutputVoltage());
         }
 
-        double rightVelocity = driveRightMotorA.getSelectedSensorVelocity();
+        double rightVelocity = (driveRightMotorA.getSelectedSensorVelocity() * 10) / tpu;
         if (rightVelocity != 0) {
           rightRegression.addData(leftVelocity, driveRightMotorA.getMotorOutputVoltage());
         }
@@ -118,43 +234,5 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
       running = false;
     }
     lastTime = System.currentTimeMillis();
-  }
-
-  @SuppressWarnings("Duplicates")
-  public void reset() {
-    driveLeftMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-    driveRightMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-
-    driveLeftMotorA.setSensorPhase(true);
-
-    for (ChickenTalon talon : driveLeftMotors) {
-      talon.setInverted(invertLeft);
-    }
-
-    driveRightMotorA.setSensorPhase(true);
-
-    for (ChickenTalon talon : driveRightMotors) {
-      talon.setInverted(invertRight);
-    }
-
-    driveLeftMotorB.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
-    driveLeftMotorC.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
-
-    driveRightMotorB.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
-    driveRightMotorC.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
-
-    for (ChickenTalon talon : driveMotorAll) {
-      talon.setBrake(true);
-    }
-
-    for (ChickenTalon talon : driveMotorAll) {
-      talon.configClosedloopRamp(0);
-      talon.configOpenloopRamp(0);
-      talon.configPeakOutputForward(1);
-      talon.configPeakOutputReverse(-1);
-      talon.enableCurrentLimit(false);
-      talon.configVoltageCompSaturation(12);
-      talon.enableVoltageCompensation(true);
-    }
   }
 }
