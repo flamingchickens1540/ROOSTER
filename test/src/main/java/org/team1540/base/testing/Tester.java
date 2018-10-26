@@ -1,0 +1,27 @@
+package org.team1540.base.testing;
+
+import com.google.common.collect.EvictingQueue;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
+
+@SuppressWarnings("unused")
+public interface Tester<T, R> extends Runnable {
+
+  @NotNull
+  List<Function<T, R>> getTests();
+
+  @NotNull
+  List<Supplier<Boolean>> getRunConditions();
+
+  @NotNull
+  Map<T, Map<Function<T, R>, EvictingQueue<ResultWithMetadata<R>>>> getAllQueuedResults();
+
+  int getUpdateDelay();
+
+  float setUpdateDelay(int delay);
+
+  boolean setRunning(boolean status);
+}

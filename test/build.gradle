@@ -12,6 +12,7 @@ dependencies {
     compile ctre()
     compile navx()
     compile pathfinder()
+    compile 'com.google.guava:guava:27.0-jre'
 }
 
 def TEAM = 1540
