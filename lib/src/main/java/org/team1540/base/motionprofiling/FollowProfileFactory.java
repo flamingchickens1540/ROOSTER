@@ -33,9 +33,12 @@ public class FollowProfileFactory {
 
   private long loopFreq = 20;
 
-  private double velCoeff = 0;
-  private double velIntercept = 0;
-  private double accelCoeff = 0;
+  private double lVelCoeff;
+  private double lVelIntercept;
+  private double lAccelCoeff;
+  private double rVelCoeff;
+  private double rVelIntercept;
+  private double rAccelCoeff;
   private double headingP = 0;
   private double headingI = 0;
 
@@ -169,17 +172,17 @@ public class FollowProfileFactory {
   }
 
   /**
-   * Gets the velocity feed-forward coefficient. This is equivalent to the kV term in drive
+   * Gets the left velocity feed-forward coefficient. This is equivalent to the kV term in drive
    * characterization. Defaults to 0 (no feed-forward).
    *
    * @return The velocity feed-forward coefficient, in bump units per profile unit per second.
    */
-  public double getVelCoeff() {
-    return velCoeff;
+  public double getLVelCoeff() {
+    return lVelCoeff;
   }
 
   /**
-   * Sets the velocity feed-forward coefficent. This is equivalent to the kV term in drive *
+   * Sets the left velocity feed-forward coefficent. This is equivalent to the kV term in drive *
    * characterization. Defaults to 0 (no feed-forward).
    *
    * @param velCoeff The velocity feed-forward coefficient, in bump units per profile unit per
@@ -187,43 +190,43 @@ public class FollowProfileFactory {
    * @return This {@code FollowProfileFactory} in a builder pattern.
    */
   @NotNull
-  public FollowProfileFactory setVelCoeff(double velCoeff) {
-    this.velCoeff = velCoeff;
+  public FollowProfileFactory setLVelCoeff(double velCoeff) {
+    this.lVelCoeff = velCoeff;
     return this;
   }
 
   /**
-   * Gets the velocity intercept, or VIntercept. (See Eli Barnett's drive characterization paper for
-   * an explanation of why this is needed.)
+   * Gets the left velocity intercept, or VIntercept. (See Eli Barnett's drive characterization
+   * paper for an explanation of why this is needed.)
    *
    * @return The velocity intercept, in bump units.
    */
-  public double getVelIntercept() {
-    return velIntercept;
+  public double getLVelIntercept() {
+    return lVelIntercept;
   }
 
   /**
-   * Sets the velocity intercept, or VIntercept. (See Eli Barnett's drive characterization paper for
-   * an explanation of why this is needed.) Defaults to 0.
+   * Sets the left velocity intercept, or VIntercept. (See Eli Barnett's drive characterization
+   * paper for an explanation of why this is needed.) Defaults to 0.
    *
    * @param velIntercept The velocity intercept, in bump units.
    * @return This {@code FollowProfileFactory} in a builder pattern.
    */
   @NotNull
-  public FollowProfileFactory setVelIntercept(double velIntercept) {
-    this.velIntercept = velIntercept;
+  public FollowProfileFactory setLVelIntercept(double velIntercept) {
+    this.lVelIntercept = velIntercept;
     return this;
   }
 
   /**
-   * Gets the acceleration feed-forward. This is equivalent to the kA term in drive
+   * Gets the left acceleration feed-forward. This is equivalent to the kA term in drive
    * characterization. Defaults to 0 (no feed-forward).
    *
    * @return The currently set acceleration coefficient, in bump units per profile unit per second
    * squared.
    */
-  public double getAccelCoeff() {
-    return accelCoeff;
+  public double getLAccelCoeff() {
+    return lAccelCoeff;
   }
 
   /**
@@ -235,8 +238,80 @@ public class FollowProfileFactory {
    * @return This {@code FollowProfileFactory} in a builder pattern.
    */
   @NotNull
-  public FollowProfileFactory setAccelCoeff(double accelCoeff) {
-    this.accelCoeff = accelCoeff;
+  public FollowProfileFactory setLAccelCoeff(double accelCoeff) {
+    this.lAccelCoeff = accelCoeff;
+    return this;
+  }
+
+  /**
+   * Gets the right velocity feed-forward coefficient. This is equivalent to the kV term in drive
+   * characterization. Defaults to 0 (no feed-forward).
+   *
+   * @return The velocity feed-forward coefficient, in bump units per profile unit per second.
+   */
+  public double getRVelCoeff() {
+    return rVelCoeff;
+  }
+
+  /**
+   * Sets the right velocity feed-forward coefficent. This is equivalent to the kV term in drive *
+   * characterization. Defaults to 0 (no feed-forward).
+   *
+   * @param velCoeff The velocity feed-forward coefficient, in bump units per profile unit per
+   * second.
+   * @return This {@code FollowProfileFactory} in a builder pattern.
+   */
+  @NotNull
+  public FollowProfileFactory setRVelCoeff(double velCoeff) {
+    this.rVelCoeff = velCoeff;
+    return this;
+  }
+
+  /**
+   * Gets the right velocity intercept, or VIntercept. (See Eli Barnett's drive characterization
+   * paper for an explanation of why this is needed.)
+   *
+   * @return The velocity intercept, in bump units.
+   */
+  public double getRVelIntercept() {
+    return rVelIntercept;
+  }
+
+  /**
+   * Sets the right velocity intercept, or VIntercept. (See Eli Barnett's drive characterization
+   * paper for an explanation of why this is needed.) Defaults to 0.
+   *
+   * @param velIntercept The velocity intercept, in bump units.
+   * @return This {@code FollowProfileFactory} in a builder pattern.
+   */
+  @NotNull
+  public FollowProfileFactory setRVelIntercept(double velIntercept) {
+    this.rVelIntercept = velIntercept;
+    return this;
+  }
+
+  /**
+   * Gets the right acceleration feed-forward. This is equivalent to the kA term in drive
+   * characterization. Defaults to 0 (no feed-forward).
+   *
+   * @return The currently set acceleration coefficient, in bump units per profile unit per second
+   * squared.
+   */
+  public double getRAccelCoeff() {
+    return rAccelCoeff;
+  }
+
+  /**
+   * Sets the acceleration feed-forward. This is equivalent to the kA term in drive
+   * characterization. Defaults to 0 (no feed-forward).
+   *
+   * @param accelCoeff The acceleration coefficient, in bump units per profile unit per second
+   * squared.
+   * @return This {@code FollowProfileFactory} in a builder pattern.
+   */
+  @NotNull
+  public FollowProfileFactory setRAccelCoeff(double accelCoeff) {
+    this.rAccelCoeff = accelCoeff;
     return this;
   }
 
@@ -324,12 +399,13 @@ public class FollowProfileFactory {
    *
    * @param left The profile for the left side.
    * @param right The profile for the right side.
-   * @return A new {@link FollowProfile} command with the previously configured settings following *
+   * @return A new {@link FollowProfile} command with the previously configured settings following 
    * the provided profile.
    */
   @NotNull
   public FollowProfile create(@NotNull MotionProfile left, @NotNull MotionProfile right) {
     return new FollowProfile(left, right, subsystems, leftSetpointConsumer, rightSetpointConsumer,
-        headingSupplier, loopFreq, velCoeff, velIntercept, accelCoeff, headingP, headingI);
+        headingSupplier, loopFreq, lVelCoeff, lVelIntercept, lAccelCoeff, rVelCoeff,
+        rVelIntercept, rAccelCoeff, headingP, headingI);
   }
 }

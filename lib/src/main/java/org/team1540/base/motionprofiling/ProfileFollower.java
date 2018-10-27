@@ -4,7 +4,6 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.base.motionprofiling.MotionProfile.Point;
 
@@ -32,9 +31,12 @@ public class ProfileFollower {
   @NotNull
   private MotionProfile right;
 
-  private double velCoeff;
-  private double velIntercept;
-  private double accelCoeff;
+  private double lVelCoeff;
+  private double lVelIntercept;
+  private double lAccelCoeff;
+  private double rVelCoeff;
+  private double rVelIntercept;
+  private double rAccelCoeff;
   private double headingP;
   private double headingI;
 
@@ -50,28 +52,34 @@ public class ProfileFollower {
    * For an explanation of units, see the {@linkplain org.team1540.base.motionprofiling package
    * docs}.
    *
-   * @param velCoeff The velocity coefficient (kV), in bump units per profile unit per second.
-   * @param velIntercept The velocity intercept (VIntercept), in bump units.
-   * @param accelCoeff The acceleration coefficient (kA), in bump units per profile unit per second
+   * @param lVelCoeff The left velocity coefficient (kV), in bump units per profile unit per second.
+   * @param lVelIntercept The left velocity intercept (VIntercept), in bump units.
+   * @param lAccelCoeff The left acceleration coefficient (kA), in bump units per profile unit per second
+   * squared.
+   * @param rVelCoeff The right velocity coefficient (kV), in bump units per profile unit per second.
+   * @param rVelIntercept The right velocity intercept (VIntercept), in bump units.
+   * @param rAccelCoeff The right acceleration coefficient (kA), in bump units per profile unit per second
    * squared.
    * @param headingP The P coefficient for the heading controller, in profile units per radian.
    * @param headingI The I coefficient for the heading controller, in profile units per
    * radian-second.
    */
-  public ProfileFollower(@NotNull MotionProfile left, @NotNull MotionProfile right, double velCoeff,
-      double velIntercept, double accelCoeff, double headingP, double headingI) {
+  public ProfileFollower(
+      @NotNull MotionProfile left,
+      @NotNull MotionProfile right, double lVelCoeff, double lVelIntercept, double lAccelCoeff,
+      double rVelCoeff, double rVelIntercept, double rAccelCoeff, double headingP,
+      double headingI) {
     this.left = left;
     this.right = right;
-    this.velCoeff = velCoeff;
-    this.velIntercept = velIntercept;
-    this.accelCoeff = accelCoeff;
+    this.lVelCoeff = lVelCoeff;
+    this.lVelIntercept = lVelIntercept;
+    this.lAccelCoeff = lAccelCoeff;
+    this.rVelCoeff = rVelCoeff;
+    this.rVelIntercept = rVelIntercept;
+    this.rAccelCoeff = rAccelCoeff;
     this.headingP = headingP;
     this.headingI = headingI;
-
-    profTime = Math.max(Arrays.stream(left.points).mapToDouble(s -> s.dt).sum(),
-        Arrays.stream(right.points).mapToDouble(s -> s.dt).sum());
   }
-
 
   /**
    * Get the output from the motion profile at a given time (usually the current time).
@@ -99,16 +107,16 @@ public class ProfileFollower {
     double gyroPOut = headingError * headingP;
     double gyroIOut = gyroIAccum * headingI;
 
-    double leftVelFOut = velCoeff * leftSegment.velocity;
-    double rightVelFOut = velCoeff * rightSegment.velocity;
+    double leftVelFOut = lVelCoeff * leftSegment.velocity;
+    double rightVelFOut = rVelCoeff * rightSegment.velocity;
 
     double leftVelInterceptOut =
-        leftSegment.velocity == 0 ? 0 : Math.copySign(velIntercept, leftSegment.velocity);
+        leftSegment.velocity == 0 ? 0 : Math.copySign(lVelIntercept, leftSegment.velocity);
     double rightVelInterceptOut =
-        rightSegment.velocity == 0 ? 0 : Math.copySign(velIntercept, rightSegment.velocity);
+        rightSegment.velocity == 0 ? 0 : Math.copySign(rVelIntercept, rightSegment.velocity);
 
-    double leftAccelFOut = accelCoeff * leftSegment.acceleration;
-    double rightAccelFOut = accelCoeff * rightSegment.acceleration;
+    double leftAccelFOut = lAccelCoeff * leftSegment.acceleration;
+    double rightAccelFOut = rAccelCoeff * rightSegment.acceleration;
 
     return new ProfileDriveSignal(
         leftSegment.position - gyroPOut - gyroIOut,

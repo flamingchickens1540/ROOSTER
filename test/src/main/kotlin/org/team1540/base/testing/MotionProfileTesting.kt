@@ -35,16 +35,28 @@ class MotionProfileTestingRobot : IterativeRobot() {
     private var command: FollowProfile? = null
 
     @JvmField
-    @Preference("kV", persistent = false)
-    var kV = 0.0
+    @Preference("lkV", persistent = false)
+    var lKV = 0.0
 
     @JvmField
-    @Preference("kA", persistent = false)
-    var kA = 0.0
+    @Preference("lkA", persistent = false)
+    var lKA = 0.0
 
     @JvmField
-    @Preference("VIntercept", persistent = false)
-    var vIntercept = 0.0
+    @Preference("lVIntercept", persistent = false)
+    var lVIntercept = 0.0
+
+    @JvmField
+    @Preference("rkV", persistent = false)
+    var rKV = 0.0
+
+    @JvmField
+    @Preference("rkA", persistent = false)
+    var rKA = 0.0
+
+    @JvmField
+    @Preference("rVIntercept", persistent = false)
+    var rVIntercept = 0.0
 
     @JvmField
     @Preference("MP Loop Freq", persistent = false)
@@ -104,9 +116,12 @@ class MotionProfileTestingRobot : IterativeRobot() {
                 MotionProfileUtils.createSetpointConsumer(DriveTrain.left2, tpu),
                 DriveTrain
         ).apply {
-            velIntercept = vIntercept
-            velCoeff = kV
-            accelCoeff = kA
+            lVelIntercept = lVIntercept
+            lVelCoeff = lKV
+            lAccelCoeff = lKA
+            rVelIntercept = rVIntercept
+            rVelCoeff = rKV
+            rAccelCoeff = rKA
             loopFreq = loopFreqMs.toLong()
             headingP = hdgP
             headingI = hdgI
@@ -148,9 +163,12 @@ class MotionProfileTestingRobot : IterativeRobot() {
         DriveTrain.brake = true
         DriveTrain.zero()
         factory.apply {
-            velIntercept = vIntercept
-            velCoeff = kV
-            accelCoeff = kA
+            lVelIntercept = lVIntercept
+            lVelCoeff = lKV
+            lAccelCoeff = lKA
+            rVelIntercept = rVIntercept
+            rVelCoeff = rKV
+            rAccelCoeff = rKA
             loopFreq = loopFreqMs.toLong()
             headingP = hdgP
             headingI = hdgI

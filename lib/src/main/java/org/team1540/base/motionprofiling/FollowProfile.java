@@ -30,9 +30,12 @@ public class FollowProfile extends AsyncCommand {
   @NotNull
   private DoubleSupplier headingSupplier;
 
-  private double velCoeff;
-  private double velIntercept;
-  private double accelCoeff;
+  private double lVelCoeff;
+  private double lVelIntercept;
+  private double lAccelCoeff;
+  private double rVelCoeff;
+  private double rVelIntercept;
+  private double rAccelCoeff;
   private double headingP;
   private double headingI;
 
@@ -54,10 +57,16 @@ public class FollowProfile extends AsyncCommand {
    * @param headingSupplier A {@link DoubleSupplier} that returns the robot's current heading in
    * radians from 0 to 2&pi;.
    * @param loopFreq The interval, in milliseconds, between profile loop execution.
-   * @param velCoeff The velocity coefficient (kV), in bump units per profile unit per second.
-   * @param velIntercept The velocity intercept (VIntercept), in bump units.
-   * @param accelCoeff The acceleration coefficient (kA), in bump units per profile unit per second
-   * squared.
+   * @param lVelCoeff The left velocity coefficient (kV), in bump units per profile unit per
+   * second.
+   * @param lVelIntercept The left velocity intercept (VIntercept), in bump units.
+   * @param lAccelCoeff The left acceleration coefficient (kA), in bump units per profile unit per
+   * second squared.
+   * @param rVelCoeff The right velocity coefficient (kV), in bump units per profile unit per
+   * second.
+   * @param rVelIntercept The right velocity intercept (VIntercept), in bump units.
+   * @param rAccelCoeff The right acceleration coefficient (kA), in bump units per profile unit per
+   * second squared.
    * @param headingP The P coefficient for the heading controller, in profile units per radian.
    * @param headingI The I coefficient for the heading controller, in profile units per
    * radian-second.
@@ -65,9 +74,10 @@ public class FollowProfile extends AsyncCommand {
   public FollowProfile(@NotNull MotionProfile left, @NotNull MotionProfile right,
       @NotNull Subsystem[] subsystems,
       @NotNull SetpointConsumer leftSetpointConsumer,
-      @NotNull SetpointConsumer rightSetpointConsumer, @NotNull DoubleSupplier headingSupplier,
-      long loopFreq, double velCoeff, double velIntercept,
-      double accelCoeff, double headingP, double headingI) {
+      @NotNull SetpointConsumer rightSetpointConsumer,
+      @NotNull DoubleSupplier headingSupplier,
+      long loopFreq, double lVelCoeff, double lVelIntercept, double lAccelCoeff, double rVelCoeff,
+      double rVelIntercept, double rAccelCoeff, double headingP, double headingI) {
     super(loopFreq);
     for (Subsystem subsystem : subsystems) {
       requires(subsystem);
@@ -77,14 +87,17 @@ public class FollowProfile extends AsyncCommand {
     this.leftSetpointConsumer = leftSetpointConsumer;
     this.rightSetpointConsumer = rightSetpointConsumer;
     this.headingSupplier = headingSupplier;
-    this.velCoeff = velCoeff;
-    this.velIntercept = velIntercept;
-    this.accelCoeff = accelCoeff;
+    this.lVelCoeff = lVelCoeff;
+    this.lVelIntercept = lVelIntercept;
+    this.lAccelCoeff = lAccelCoeff;
+    this.rVelCoeff = rVelCoeff;
+    this.rVelIntercept = rVelIntercept;
+    this.rAccelCoeff = rAccelCoeff;
     this.headingP = headingP;
     this.headingI = headingI;
 
-    follower = new ProfileFollower(left, right, velCoeff, velIntercept, accelCoeff, headingP,
-        headingI);
+    follower = new ProfileFollower(left, right, lVelCoeff, lVelIntercept, lAccelCoeff, rVelCoeff,
+        rVelIntercept, rAccelCoeff, headingP, headingI);
   }
 
   /**
