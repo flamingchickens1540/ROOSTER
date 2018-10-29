@@ -2,12 +2,11 @@ package org.team1540.base.drive.pipeline;
 
 import edu.wpi.first.wpilibj.Timer;
 import java.util.OptionalDouble;
-import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.base.motionprofiling.MotionProfile;
 import org.team1540.base.motionprofiling.MotionProfile.Point;
 
-public class ProfileInput implements Supplier<TankDriveData> {
+public class ProfileInput implements Input<TankDriveData> {
 
   private MotionProfile left;
   private MotionProfile right;

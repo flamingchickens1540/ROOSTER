@@ -10,10 +10,9 @@ be plugged into a motion profile executor.
 */
 
 import java.util.OptionalDouble;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 
-public class OpenLoopCharacterizedProcessor implements Function<TankDriveData, TankDriveData> {
+public class OpenLoopCharacterizedProcessor implements Processor<TankDriveData, TankDriveData> {
 
   private final double kV;
   private final double vIntercept;

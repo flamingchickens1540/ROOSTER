@@ -2,10 +2,9 @@ package org.team1540.base.drive.pipeline;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import java.util.function.Consumer;
 import org.team1540.base.wrappers.ChickenTalon;
 
-public class TalonSRXOutput implements Consumer<TankDriveData> {
+public class TalonSRXOutput implements Output<TankDriveData> {
 
   private ChickenTalon left;
   private ChickenTalon right;

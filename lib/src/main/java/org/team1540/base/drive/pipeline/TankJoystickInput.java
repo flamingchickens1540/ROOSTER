@@ -2,10 +2,9 @@ package org.team1540.base.drive.pipeline;
 
 import edu.wpi.first.wpilibj.Joystick;
 import java.util.OptionalDouble;
-import java.util.function.Supplier;
 import org.team1540.base.Utilities;
 
-public class TankJoystickInput implements Supplier<TankDriveData> {
+public class TankJoystickInput implements Input<TankDriveData> {
 
   private Joystick joystick;
   private int leftAxis;
