@@ -41,4 +41,10 @@ public class DrivePipeline<I, O> {
   public void execute() {
     output.accept(processor.apply(input.get()));
   }
+
+  public DrivePipeline(Supplier<I> input, Function<I, O> processor, Consumer<O> output) {
+    this.input = input;
+    this.processor = processor;
+    this.output = output;
+  }
 }
