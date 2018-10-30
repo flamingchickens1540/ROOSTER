@@ -12,7 +12,20 @@ import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.Function
 
 class SimpleDrivePipelineTestRobot : IterativeRobot() {
-    private val left1 = ChickenTalon(1).apply {
+    private val pipeline = DrivePipeline<TankDriveData, TankDriveData>(
+            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
+            Function.identity<TankDriveData>(),
+            TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+    )
+
+    override fun teleopPeriodic() {
+        Scheduler.getInstance().run()
+        pipeline.execute()
+    }
+}
+
+private object PipelineDriveTrain {
+    val left1 = ChickenTalon(1).apply {
         setBrake(true)
         configClosedloopRamp(0.0)
         configOpenloopRamp(0.0)
@@ -43,7 +56,7 @@ class SimpleDrivePipelineTestRobot : IterativeRobot() {
         set(ControlMode.Follower, left1.deviceID.toDouble())
     }
 
-    private val right1 = ChickenTalon(4).apply {
+    val right1 = ChickenTalon(4).apply {
         setBrake(true)
         configClosedloopRamp(0.0)
         configOpenloopRamp(0.0)
@@ -72,15 +85,5 @@ class SimpleDrivePipelineTestRobot : IterativeRobot() {
         inverted = true
         set(ControlMode.Follower, right1.deviceID.toDouble())
     }
-
-    private val pipeline = DrivePipeline<TankDriveData, TankDriveData>(
-            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
-            Function.identity<TankDriveData>(),
-            TalonSRXOutput(left1, right1)
-    )
-
-    override fun teleopPeriodic() {
-        Scheduler.getInstance().run()
-        pipeline.execute()
-    }
 }
+
