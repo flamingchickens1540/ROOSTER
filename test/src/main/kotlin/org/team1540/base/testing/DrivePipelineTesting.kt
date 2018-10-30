@@ -11,17 +11,21 @@ import org.team1540.base.drive.pipeline.TankDriveData
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.Function
 
-class SimpleDrivePipelineTestRobot : IterativeRobot() {
-    private val pipeline = DrivePipeline<TankDriveData, TankDriveData>(
-            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
-            Function.identity<TankDriveData>(),
-            TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
-    )
+abstract class DrivePipelineTestRobot : IterativeRobot() {
+    protected abstract val pipeline: DrivePipeline<TankDriveData, TankDriveData>
 
     override fun teleopPeriodic() {
         Scheduler.getInstance().run()
         pipeline.execute()
     }
+}
+
+class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
+    override val pipeline = DrivePipeline<TankDriveData, TankDriveData>(
+            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
+            Function.identity<TankDriveData>(),
+            TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+    )
 }
 
 private object PipelineDriveTrain {
