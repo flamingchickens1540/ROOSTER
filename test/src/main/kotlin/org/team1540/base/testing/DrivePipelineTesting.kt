@@ -1,15 +1,22 @@
 package org.team1540.base.testing
 
 import com.ctre.phoenix.motorcontrol.ControlMode
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.command.Scheduler
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import org.team1540.base.Utilities
 import org.team1540.base.drive.DrivePipeline
-import org.team1540.base.drive.pipeline.SimpleJoystickInput
-import org.team1540.base.drive.pipeline.TalonSRXOutput
-import org.team1540.base.drive.pipeline.TankDriveData
+import org.team1540.base.drive.pipeline.*
+import org.team1540.base.preferencemanager.Preference
+import org.team1540.base.preferencemanager.PreferenceManager
+import org.team1540.base.util.Executable
+import org.team1540.base.util.SimpleCommand
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.Function
+import java.util.function.Supplier
 
 abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val pipeline: DrivePipeline<TankDriveData, TankDriveData>
@@ -26,6 +33,41 @@ class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
             Function.identity<TankDriveData>(),
             TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
     )
+}
+
+class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
+    @JvmField
+    @Preference
+    var maxVelocity = 0.0
+
+    private val joystick = XboxController(0)
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            _pipeline = DrivePipeline(
+                    AdvancedArcadeJoystickInput(
+                            maxVelocity,
+                            Supplier { Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
+                            Supplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
+                            Supplier {
+                                Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
+                                Utilities.processDeadzone(-joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)
+                            }
+                    ),
+                    OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0),
+                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+            )
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    private lateinit var _pipeline: DrivePipeline<TankDriveData, TankDriveData>
+    override val pipeline get() = _pipeline
 }
 
 private object PipelineDriveTrain {
