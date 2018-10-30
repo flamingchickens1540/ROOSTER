@@ -12,7 +12,7 @@ be plugged into a motion profile executor.
 import java.util.OptionalDouble;
 import org.jetbrains.annotations.Contract;
 
-public class OpenLoopCharacterizedProcessor implements Processor<TankDriveData, TankDriveData> {
+public class OpenLoopFeedForwardProcessor implements Processor<TankDriveData, TankDriveData> {
 
   private final double kV;
   private final double vIntercept;
@@ -27,7 +27,7 @@ public class OpenLoopCharacterizedProcessor implements Processor<TankDriveData, 
    * @param vIntercept The velocity intercept, in output units
    * @param kA The acceleration constant feed-forward, in output units per acceleration unit.
    */
-  public OpenLoopCharacterizedProcessor(double kV, double vIntercept, double kA) {
+  public OpenLoopFeedForwardProcessor(double kV, double vIntercept, double kA) {
     this.kV = kV;
     this.vIntercept = vIntercept;
     this.kA = kA;
@@ -59,12 +59,14 @@ public class OpenLoopCharacterizedProcessor implements Processor<TankDriveData, 
     return new TankDriveData(
         new DriveData(command.left.position,
             command.left.velocity,
-            OptionalDouble.empty(),
-            OptionalDouble.of(signal.getLeftThrottle())),
+            command.left.acceleration,
+            OptionalDouble
+                .of(command.left.additionalFeedForward.orElse(0) + signal.getLeftThrottle())),
         new DriveData(command.right.position,
-            command.left.velocity,
-            OptionalDouble.empty(),
-            OptionalDouble.of(signal.getRightThrottle())),
+            command.right.velocity,
+            command.right.acceleration,
+            OptionalDouble
+                .of(command.right.additionalFeedForward.orElse(0) + signal.getRightThrottle())),
         command.heading,
         command.turningRate);
   }
