@@ -58,11 +58,11 @@ public class OpenLoopCharacterizedProcessor implements Processor<TankDriveData, 
 
     return new TankDriveData(
         new DriveData(command.left.position,
-            OptionalDouble.empty(),
+            command.left.velocity,
             OptionalDouble.empty(),
             OptionalDouble.of(signal.getLeftThrottle())),
         new DriveData(command.right.position,
-            OptionalDouble.empty(),
+            command.left.velocity,
             OptionalDouble.empty(),
             OptionalDouble.of(signal.getRightThrottle())),
         command.heading,
