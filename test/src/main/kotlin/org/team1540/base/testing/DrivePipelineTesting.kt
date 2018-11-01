@@ -15,8 +15,8 @@ import org.team1540.base.preferencemanager.PreferenceManager
 import org.team1540.base.util.Executable
 import org.team1540.base.util.SimpleCommand
 import org.team1540.base.wrappers.ChickenTalon
+import java.util.function.DoubleSupplier
 import java.util.function.Function
-import java.util.function.Supplier
 
 abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val pipeline: DrivePipeline<TankDriveData, TankDriveData>
@@ -48,9 +48,9 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
             _pipeline = DrivePipeline(
                     AdvancedArcadeJoystickInput(
                             maxVelocity,
-                            Supplier { Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
-                            Supplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
-                            Supplier {
+                            DoubleSupplier { Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
+                            DoubleSupplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
+                            DoubleSupplier {
                                 Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
                                 Utilities.processDeadzone(-joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)
                             }

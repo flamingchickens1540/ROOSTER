@@ -1,20 +1,20 @@
 package org.team1540.base.drive.pipeline;
 
 import java.util.OptionalDouble;
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
 
 public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
   private double maxVelocity;
-  private @NotNull Supplier<Double> throttleInput;
-  private @NotNull Supplier<Double> softTurnInput;
-  private @NotNull Supplier<Double> hardTurnInput;
+  private @NotNull DoubleSupplier throttleInput;
+  private @NotNull DoubleSupplier softTurnInput;
+  private @NotNull DoubleSupplier hardTurnInput;
 
   public AdvancedArcadeJoystickInput(double maxVelocity,
-      @NotNull Supplier<Double> throttleInput,
-      @NotNull Supplier<Double> softTurnInput,
-      @NotNull Supplier<Double> hardTurnInput) {
+      @NotNull DoubleSupplier throttleInput,
+      @NotNull DoubleSupplier softTurnInput,
+      @NotNull DoubleSupplier hardTurnInput) {
     this.maxVelocity = maxVelocity;
     this.throttleInput = throttleInput;
     this.softTurnInput = softTurnInput;
@@ -23,9 +23,9 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
   @Override
   public TankDriveData get() {
-    double throttle = throttleInput.get();
-    double soft = softTurnInput.get();
-    double hard = hardTurnInput.get();
+    double throttle = throttleInput.getAsDouble();
+    double soft = softTurnInput.getAsDouble();
+    double hard = hardTurnInput.getAsDouble();
 
     double leftPowerRaw = throttle + (soft * Math.abs(throttle)) + hard;
     double rightPowerRaw = throttle - (soft * Math.abs(throttle)) - hard;
