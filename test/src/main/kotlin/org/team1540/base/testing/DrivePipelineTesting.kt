@@ -56,7 +56,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                             }
                     ),
                     OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0),
-                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)
             )
         }).apply {
             setRunWhenDisabled(true)
