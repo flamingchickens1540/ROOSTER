@@ -8,11 +8,12 @@ public class TalonSRXOutput implements Output<TankDriveData> {
 
   private ChickenTalon left;
   private ChickenTalon right;
+  private boolean useClosedLoop;
 
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   @Override
   public void accept(TankDriveData tankDriveData) {
-    if (tankDriveData.left.position.isPresent()) {
+    if (tankDriveData.left.position.isPresent() && useClosedLoop) {
       if (tankDriveData.left.additionalFeedForward.isPresent()) {
         left.set(ControlMode.Position, tankDriveData.left.position.getAsDouble(),
             DemandType.ArbitraryFeedForward,
@@ -24,7 +25,7 @@ public class TalonSRXOutput implements Output<TankDriveData> {
         left.set(ControlMode.Position, tankDriveData.left.position.getAsDouble());
         right.set(ControlMode.Position, tankDriveData.right.position.getAsDouble());
       }
-    } else if (tankDriveData.left.velocity.isPresent()) {
+    } else if (tankDriveData.left.velocity.isPresent() && useClosedLoop) {
       if (tankDriveData.left.additionalFeedForward.isPresent()) {
         left.set(ControlMode.Velocity, tankDriveData.left.velocity.getAsDouble(),
             DemandType.ArbitraryFeedForward,
@@ -43,7 +44,12 @@ public class TalonSRXOutput implements Output<TankDriveData> {
   }
 
   public TalonSRXOutput(ChickenTalon left, ChickenTalon right) {
+    this(left, right, true);
+  }
+
+  public TalonSRXOutput(ChickenTalon left, ChickenTalon right, boolean useClosedLoop) {
     this.left = left;
     this.right = right;
+    this.useClosedLoop = useClosedLoop;
   }
 }
