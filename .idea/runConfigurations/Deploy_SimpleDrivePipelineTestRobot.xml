@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Deploy SimpleDrivePipelineTestRobot" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Deploy SimpleDrivePipelineTestRobot" type="GradleRunConfiguration" factoryName="Gradle" folderName="Drive Pipeline Testing">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
