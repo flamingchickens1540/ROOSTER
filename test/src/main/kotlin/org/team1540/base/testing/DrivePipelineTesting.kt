@@ -40,8 +40,8 @@ class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
 
 class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
-    @Preference
-    var maxVelocity = 0.0
+    @Preference(persistent = false)
+    var maxVelocity = 1.0
 
     private val joystick = XboxController(0)
 
