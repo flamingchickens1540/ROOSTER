@@ -90,6 +90,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override val command get() = _command
 }
 
+@Suppress("unused")
 private object PipelineDriveTrain {
     val left1 = ChickenTalon(1).apply {
         setBrake(true)
