@@ -22,8 +22,11 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val pipeline: DrivePipeline<TankDriveData, TankDriveData>
 
     override fun teleopPeriodic() {
-        Scheduler.getInstance().run()
         pipeline.execute()
+    }
+
+    override fun robotPeriodic() {
+        Scheduler.getInstance().run()
     }
 }
 
