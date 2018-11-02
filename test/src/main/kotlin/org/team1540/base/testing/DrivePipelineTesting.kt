@@ -1,10 +1,8 @@
 package org.team1540.base.testing
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.GenericHID
-import edu.wpi.first.wpilibj.IterativeRobot
-import edu.wpi.first.wpilibj.Joystick
-import edu.wpi.first.wpilibj.XboxController
+import com.kauailabs.navx.frc.AHRS
+import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.base.Utilities
@@ -42,6 +40,22 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
     var maxVelocity = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var trackWidth = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var tpu = 1.0
+
+    @JvmField
+    @Preference(persistent = false)
+    var headingP = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var headingI = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var headingD = 1.0
 
     private val joystick = XboxController(0)
 
@@ -50,7 +64,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         val reset = SimpleCommand("reset", Executable {
             _pipeline = DrivePipeline(
                     AdvancedArcadeJoystickInput(
-                            maxVelocity,
+                            maxVelocity, trackWidth,
                             DoubleSupplier { -Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
                             DoubleSupplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
                             DoubleSupplier {
@@ -58,9 +72,9 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                                         - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1))
                             }
                     ),
-                    OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0),
-                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)
-            )
+                    TurningRateClosedLoopProcessor(DoubleSupplier { Math.toRadians(PipelineNavx.navx.rate) }, headingP, headingI, headingD, false)
+                            .andThen(OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0)),
+                    UnitScaler(tpu, 0.1).followedBy(TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)))
         }).apply {
             setRunWhenDisabled(true)
             start()
@@ -136,3 +150,6 @@ private object PipelineDriveTrain {
     }
 }
 
+private object PipelineNavx {
+    val navx = AHRS(SPI.Port.kMXP)
+}
