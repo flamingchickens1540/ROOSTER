@@ -3,6 +3,7 @@ package org.team1540.base.testing
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.*
+import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.base.Utilities
@@ -11,16 +12,18 @@ import org.team1540.base.drive.pipeline.*
 import org.team1540.base.preferencemanager.Preference
 import org.team1540.base.preferencemanager.PreferenceManager
 import org.team1540.base.util.Executable
+import org.team1540.base.util.SimpleAsyncCommand
 import org.team1540.base.util.SimpleCommand
+import org.team1540.base.util.SimpleLoopCommand
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier
 import java.util.function.Function
 
 abstract class DrivePipelineTestRobot : IterativeRobot() {
-    protected abstract val pipeline: DrivePipeline<TankDriveData, TankDriveData>
+    protected abstract val command: Command
 
-    override fun teleopPeriodic() {
-        pipeline.execute()
+    override fun teleopInit() {
+        command.start()
     }
 
     override fun robotPeriodic() {
@@ -29,11 +32,11 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
 }
 
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
-    override val pipeline = DrivePipeline<TankDriveData, TankDriveData>(
+    override val command = SimpleLoopCommand("Drive", DrivePipeline<TankDriveData, TankDriveData>(
             SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
             Function.identity<TankDriveData>(),
             TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
-    )
+    ))
 }
 
 class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
@@ -62,7 +65,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
-            _pipeline = DrivePipeline(
+            _command = SimpleAsyncCommand("Drive", 20, DrivePipeline(
                     AdvancedArcadeJoystickInput(
                             maxVelocity, trackWidth,
                             DoubleSupplier { -Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
@@ -74,7 +77,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                     ),
                     TurningRateClosedLoopProcessor(DoubleSupplier { Math.toRadians(PipelineNavx.navx.rate) }, headingP, headingI, headingD, false)
                             .andThen(OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0)),
-                    UnitScaler(tpu, 0.1).followedBy(TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)))
+                    UnitScaler(tpu, 0.1).followedBy(TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false))))
         }).apply {
             setRunWhenDisabled(true)
             start()
@@ -83,8 +86,8 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         SmartDashboard.putData(reset)
     }
 
-    private lateinit var _pipeline: DrivePipeline<TankDriveData, TankDriveData>
-    override val pipeline get() = _pipeline
+    private lateinit var _command: Command
+    override val command get() = _command
 }
 
 private object PipelineDriveTrain {
