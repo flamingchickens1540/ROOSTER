@@ -51,11 +51,11 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
             _pipeline = DrivePipeline(
                     AdvancedArcadeJoystickInput(
                             maxVelocity,
-                            DoubleSupplier { Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
+                            DoubleSupplier { -Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
                             DoubleSupplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
                             DoubleSupplier {
-                                Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
-                                Utilities.processDeadzone(-joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)
+                                (Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
+                                        - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1))
                             }
                     ),
                     OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0),
