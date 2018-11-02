@@ -3,6 +3,7 @@ package org.team1540.base.drive;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.team1540.base.util.Executable;
 
 /**
  * Pipeline for flexibly controlling a robot drivetrain. A {@code DrivePipeline} can be used for
@@ -31,13 +32,13 @@ import java.util.function.Supplier;
  * @param <I> The type given by the input stage.
  * @param <O> The type requested by the output stage.
  */
-public class DrivePipeline<I, O> {
+public class DrivePipeline<I, O> implements Executable {
 
   private Supplier<I> input;
   private Function<I, O> processor;
   private Consumer<O> output;
 
-
+  @Override
   public void execute() {
     output.accept(processor.apply(input.get()));
   }
