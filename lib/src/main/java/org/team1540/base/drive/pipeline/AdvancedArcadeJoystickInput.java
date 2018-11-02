@@ -17,7 +17,7 @@ import org.team1540.base.drive.DrivePipeline;
  * This class is an {@link Input} that provides a {@link TankDriveData} for use in a {@link
  * DrivePipeline}. The resulting {@link TankDriveData} will have the left and right velocities set
  * with units corresponding to the max velocity set on construction, as well as the turning rate in
- * radians per second. All other values are empty {@link OptionalDouble OptionalDoubles})
+ * radians per second. All other values are empty {@link OptionalDouble OptionalDoubles}.
  *
  * @see Input
  * @see OpenLoopFeedForwardProcessor

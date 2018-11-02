@@ -22,7 +22,7 @@ public interface Output<T> extends Consumer<T> {
    *
    * @param f The {@link Function} (or {@link Processor}) to apply.
    * @param <I> The input type of the {@link Function} (and thus the {@link Input} type of the
-   * resulting {@code Output}.
+   * resulting {@code Output}).
    * @return A new {@code Output} as described above.
    */
   public default <I> Output<I> after(Function<I, T> f) {
