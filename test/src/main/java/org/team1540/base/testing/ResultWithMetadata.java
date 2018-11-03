@@ -13,4 +13,13 @@ public class ResultWithMetadata<R> {
     this.timestampMillis = timestampMillis;
   }
 
+  @NotNull
+  public R getResult() {
+    return result;
+  }
+
+  public long getTimestampMillis() {
+    return timestampMillis;
+  }
+
 }
