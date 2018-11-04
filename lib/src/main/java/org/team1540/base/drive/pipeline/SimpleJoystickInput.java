@@ -18,8 +18,13 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
 
   @Override
   public TankDriveData get() {
-    double triggerValue = Utilities.processDeadzone(joystick.getRawAxis(fwdAxis), deadzone)
-        - Utilities.processDeadzone(joystick.getRawAxis(backAxis), deadzone);
+    double triggerValue;
+    if (fwdAxis != -1 && backAxis != -1) {
+      triggerValue = Utilities.processDeadzone(joystick.getRawAxis(fwdAxis), deadzone)
+          - Utilities.processDeadzone(joystick.getRawAxis(backAxis), deadzone);
+    } else {
+      triggerValue = 0;
+    }
     double leftThrottle = Utilities.constrain(
         Utilities.processDeadzone(Utilities.invertIf(invertLeft, joystick.getRawAxis(leftAxis)),
             deadzone) + triggerValue,
@@ -47,6 +52,12 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
         OptionalDouble.empty(),
         OptionalDouble.empty()
     );
+  }
+
+  public SimpleJoystickInput(Joystick joystick, int leftAxis, int rightAxis,
+      boolean invertLeft, boolean invertRight) {
+    this(joystick, leftAxis, rightAxis, -1, -1, invertLeft,
+        invertRight);
   }
 
   public SimpleJoystickInput(Joystick joystick, int leftAxis, int rightAxis, int fwdAxis,
