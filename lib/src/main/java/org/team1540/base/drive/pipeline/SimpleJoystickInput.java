@@ -14,7 +14,7 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
   private boolean invertLeft;
   private boolean invertRight;
 
-  private double deadzone = 0.1;
+  private double deadzone;
 
   @Override
   public TankDriveData get() {
