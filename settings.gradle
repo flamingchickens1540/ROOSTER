@@ -1,4 +1,5 @@
 rootProject.name = 'ROOSTER'
 
 include 'lib'
+include 'libkt'
 include 'test'

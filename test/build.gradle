@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     compile project(":lib")
+    implementation project(":libkt")
     compile wpilib()
     compile ctre()
     compile navx()
