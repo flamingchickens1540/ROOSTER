@@ -2,6 +2,8 @@ package org.team1540.base.drive.pipeline;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import org.team1540.base.util.Executable;
 
 /**
  * Extension of a {@link Consumer} adding an additional composition method.
@@ -27,5 +29,16 @@ public interface Output<T> extends Consumer<T> {
    */
   public default <I> Output<I> after(Function<I, T> f) {
     return i -> accept(f.apply(i));
+  }
+
+  /**
+   * Creates a new {@link Executable} that, when run, applies this {@code Output} to the provided
+   * {@link Supplier}'s (or {@link Input}'s) output.
+   *
+   * @param i The {@link Supplier} (or {@link Input} to use.
+   * @return A new {@link Executable} as described above.
+   */
+  public default Executable after(Supplier<T> i) {
+    return () -> accept(i.get());
   }
 }
