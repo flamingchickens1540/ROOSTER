@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.base.Utilities
-import org.team1540.base.drive.DrivePipeline
 import org.team1540.base.drive.pipeline.*
 import org.team1540.base.preferencemanager.Preference
 import org.team1540.base.preferencemanager.PreferenceManager
@@ -17,7 +16,6 @@ import org.team1540.base.util.SimpleCommand
 import org.team1540.base.util.SimpleLoopCommand
 import org.team1540.base.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier
-import java.util.function.Function
 
 abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val command: Command
@@ -32,11 +30,10 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
 }
 
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
-    override val command = SimpleLoopCommand("Drive", DrivePipeline<TankDriveData, TankDriveData>(
-            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false),
-            Function.identity<TankDriveData>(),
+    override val command = SimpleLoopCommand("Drive",
+            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
             TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
-    ))
+    )
 }
 
 class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
@@ -65,19 +62,18 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
-            _command = SimpleAsyncCommand("Drive", 20, DrivePipeline(
-                    AdvancedArcadeJoystickInput(
-                            maxVelocity, trackWidth,
-                            DoubleSupplier { -Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
-                            DoubleSupplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
-                            DoubleSupplier {
-                                (Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
-                                        - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1))
-                            }
-                    ),
-                    TurningRateClosedLoopProcessor(DoubleSupplier { Math.toRadians(PipelineNavx.navx.rate) }, headingP, headingI, headingD, false)
-                            .andThen(OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0)),
-                    UnitScaler(tpu, 0.1).followedBy(TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false))))
+            _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(
+                    maxVelocity, trackWidth,
+                    DoubleSupplier { -Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1) },
+                    DoubleSupplier { Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1) },
+                    DoubleSupplier {
+                        (Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
+                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1))
+                    })
+                    + TurningRateClosedLoopProcessor(DoubleSupplier { Math.toRadians(PipelineNavx.navx.rate) }, headingP, headingI, headingD, false)
+                    + (OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
+                    + UnitScaler(tpu, 0.1)
+                    + (TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)))
         }).apply {
             setRunWhenDisabled(true)
             start()
