@@ -6,6 +6,9 @@ plugins {
     id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
 }
 
+group = 'org.team1540.rooster'
+version = System.getenv("VERSION") != null ? System.getenv("VERSION") : project.version
+
 dependencies {
     compile project(":lib")
     implementation project(":libkt")

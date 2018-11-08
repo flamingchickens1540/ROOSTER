@@ -4,6 +4,8 @@ plugins {
     id 'maven'
 }
 
+group = 'org.team1540.rooster'
+version = System.getenv("VERSION") != null ? System.getenv("VERSION") : project.version
 sourceCompatibility = 1.8
 
 repositories {
@@ -15,7 +17,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0"
-    api project(":lib")
+    compile project(":lib")
 }
 
 compileKotlin {

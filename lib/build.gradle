@@ -1,5 +1,8 @@
 apply plugin: "maven"
 
+group = 'org.team1540.rooster'
+version = System.getenv("VERSION") != null ? System.getenv("VERSION") : project.version
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource

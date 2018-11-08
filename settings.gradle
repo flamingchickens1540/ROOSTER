@@ -1,4 +1,4 @@
-rootProject.name = 'ROOSTER'
+rootProject.name = 'rooster'
 
 include 'lib'
 include 'libkt'

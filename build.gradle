@@ -1,3 +1,6 @@
+group = 'org.team1540'
+version = System.getenv("VERSION") != null ? System.getenv("VERSION") : project.version
+
 wrapper {
     gradleVersion = '4.10'
     distributionUrl = "https://services.gradle.org/distributions/gradle-4.10-all.zip"

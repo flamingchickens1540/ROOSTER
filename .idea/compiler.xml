@@ -4,6 +4,14 @@
     <bytecodeTargetLevel>
       <module name="lib_main" target="1.8" />
       <module name="lib_test" target="1.8" />
+      <module name="org.team1540.lib.main" target="1.8" />
+      <module name="org.team1540.lib.test" target="1.8" />
+      <module name="org.team1540.rooster.lib.main" target="1.8" />
+      <module name="org.team1540.rooster.lib.test" target="1.8" />
+      <module name="org.team1540.rooster.libkt.main" target="1.8" />
+      <module name="org.team1540.rooster.libkt.test" target="1.8" />
+      <module name="org.team1540.rooster.test.main" target="1.8" />
+      <module name="org.team1540.rooster.test.test" target="1.8" />
       <module name="ROOSTER.lib.main" target="1.8" />
       <module name="ROOSTER.lib.test" target="1.8" />
       <module name="ROOSTER.libkt.main" target="1.8" />
