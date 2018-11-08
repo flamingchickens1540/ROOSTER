@@ -13,7 +13,7 @@ dependencies {
     compile navx()
     compile pathfinder()
     compile 'com.google.guava:guava:27.0-jre'
-    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    compile 'org.apache.commons:commons-math3:3.6.1'
 }
 
 def TEAM = 1540
