@@ -6,4 +6,5 @@ org.team1540.base.power
 org.team1540.base.preferencemanager
 org.team1540.base.triggers
 org.team1540.base.util
+org.team1540.base.util.robots
 org.team1540.base.wrappers
