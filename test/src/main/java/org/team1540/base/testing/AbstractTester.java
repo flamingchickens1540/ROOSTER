@@ -62,6 +62,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
         allQueuedResults.get(t).put(test, EvictingQueue.create(queueDepth));
       }
     }
+    this.run();
   }
 
   @Override
