@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.team1540.base.Utilities;
 import org.team1540.base.preferencemanager.Preference;
 import org.team1540.base.preferencemanager.PreferenceManager;
@@ -55,13 +57,19 @@ public class PIDTuningRobot extends IterativeRobot {
   @Preference(value = "Enable PID", persistent = false)
   public boolean enablePID;
 
-  private ChickenTalon motor1 = null;
-  private ChickenTalon motor2 = null;
-  private ChickenTalon motor3 = null;
-  private ChickenTalon motor4 = null;
+  @Nullable
+  private ChickenTalon motor1;
+  @Nullable
+  private ChickenTalon motor2;
+  @Nullable
+  private ChickenTalon motor3;
+  @Nullable
+  private ChickenTalon motor4;
 
+  @NotNull
   private Joystick joystick = new Joystick(0);
 
+  @NotNull
   private SendableChooser<ControlMode> controlModeChooser = new SendableChooser<>();
 
   @Override
