@@ -2,6 +2,7 @@ package org.team1540.base.testing;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,12 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
   private double stdDevPower = 0;
 
   private String name = "BurnoutTester";
+
+  public BurnoutTester(ChickenTalon... motorsToTest) {
+    super(1, Arrays.asList(motorsToTest),
+        Collections.singletonList(() -> true));
+    this.getTests().add(this::testBurnout);
+  }
 
   public BurnoutTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
