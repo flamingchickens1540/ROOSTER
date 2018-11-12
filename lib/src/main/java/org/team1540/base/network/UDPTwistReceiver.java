@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +58,7 @@ public class UDPTwistReceiver {
         DatagramPacket packet = new DatagramPacket(new byte[24], 24); // 8 * 3
         // buffer is backed by the byte[] in packet, so when we call socket.receive() the buffer is updated
         ByteBuffer buffer = ByteBuffer.wrap(packet.getData());
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         while (true) {
           try {
             buffer.rewind();
