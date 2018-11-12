@@ -25,7 +25,8 @@ public class UDPTwistReceiver {
     receivingThread.start();
   }
 
-  public double[] get() {
+
+  public double[] getTwist() {
     return new double[]{Double.longBitsToDouble(vel.get()), Double.longBitsToDouble(theta.get())};
   }
 
