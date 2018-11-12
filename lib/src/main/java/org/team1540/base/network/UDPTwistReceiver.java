@@ -80,7 +80,7 @@ public class UDPTwistReceiver {
                 false);
           } catch (IOException e) {
             DriverStation.reportError(
-                "IOException occured in UDPVelocityInput: " + e.getLocalizedMessage(),
+                "IOException occurred in UDPVelocityInput: " + e.getLocalizedMessage(),
                 e.getStackTrace());
           }
 
