@@ -35,6 +35,14 @@ public class UDPTwistReceiver {
     receivingThread.interrupt();
   }
 
+  public void join() {
+    try {
+      receivingThread.join();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private class UDPReceiver implements Runnable {
 
     @NotNull
