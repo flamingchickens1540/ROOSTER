@@ -3,7 +3,6 @@ package org.team1540.base.drive.pipeline;
 import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
-import org.team1540.base.drive.DrivePipeline;
 
 /**
  * Modified arcade drive joystick input.
@@ -14,14 +13,12 @@ import org.team1540.base.drive.DrivePipeline;
  * core algorithm is adapted from Team 2471's drive code, which can be found
  * <a href="https://github.com/TeamMeanMachine/2018FRC/blob/13c96d2f0e2e780b0cec03fe71ad4919f70f6368/src/main/kotlin/org/team2471/frc/powerup/drivetrain/Drivetrain.kt#L163">here</a>.
  * <p>
- * This class is an {@link Input} that provides a {@link TankDriveData} for use in a {@link
- * DrivePipeline}. The resulting {@link TankDriveData} will have the left and right velocities set
+ * This class is an {@link Input} that provides a {@link TankDriveData}. The resulting {@link TankDriveData} will have the left and right velocities set
  * with units corresponding to the max velocity set on construction, as well as the turning rate in
  * radians per second. All other values are empty {@link OptionalDouble OptionalDoubles}.
  *
  * @see Input
  * @see OpenLoopFeedForwardProcessor
- * @see DrivePipeline
  */
 public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
