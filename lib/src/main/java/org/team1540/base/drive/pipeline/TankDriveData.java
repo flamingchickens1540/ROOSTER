@@ -32,5 +32,11 @@ public class TankDriveData {
     this.turningRate = turningRate;
   }
 
-
+  @Override
+  public String toString() {
+    return "TankDriveData: " + "left: " + left
+        + ", right:" + right
+        + ", heading " + heading
+        + ", turningRate " + turningRate;
+  }
 }

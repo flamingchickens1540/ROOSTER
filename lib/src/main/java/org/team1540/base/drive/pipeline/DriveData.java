@@ -38,4 +38,12 @@ public class DriveData {
     this.acceleration = acceleration;
     this.additionalFeedForward = additionalFeedForward;
   }
+
+  @Override
+  public String toString() {
+    return "position " + position
+        + ", velocity " + velocity
+        + ", acceleration " + acceleration
+        + ", feedforward " + additionalFeedForward;
+  }
 }
