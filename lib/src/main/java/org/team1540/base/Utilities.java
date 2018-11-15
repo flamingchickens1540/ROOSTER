@@ -101,6 +101,10 @@ public class Utilities {
     }
   }
 
+  public static double scale(double input, double pow) {
+    return Math.copySign(Math.pow(Math.abs(input), pow), input);
+  }
+
   // should never be instantiated
   private Utilities() {
   }
