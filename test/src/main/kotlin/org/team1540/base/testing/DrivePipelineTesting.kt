@@ -32,7 +32,7 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     override val command = SimpleLoopCommand("Drive",
             SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
-            TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
     )
 }
 
@@ -49,13 +49,16 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
 
     @JvmField
     @Preference(persistent = false)
-    var headingP = 1.0
+    var p = 0.0
     @JvmField
     @Preference(persistent = false)
-    var headingI = 1.0
+    var i = 0.0
     @JvmField
     @Preference(persistent = false)
-    var headingD = 1.0
+    var d = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var ramp = 0.0
 
     private val joystick = XboxController(0)
 
@@ -70,10 +73,18 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                         (Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
                                 - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1))
                     })
-                    + TurningRateClosedLoopProcessor(DoubleSupplier { Math.toRadians(PipelineNavx.navx.rate) }, headingP, headingI, headingD, false)
                     + (OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
-                    + (TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, false)))
+                    + (TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
+
+            listOf(PipelineDriveTrain.left1, PipelineDriveTrain.right1).forEach {
+                it.configClosedloopRamp(ramp)
+                it.config_kP(0, p)
+                it.config_kI(0, i)
+                it.config_kD(0, d)
+                it.config_kF(0, 0.0);
+            }
+
         }).apply {
             setRunWhenDisabled(true)
             start()
@@ -96,6 +107,7 @@ private object PipelineDriveTrain {
         configPeakOutputReverse(-1.0)
         enableCurrentLimit(false)
         inverted = false
+        setSensorPhase(true)
     }
 
     private val left2 = ChickenTalon(2).apply {
@@ -127,6 +139,7 @@ private object PipelineDriveTrain {
         configPeakOutputReverse(-1.0)
         enableCurrentLimit(false)
         inverted = true
+        setSensorPhase(true)
     }
     private val right2 = ChickenTalon(5).apply {
         setBrake(true)
