@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.team1540.base.wrappers.ChickenTalon;
@@ -22,16 +21,16 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
   private String name = "BurnoutTester";
 
   public BurnoutTester(ChickenTalon... motorsToTest) {
-    super(1, Arrays.asList(motorsToTest),
+    super((stupid) -> null, Arrays.asList(motorsToTest),
         Collections.singletonList(() -> true));
-    this.getTests().add(this::testBurnout);
+    this.setTest(this::testBurnout);
   }
 
   public BurnoutTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
-    super(1, motorsToTest,
+    super((stupid) -> null, motorsToTest,
         Collections.singletonList(() -> true));
-    this.getTests().add(this::testBurnout);
+    this.setTest(this::testBurnout);
   }
 
   public Boolean testBurnout(ChickenTalon manageable) {
@@ -68,13 +67,12 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    // Because the method reference by itself isn't an object apparently
-    Function<ChickenTalon, Boolean> lmao = this::testBurnout;
-    for (ChickenTalon t : getAllQueuedResults().keySet()) {
-      // Get the most recent value if present, else return false
-      builder.addBooleanProperty(t.toString(),
-          () -> Optional.ofNullable(getAllQueuedResults().get(t).get(lmao).peek())
-              .map(ResultWithMetadata::getResult).orElse(false), null);
+    for (ChickenTalon t : getStoredResults().keySet()) {
+      // Get the most recent value if present, else simply don't add it to the builder
+      Optional<ResultWithMetadata<Boolean>> result =
+          Optional.ofNullable(getStoredResults().get(t).peek());
+      result.ifPresent(booleanResultWithMetadata -> builder
+          .addBooleanProperty(t.toString(), booleanResultWithMetadata::getResult, null));
     }
   }
 }

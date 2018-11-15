@@ -11,13 +11,15 @@ import org.jetbrains.annotations.NotNull;
 public interface Tester<T, R> extends Runnable {
 
   @NotNull
-  List<Function<T, R>> getTests();
+  Function<T, R> getTest();
+
+  void setTest(@NotNull Function<T, R> tests);
 
   @NotNull
   List<Supplier<Boolean>> getRunConditions();
 
   @NotNull
-  Map<T, Map<Function<T, R>, EvictingQueue<ResultWithMetadata<R>>>> getAllQueuedResults();
+  Map<T, EvictingQueue<ResultWithMetadata<R>>> getStoredResults();
 
   int getUpdateDelay();
 
