@@ -82,7 +82,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                 it.config_kP(0, p)
                 it.config_kI(0, i)
                 it.config_kD(0, d)
-                it.config_kF(0, 0.0);
+                it.config_kF(0, 0.0)
             }
 
         }).apply {
