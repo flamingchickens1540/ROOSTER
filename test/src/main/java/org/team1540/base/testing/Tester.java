@@ -2,10 +2,10 @@ package org.team1540.base.testing;
 
 import com.google.common.collect.EvictingQueue;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface Tester<T, R> extends Runnable {
@@ -15,11 +15,17 @@ public interface Tester<T, R> extends Runnable {
 
   void setTest(@NotNull Function<T, R> tests);
 
-  @NotNull
+  @NotNull // TODO how to annotate as unmodifiable?
   List<Supplier<Boolean>> getRunConditions();
 
+  @NotNull // TODO how to annotate as unmodifiable?
+  List<T> getItemsToTest();
+
   @NotNull
-  Map<T, EvictingQueue<ResultWithMetadata<R>>> getStoredResults();
+  EvictingQueue<ResultWithMetadata<R>> getStoredResults(T key);
+
+  @Nullable
+  ResultWithMetadata<R> peekMostRecentResult(T key);
 
   int getUpdateDelay();
 

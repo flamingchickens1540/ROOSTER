@@ -15,8 +15,8 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
 
   private static final Median medianCalculator = new Median();
   private static final StandardDeviation stdDevCalculator = new StandardDeviation();
-  private double medianPower = 0;
-  private double stdDevPower = 0;
+  private double medianCurrent = 0;
+  private double stdDevCurrent = 0;
 
   private String name = "BurnoutTester";
 
@@ -40,8 +40,8 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
   @Override
   void periodic() {
     double[] currents = itemsToTest.stream().mapToDouble(ChickenTalon::getOutputCurrent).toArray();
-    medianPower = medianCalculator.evaluate(currents);
-    stdDevPower = stdDevCalculator.evaluate(currents);
+    medianCurrent = medianCalculator.evaluate(currents);
+    stdDevCurrent = stdDevCalculator.evaluate(currents);
     super.periodic();
   }
 
@@ -67,12 +67,18 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    for (ChickenTalon t : getStoredResults().keySet()) {
+    for (ChickenTalon t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
-      Optional<ResultWithMetadata<Boolean>> result =
-          Optional.ofNullable(getStoredResults().get(t).peek());
-      result.ifPresent(booleanResultWithMetadata -> builder
-          .addBooleanProperty(t.toString(), booleanResultWithMetadata::getResult, null));
+      builder.addBooleanProperty(t.getDeviceID() + "", () -> {
+        // TODO probably cleaner version of this, at the least ifPresentOrElse() in Java 9
+        Optional<ResultWithMetadata<Boolean>> result = Optional.ofNullable(peekMostRecentResult(t));
+        if (result.isPresent()) {
+          return result.get().getResult();
+        } else {
+          return false;
+        }
+      }, null);
     }
+    builder.addDoubleProperty("Median current", () -> medianCurrent, null);
   }
 }

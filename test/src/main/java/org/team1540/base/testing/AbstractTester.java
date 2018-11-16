@@ -1,12 +1,14 @@
 package org.team1540.base.testing;
 
 import com.google.common.collect.EvictingQueue;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"unused", "UnstableApiUsage"})
 public abstract class AbstractTester<T, R> implements Tester<T, R> {
@@ -23,7 +25,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   @NotNull
   private List<Supplier<Boolean>> runConditions;
   @NotNull
-  private Map<T, EvictingQueue<ResultWithMetadata<R>>> storedResults;
+  private Map<T, ResultStorage<R>> storedResults;
 
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Supplier<Boolean>> runConditions) {
@@ -51,7 +53,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     this.queueDepth = queueDepth;
     // TODO I feel like there's a cleaner way of doing this
     for (T t : itemsToTest) {
-      this.storedResults.put(t, EvictingQueue.create(queueDepth));
+      this.storedResults.put(t, new ResultStorage<>(queueDepth));
     }
   }
 
@@ -69,9 +71,24 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   @Override
   @NotNull
   public List<Supplier<Boolean>> getRunConditions() {
-    return runConditions;
+    return Collections.unmodifiableList(runConditions);
   }
 
+  @Override
+  @NotNull
+  public List<T> getItemsToTest() {
+    return Collections.unmodifiableList(itemsToTest);
+  }
+
+  @NotNull
+  public EvictingQueue<ResultWithMetadata<R>> getStoredResults(T key) {
+    return storedResults.get(key).queuedResults;
+  }
+
+  @Nullable
+  public ResultWithMetadata<R> peekMostRecentResult(T key) {
+    return storedResults.get(key).lastResult;
+  }
 
   @Override
   public int getUpdateDelay() {
@@ -92,16 +109,9 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     return status;
   }
 
-  @Override
-  @NotNull
-  public Map<T, EvictingQueue<ResultWithMetadata<R>>> getStoredResults() {
-    return this.storedResults;
-  }
-
   void periodic() {
     for (T t : itemsToTest) {
-      this.storedResults.get(t).add(new ResultWithMetadata<>(this.test.apply(t),
-          System.currentTimeMillis()));
+      this.storedResults.get(t).addResult(this.test.apply(t), System.currentTimeMillis());
     }
   }
 
@@ -109,14 +119,36 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   public void run() {
     while (true) {
 
-      periodic();
+      if (running) {
+        periodic();
+      }
 
       try {
         Thread.sleep(updateDelay);
       } catch (InterruptedException e) {
-        // end the thread
+        // End the thread
         return;
       }
     }
   }
+
+  private class ResultStorage<R> {
+
+    @Nullable
+    private ResultWithMetadata<R> lastResult;
+    @NotNull
+    private EvictingQueue<ResultWithMetadata<R>> queuedResults;
+
+    private ResultStorage(int queueDepth) {
+      this.queuedResults = EvictingQueue.create(queueDepth);
+    }
+
+    private void addResult(R result, long timeStampMillis) {
+      ResultWithMetadata<R> resultWithMetadata = new ResultWithMetadata<>(result, timeStampMillis);
+      this.lastResult = resultWithMetadata;
+      queuedResults.add(resultWithMetadata);
+    }
+
+  }
+
 }
