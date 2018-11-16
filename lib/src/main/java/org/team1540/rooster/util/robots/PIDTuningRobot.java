@@ -1,4 +1,4 @@
-package org.team1540.base.util.robots;
+package org.team1540.rooster.util.robots;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.team1540.base.Utilities;
-import org.team1540.base.preferencemanager.Preference;
-import org.team1540.base.preferencemanager.PreferenceManager;
-import org.team1540.base.util.SimpleCommand;
-import org.team1540.base.wrappers.ChickenTalon;
+import org.team1540.rooster.Utilities;
+import org.team1540.rooster.preferencemanager.Preference;
+import org.team1540.rooster.preferencemanager.PreferenceManager;
+import org.team1540.rooster.util.SimpleCommand;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
  * Robot class to tune a Motion Magic PID controller.
