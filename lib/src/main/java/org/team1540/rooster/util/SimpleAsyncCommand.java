@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * <pre>
  *   Command shift = new SimpleAsyncCommand("Shift", 30, () -&gt; Robot.shifter.shift(), Robot.shifter);
  * </pre>
- * Multiple {@code Subystems} can be added onto the end of the constructor to add multiple
+ * Multiple {@code Subsystems} can be added onto the end of the constructor to add multiple
  * requirements. <p> This can be used to quickly and easily put a button on the
  * SmartDashboard/Shuffleboard to run some code. Use {@link SmartDashboard#putData(Sendable)} to
  * pass it a newly created instance of this class.
