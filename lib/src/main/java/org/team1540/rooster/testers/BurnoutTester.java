@@ -1,4 +1,4 @@
-package org.team1540.base.testers;
+package org.team1540.rooster.testers;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
-import org.team1540.base.wrappers.ChickenTalon;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 @SuppressWarnings("unused")
 public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> implements Sendable {
