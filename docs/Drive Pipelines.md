@@ -2,7 +2,7 @@
 
 Drive pipelines are an extensible method to create multiple different ways of driving a robot. Since pipelines are just lambdas, they are highly customizable.
 
-Some "stock" classes (inputs, processors, and outputs) are available in the `org.team1540.base.drive.pipeline` package.
+Some "stock" classes (inputs, processors, and outputs) are available in the `org.team1540.rooster.drive.pipeline` package.
 
 ## What's a Drive Pipeline?
 

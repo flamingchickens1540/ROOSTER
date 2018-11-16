@@ -1,6 +1,6 @@
 package org.team1540.rooster.drive;
 
-import org.team1540.base.drive.pipeline.Processor;
+import org.team1540.rooster.drive.pipeline.Processor;
 
 @FunctionalInterface
 public interface JoystickScaling extends Processor<Double, Double> {
