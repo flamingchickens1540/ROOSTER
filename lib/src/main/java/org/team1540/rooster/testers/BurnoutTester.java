@@ -22,7 +22,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
 
   public BurnoutTester(ChickenTalon... motorsToTest) {
     super((stupid) -> null, Arrays.asList(motorsToTest),
-        Collections.singletonList(() -> true));
+        Collections.singletonList((ignore) -> true), 150, 500);
     this.setTest(this::testBurnout);
     this.setUpdateDelay(500);
   }
@@ -30,7 +30,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
   public BurnoutTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, motorsToTest,
-        Collections.singletonList(() -> true));
+        Collections.singletonList((ignore) -> true), 150, 500);
     this.setTest(this::testBurnout);
     this.setUpdateDelay(500);
   }
