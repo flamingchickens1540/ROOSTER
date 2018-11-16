@@ -65,7 +65,8 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
       @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this.logTime = logTime;
     this.updateDelay = updateDelay;
-    realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
+    realConstructor(test, itemsToTest, runConditions,
+        (int) (logTime / ((float) updateDelay / 1000f)));
   }
 
   /**
