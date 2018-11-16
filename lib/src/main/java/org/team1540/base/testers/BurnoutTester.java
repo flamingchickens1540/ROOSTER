@@ -1,4 +1,4 @@
-package org.team1540.base.testing;
+package org.team1540.base.testers;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
