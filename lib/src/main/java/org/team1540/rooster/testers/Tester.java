@@ -37,7 +37,7 @@ public interface Tester<T, R> extends Runnable {
   int getUpdateDelay();
 
   @SuppressWarnings("UnusedReturnValue")
-  float setUpdateDelay(int delay);
+  int setUpdateDelay(int delay);
 
   boolean setRunning(boolean status);
 }

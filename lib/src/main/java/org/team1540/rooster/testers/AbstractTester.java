@@ -98,8 +98,8 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   }
 
   @Override
-  public float setUpdateDelay(int delay) {
-    float oldUpdateDelay = this.updateDelay;
+  public int setUpdateDelay(int delay) {
+    int oldUpdateDelay = this.updateDelay;
     this.updateDelay = delay;
     return oldUpdateDelay;
   }
