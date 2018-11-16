@@ -14,31 +14,31 @@ A common library of useful classes and systems intended to be used for all Team 
 
 #### Drive Code
 
-`org.team1540.base.drive`
+`org.team1540.rooster.drive`
 
 Advanced closed-loop drive code for a tank drive.
 
 #### Motion Profiling
 
-`org.team1540.base.motionprofiling`
+`org.team1540.rooster.motionprofiling`
 
 A system for executing Pathfinder motion profiles on a tank drive.
 
 #### Power Management
 
-`org.team1540.base.power`
+`org.team1540.rooster.power`
 
 A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
 
 #### Preferences
 
-`org.team1540.base.preferencemanager`
+`org.team1540.rooster.preferencemanager`
 
 A system to easily set tuning fields through WPILib `Preferences`.
 
 #### Triggers
 
-`org.team1540.base.triggers`
+`org.team1540.rooster.triggers`
 
 Simple triggers that extend WPILib's joystick binding functionality. 
 
@@ -48,7 +48,7 @@ Simple triggers that extend WPILib's joystick binding functionality.
 
 #### Utilities
 
-`org.team1540.base.Utilities`
+`org.team1540.rooster.Utilities`
 
 Functions and classes for common tasks.
 
@@ -58,7 +58,7 @@ Functions and classes for common tasks.
 
 #### Utility Classes
 
-`org.team1540.base.util`
+`org.team1540.rooster.util`
 
 Classes (mostly WPILib `Commands`) to make life easier.
 
