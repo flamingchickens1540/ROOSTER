@@ -24,6 +24,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
     super((stupid) -> null, Arrays.asList(motorsToTest),
         Collections.singletonList(() -> true));
     this.setTest(this::testBurnout);
+    this.setUpdateDelay(500);
   }
 
   public BurnoutTester(List<ChickenTalon> motorsToTest) {
@@ -31,11 +32,12 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
     super((stupid) -> null, motorsToTest,
         Collections.singletonList(() -> true));
     this.setTest(this::testBurnout);
+    this.setUpdateDelay(500);
   }
 
   @SuppressWarnings("WeakerAccess")
   public Boolean testBurnout(ChickenTalon manageable) {
-    return manageable.getOutputCurrent() < (this.medianPower - 2 * this.stdDevPower);
+    return manageable.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
   }
 
   @Override
