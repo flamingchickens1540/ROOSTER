@@ -8,16 +8,18 @@ public class ResultWithMetadata<R> {
   private final R result;
   private final long timestampMillis;
 
-  public ResultWithMetadata(@NotNull R result, long timestampMillis) {
+  ResultWithMetadata(@NotNull R result, long timestampMillis) {
     this.result = result;
     this.timestampMillis = timestampMillis;
   }
 
+  @SuppressWarnings("WeakerAccess")
   @NotNull
   public R getResult() {
     return result;
   }
 
+  @SuppressWarnings("unused")
   public long getTimestampMillis() {
     return timestampMillis;
   }
