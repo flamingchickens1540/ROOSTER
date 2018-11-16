@@ -1,4 +1,4 @@
-package org.team1540.base.network;
+package org.team1540.rooster.network;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import java.io.IOException;

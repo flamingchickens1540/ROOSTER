@@ -1,7 +1,7 @@
-package org.team1540.base.drive.pipeline;
+package org.team1540.rooster.drive.pipeline;
 
 import java.util.OptionalDouble;
-import org.team1540.base.network.UDPTwistReceiver;
+import org.team1540.rooster.network.UDPTwistReceiver;
 
 public class UDPVelocityInput extends UDPTwistReceiver implements Input<TankDriveData> {
 

@@ -1,4 +1,4 @@
-package org.team1540.base.testing;
+package org.team1540.rooster.testing;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.kauailabs.navx.frc.AHRS;
@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.team1540.base.local.Localizer2D;
-import org.team1540.base.preferencemanager.Preference;
-import org.team1540.base.preferencemanager.PreferenceManager;
-import org.team1540.base.wrappers.ChickenTalon;
+import org.team1540.rooster.local.Localizer2D;
+import org.team1540.rooster.preferencemanager.Preference;
+import org.team1540.rooster.preferencemanager.PreferenceManager;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 public class Localizer2DTestRobot extends IterativeRobot {
 
