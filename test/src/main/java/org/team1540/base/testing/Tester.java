@@ -21,6 +21,7 @@ public interface Tester<T, R> extends Runnable {
   @NotNull // TODO how to annotate as unmodifiable?
   List<T> getItemsToTest();
 
+  @SuppressWarnings("UnstableApiUsage")
   @NotNull
   EvictingQueue<ResultWithMetadata<R>> getStoredResults(T key);
 
@@ -29,6 +30,7 @@ public interface Tester<T, R> extends Runnable {
 
   int getUpdateDelay();
 
+  @SuppressWarnings("UnusedReturnValue")
   float setUpdateDelay(int delay);
 
   boolean setRunning(boolean status);

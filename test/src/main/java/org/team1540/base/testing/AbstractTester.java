@@ -14,16 +14,19 @@ import org.jetbrains.annotations.Nullable;
 public abstract class AbstractTester<T, R> implements Tester<T, R> {
 
   private float logTime = 150;
-  private int queueDepth;
 
   private int updateDelay = 2500;
   private boolean running = true;
-  @NotNull
-  private Function<T, R> test;
+  @SuppressWarnings("NullableProblems")
   @NotNull
   List<T> itemsToTest;
+  @SuppressWarnings("NullableProblems")
+  @NotNull
+  private Function<T, R> test;
+  @SuppressWarnings("NullableProblems")
   @NotNull
   private List<Supplier<Boolean>> runConditions;
+  @SuppressWarnings("NullableProblems")
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
 
@@ -50,7 +53,6 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     this.itemsToTest = itemsToTest;
     this.runConditions = runConditions;
     this.storedResults = new HashMap<>(itemsToTest.size());
-    this.queueDepth = queueDepth;
     // TODO I feel like there's a cleaner way of doing this
     for (T t : itemsToTest) {
       this.storedResults.put(t, new ResultStorage<>(queueDepth));
@@ -132,19 +134,19 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     }
   }
 
-  private class ResultStorage<R> {
+  private class ResultStorage<A> {
 
     @Nullable
-    private ResultWithMetadata<R> lastResult;
+    private ResultWithMetadata<A> lastResult;
     @NotNull
-    private EvictingQueue<ResultWithMetadata<R>> queuedResults;
+    private EvictingQueue<ResultWithMetadata<A>> queuedResults;
 
     private ResultStorage(int queueDepth) {
       this.queuedResults = EvictingQueue.create(queueDepth);
     }
 
-    private void addResult(R result, long timeStampMillis) {
-      ResultWithMetadata<R> resultWithMetadata = new ResultWithMetadata<>(result, timeStampMillis);
+    private void addResult(A result, long timeStampMillis) {
+      ResultWithMetadata<A> resultWithMetadata = new ResultWithMetadata<>(result, timeStampMillis);
       this.lastResult = resultWithMetadata;
       queuedResults.add(resultWithMetadata);
     }

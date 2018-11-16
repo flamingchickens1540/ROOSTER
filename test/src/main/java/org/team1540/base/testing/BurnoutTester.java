@@ -33,6 +33,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
     this.setTest(this::testBurnout);
   }
 
+  @SuppressWarnings("WeakerAccess")
   public Boolean testBurnout(ChickenTalon manageable) {
     return manageable.getOutputCurrent() < (this.medianPower - 2 * this.stdDevPower);
   }
