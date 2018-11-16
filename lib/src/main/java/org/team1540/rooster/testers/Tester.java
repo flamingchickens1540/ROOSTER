@@ -16,8 +16,14 @@ public interface Tester<T, R> extends Runnable {
   void setTest(@NotNull Function<T, R> tests);
 
   @NotNull // TODO how to annotate as unmodifiable?
-  List<Supplier<Boolean>> getRunConditions();
+  List<Function<T, Boolean>> getRunConditions();
 
+  /**
+   * Gets the items that the tests are being applied to.
+   *
+   * @return An {@link EvictingQueue} of the items that are being tested.
+   */
+  @SuppressWarnings("UnstableApiUsage")
   @NotNull // TODO how to annotate as unmodifiable?
   List<T> getItemsToTest();
 

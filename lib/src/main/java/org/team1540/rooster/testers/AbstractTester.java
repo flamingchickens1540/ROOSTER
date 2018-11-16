@@ -25,30 +25,30 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   private Function<T, R> test;
   @SuppressWarnings("NullableProblems")
   @NotNull
-  private List<Supplier<Boolean>> runConditions;
+  private List<Function<T, Boolean>> runConditions;
   @SuppressWarnings("NullableProblems")
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
 
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Supplier<Boolean>> runConditions) {
+      @NotNull List<Function<T, Boolean>> runConditions) {
     realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
   }
 
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Supplier<Boolean>> runConditions, float logTime, int updateDelay) {
+      @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this.logTime = logTime;
     this.updateDelay = updateDelay;
     realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
   }
 
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Supplier<Boolean>> runConditions, int queueDepth) {
+      @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
     realConstructor(test, itemsToTest, runConditions, queueDepth);
   }
 
   private void realConstructor(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Supplier<Boolean>> runConditions, int queueDepth) {
+      @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
     this.test = test;
     this.itemsToTest = itemsToTest;
     this.runConditions = runConditions;
@@ -72,7 +72,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
 
   @Override
   @NotNull
-  public List<Supplier<Boolean>> getRunConditions() {
+  public List<Function<T, Boolean>> getRunConditions() {
     return Collections.unmodifiableList(runConditions);
   }
 
@@ -113,6 +113,12 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
 
   void periodic() {
     for (T t : itemsToTest) {
+      // Run through all the run conditions and make sure they all return true
+      for (Function<T, Boolean> runCondition : runConditions) {
+        if (!runCondition.apply(t)) {
+          return;
+        }
+      }
       this.storedResults.get(t).addResult(this.test.apply(t), System.currentTimeMillis());
     }
   }
