@@ -6,13 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A basic implementation of the Tester interface using essentially EvictingQueues for result
+ * storage.
+ */
 @SuppressWarnings({"unused", "UnstableApiUsage"})
 public abstract class AbstractTester<T, R> implements Tester<T, R> {
 
+  /**
+   * The maximum length of time for which we want to store the results. Note that this is just
+   * used for estimating the queue depth based on the update delay, not actually checked against
+   * while running.
+   */
   private float logTime = 150;
 
   private int updateDelay = 2500;
@@ -30,11 +38,29 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
 
+  /**
+   * Construct a new instance with the default queue depth.
+   *
+   * @param test The test to execute.
+   * @param itemsToTest The items to apply the test to.
+   * @param runConditions The conditions that must be met before the test will be executed on an
+   * item.
+   */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions) {
     realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
   }
 
+  /**
+   * Construct a new instance, specifying the logTime and updateDelay to calculate the queue depth.
+   *
+   * @param test The test to execute.
+   * @param itemsToTest The items to apply the test to.
+   * @param runConditions The conditions that must be met before the test will be executed on an
+   * item.
+   * @param logTime The maximum length of time for which we want to store the results.
+   * @param updateDelay The delay between the test being run on the items.
+   */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this.logTime = logTime;
@@ -42,6 +68,15 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
   }
 
+  /**
+   *
+   * Construct a new instance with a given queueDepth.
+   * @param test The test to execute.
+   * @param itemsToTest The items to apply the test to.
+   * @param runConditions The conditions that must be met before the test will be executed on an
+   * item.
+   * @param queueDepth The maximum number of items that the {@link EvictingQueue} can hold.
+   */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
     realConstructor(test, itemsToTest, runConditions, queueDepth);
@@ -82,11 +117,13 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     return Collections.unmodifiableList(itemsToTest);
   }
 
+  @Override
   @NotNull
   public EvictingQueue<ResultWithMetadata<R>> getStoredResults(T key) {
     return storedResults.get(key).queuedResults;
   }
 
+  @Override
   @Nullable
   public ResultWithMetadata<R> peekMostRecentResult(T key) {
     return storedResults.get(key).lastResult;
@@ -111,6 +148,10 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     return status;
   }
 
+  /**
+   * The code that should be called every tick. This does the actual testing. Override me as
+   * necessary (but don't forget to call super!)
+   */
   void periodic() {
     for (T t : itemsToTest) {
       // Run through all the run conditions and make sure they all return true
@@ -140,6 +181,11 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
     }
   }
 
+  /**
+   * A class for handling the storage of results. Basically just so the tail can actually be
+   * peeked at.
+   * @param <A> The returned type to store.
+   */
   private class ResultStorage<A> {
 
     @Nullable

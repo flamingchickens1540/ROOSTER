@@ -10,8 +10,13 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
+/**
+ * Reports motor burnouts by comparing the current draw across a series of similarly-purposed
+ * motors and reporting low outliers.
+ */
 @SuppressWarnings("unused")
 public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> implements Sendable {
+
 
   private static final Median medianCalculator = new Median();
   private static final StandardDeviation stdDevCalculator = new StandardDeviation();
@@ -20,26 +25,45 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
 
   private String name = "BurnoutTester";
 
+  /**
+   * Construct a new instance.
+   *
+   * @param motorsToTest The motors to compare to each other.
+   */
   public BurnoutTester(ChickenTalon... motorsToTest) {
+    // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, Arrays.asList(motorsToTest),
         Collections.singletonList((ignore) -> true), 150, 500);
     this.setTest(this::testBurnout);
     this.setUpdateDelay(500);
   }
 
+  /**
+   * Construct a new instance.
+   *
+   * @param motorsToTest The motors to compare to each other.
+   */
   public BurnoutTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, motorsToTest,
         Collections.singletonList((ignore) -> true), 150, 500);
     this.setTest(this::testBurnout);
-    this.setUpdateDelay(500);
   }
 
+  /**
+   * Tests to see if a motor is burned out by checking to see if it is at least one standard
+   * deviation below the median.
+   * @param manageable The motor to test for burnout.
+   * @return Boolean indicating burnout.
+   */
   @SuppressWarnings("WeakerAccess")
   public Boolean testBurnout(ChickenTalon manageable) {
     return manageable.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
   }
 
+  /**
+   * Gets the currents, calculates the median and standard deviation, then calls super.
+   */
   @Override
   void periodic() {
     double[] currents = itemsToTest.stream().mapToDouble(ChickenTalon::getOutputCurrent).toArray();
@@ -68,6 +92,10 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
     this.name = subsystem;
   }
 
+  /**
+   * Displays the current status of each motor and the median current draw.
+   * @param builder The {@link SendableBuilder} to use.
+   */
   @Override
   public void initSendable(SendableBuilder builder) {
     for (ChickenTalon t : getItemsToTest()) {
