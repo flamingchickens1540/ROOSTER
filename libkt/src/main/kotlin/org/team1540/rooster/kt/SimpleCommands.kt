@@ -1,9 +1,9 @@
-package org.team1540.base.kt
+package org.team1540.rooster.kt
 
 import edu.wpi.first.wpilibj.command.Subsystem
-import org.team1540.base.util.Executable
-import org.team1540.base.util.SimpleCommand
-import org.team1540.base.util.SimpleLoopCommand
+import org.team1540.rooster.util.Executable
+import org.team1540.rooster.util.SimpleCommand
+import org.team1540.rooster.util.SimpleLoopCommand
 
 fun command(name: String, vararg reqs: Subsystem, action: () -> Unit) = SimpleCommand(name, Executable(action), *reqs)
 
