@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
+import org.team1540.rooster.network.UdpPoseTwistTransmitter
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
 import org.team1540.rooster.util.Executable
@@ -15,6 +16,7 @@ import org.team1540.rooster.util.SimpleAsyncCommand
 import org.team1540.rooster.util.SimpleCommand
 import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
+import java.net.InetSocketAddress
 import java.util.function.DoubleSupplier
 
 abstract class DrivePipelineTestRobot : IterativeRobot() {
@@ -91,6 +93,60 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         }
 
         SmartDashboard.putData(reset)
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+}
+
+
+class UdpTebPipelineTestRobot : DrivePipelineTestRobot() {
+    @JvmField
+    @Preference(persistent = false)
+    var radius = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var tpu = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var host = ""
+    private var input: UDPVelocityInput? = null
+    private var transmitter: UdpPoseTwistTransmitter? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+
+        val reset = SimpleCommand("reset", Executable {
+            input?.interrupt()
+            input?.join()
+            PipelineNavx.navx.zeroYaw()
+            _command = SimpleAsyncCommand(
+                    "Drive",
+                    20,
+                    UDPVelocityInput(5801, radius).also { input = it }
+                            + UnitScaler(tpu, 10.0)
+                            + TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, true)
+            )
+            transmitter = UdpPoseTwistTransmitter(
+                    { PipelineDriveTrain.left1.selectedSensorPosition / tpu },
+                    { PipelineDriveTrain.right1.selectedSensorPosition / tpu },
+                    { PipelineDriveTrain.left1.selectedSensorVelocity * 10 / tpu },
+                    { PipelineDriveTrain.right1.selectedSensorVelocity * 10 / tpu },
+                    { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) },
+                    radius * 2,
+                    InetSocketAddress(host, 5800))
+            PipelineDriveTrain.left1.setSelectedSensorPosition(0)
+            PipelineDriveTrain.right1.setSelectedSensorPosition(0)
+        })
+
+        reset.setRunWhenDisabled(true)
+        reset.start()
+        SmartDashboard.putData(reset)
+    }
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+        transmitter?.transmit()
     }
 
     private lateinit var _command: Command
