@@ -27,7 +27,7 @@ Control two talons in open-loop tank drive:
 
 ```java
 Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, false)
-    .then(new TalonSRXOutput(leftTalon, rightTalon));
+    .then(new CTREOutput(leftTalon, rightTalon));
 ```
 
 Breakdown:
@@ -40,7 +40,7 @@ Breakdown:
 ```java
 Executable pipeline = new ProfileInput(leftProfile, rightProfile)
     .then(new OpenLoopFeedForward(kV, vIntercept, kA))
-    .then(new TalonSRXOutput(leftTalon, rightTalon));
+    .then(new CTREOutput(leftTalon, rightTalon));
 ```
 
 Breakdown:
@@ -74,7 +74,7 @@ TankDriveData tankDriveData = new TankDriveData(
     OptionalDouble.empty());
 
 Executable pipeline = ((Input) () -> tankDriveData)
-    .then(new TalonSRXOutput(leftTalon, rightTalon))
+    .then(new CTREOutput(leftTalon, rightTalon))
 ```
 
 #### Custom Processor
@@ -98,7 +98,7 @@ Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, fals
         ),
         d.heading, d.turningRate);
     ))
-    .then(new TalonSRXOutput(leftTalon, rightTalon))
+    .then(new CTREOutput(leftTalon, rightTalon))
 ```
 
 #### Custom Output
@@ -107,8 +107,6 @@ Here's an output that just prints the data it receives instead of sending it to 
 
 ```java
 Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, false)
-    .then(data -> {
-        System.out.println(data)
-    })
+    .then(data -> System.out.println(data))
 ```
 
