@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * This arcade drive uses one throttle input and two wheel inputs (soft and hard). The soft wheel
  * input is multiplied by the absolute value of the throttle input before being used, while the hard
- * is not&ndash;this allows for smoother control of the robot's path at a variety of speeds. The
+ * is not&mdash;this allows for smoother control of the robot's path at a variety of speeds. The
  * core algorithm is adapted from Team 2471's drive code, which can be found
  * <a href="https://github.com/TeamMeanMachine/2018FRC/blob/13c96d2f0e2e780b0cec03fe71ad4919f70f6368/src/main/kotlin/org/team2471/frc/powerup/drivetrain/Drivetrain.kt#L163">here</a>.
  * <p>
