@@ -32,7 +32,7 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     override val command = SimpleLoopCommand("Drive",
             SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
-                    TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+                    CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
     )
 }
 
@@ -75,7 +75,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                     })
                     + (OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
-                    + (TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
+                    + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
 
             listOf(PipelineDriveTrain.left1, PipelineDriveTrain.right1).forEach {
                 it.configClosedloopRamp(ramp)

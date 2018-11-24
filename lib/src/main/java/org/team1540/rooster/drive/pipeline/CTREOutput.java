@@ -2,12 +2,12 @@ package org.team1540.rooster.drive.pipeline;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import org.team1540.rooster.wrappers.ChickenTalon;
+import com.ctre.phoenix.motorcontrol.IMotorController;
 
-public class TalonSRXOutput implements Output<TankDriveData> {
+public class CTREOutput implements Output<TankDriveData> {
 
-  private ChickenTalon left;
-  private ChickenTalon right;
+  private IMotorController left;
+  private IMotorController right;
   private boolean useClosedLoop;
 
   @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -43,11 +43,11 @@ public class TalonSRXOutput implements Output<TankDriveData> {
     }
   }
 
-  public TalonSRXOutput(ChickenTalon left, ChickenTalon right) {
+  public CTREOutput(IMotorController left, IMotorController right) {
     this(left, right, true);
   }
 
-  public TalonSRXOutput(ChickenTalon left, ChickenTalon right, boolean useClosedLoop) {
+  public CTREOutput(IMotorController left, IMotorController right, boolean useClosedLoop) {
     this.left = left;
     this.right = right;
     this.useClosedLoop = useClosedLoop;
