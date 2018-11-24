@@ -125,7 +125,7 @@ class UdpTebPipelineTestRobot : DrivePipelineTestRobot() {
                     20,
                     UDPVelocityInput(5801, radius).also { input = it }
                             + UnitScaler(tpu, 10.0)
-                            + TalonSRXOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, true)
+                            + CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1, true)
             )
             transmitter = UdpPoseTwistTransmitter(
                     { PipelineDriveTrain.left1.selectedSensorPosition / tpu },
