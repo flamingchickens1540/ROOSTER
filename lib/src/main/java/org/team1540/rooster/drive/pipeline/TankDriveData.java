@@ -36,7 +36,7 @@ public class TankDriveData {
   public String toString() {
     return "TankDriveData: " + "left: " + left
         + ", right:" + right
-        + ", heading " + heading
-        + ", turningRate " + turningRate;
+        + (heading.isPresent() ? ", heading " + heading.getAsDouble() : "")
+        + (turningRate.isPresent() ? ", turning rate " + turningRate.getAsDouble() : "");
   }
 }

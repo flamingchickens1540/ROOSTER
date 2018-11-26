@@ -41,9 +41,10 @@ public class DriveData {
 
   @Override
   public String toString() {
-    return "position " + position
-        + ", velocity " + velocity
-        + ", acceleration " + acceleration
-        + ", feedforward " + additionalFeedForward;
+    return (position.isPresent() ? "position " + position.getAsDouble() : "")
+        + (velocity.isPresent() ? ", velocity " + velocity.getAsDouble() : "")
+        + (acceleration.isPresent() ? ", acceleration " + acceleration.getAsDouble() : "")
+        + (additionalFeedForward.isPresent() ? ", feedforward " + additionalFeedForward
+        .getAsDouble() : "");
   }
 }
