@@ -4,10 +4,6 @@ import jaci.pathfinder.Trajectory;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
-/**
- * @deprecated Replaced by the {@link FollowProfile}-based system.
- */
-@Deprecated
 public class MotionProfilingProperties {
 
   private double encoderTicksPerUnit = 1023 * 0.1 * Math.PI;

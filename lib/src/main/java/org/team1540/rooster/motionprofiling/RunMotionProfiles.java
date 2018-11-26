@@ -9,9 +9,7 @@ import java.util.Set;
 
 /**
  * Executes a set of motion profiles (with respective properties.)
- * @deprecated Replaced by the {@link FollowProfile}-based system.
  */
-@Deprecated
 public class RunMotionProfiles extends Command {
 
   private int slotId = 0;
