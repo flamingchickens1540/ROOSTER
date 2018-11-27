@@ -13,9 +13,10 @@ import org.jetbrains.annotations.NotNull;
  * core algorithm is adapted from Team 2471's drive code, which can be found
  * <a href="https://github.com/TeamMeanMachine/2018FRC/blob/13c96d2f0e2e780b0cec03fe71ad4919f70f6368/src/main/kotlin/org/team2471/frc/powerup/drivetrain/Drivetrain.kt#L163">here</a>.
  * <p>
- * This class is an {@link Input} that provides a {@link TankDriveData}. The resulting {@link TankDriveData} will have the left and right velocities set
- * with units corresponding to the max velocity set on construction, as well as the turning rate in
- * radians per second. All other values are empty {@link OptionalDouble OptionalDoubles}.
+ * This class is an {@link Input} that provides a {@link TankDriveData}. The resulting {@link
+ * TankDriveData} will have the left and right velocities set with units corresponding to the max
+ * velocity set on construction, as well as the turning rate in radians per second. All other values
+ * are empty {@link OptionalDouble OptionalDoubles}.
  *
  * @see Input
  * @see FeedForwardProcessor
@@ -79,7 +80,8 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
       rightPower = rightPowerRaw;
     }
 
-    // omega (dtheta / dt or yaw rate) is just the difference in velocities (powers) divided by the track width
+    // omega (dtheta / dt or yaw rate) is just the difference in velocities (powers) divided by the
+    // track width
 
     double leftVelocity = leftPower * maxVelocity;
     double rightVelocity = rightPower * maxVelocity;
