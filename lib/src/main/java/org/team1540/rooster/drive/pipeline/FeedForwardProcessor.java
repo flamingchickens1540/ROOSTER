@@ -18,8 +18,6 @@ public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveD
   private final double vIntercept;
   private final double kA;
 
-  // TODO: Add explanation of units in class docs
-
   /**
    * Creates a {@code FeedForwardProcessor} with the provided \(k_v\) and \(v_{Intercept}\)
    *
@@ -34,14 +32,6 @@ public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveD
   }
 
   @Contract(pure = true)
-  private OpenLoopDriveSignal getDriveSignal(double leftSpeed, double leftAccel, double rightSpeed,
-      double rightAccel) {
-    double left = getThrottle(leftSpeed, leftAccel);
-    double right = getThrottle(rightSpeed, rightAccel);
-    return new OpenLoopDriveSignal(left, right);
-  }
-
-  @Contract(pure = true)
   private double getThrottle(double wantedSpeed, double wantedAccel) {
     return (kV * wantedSpeed)
         + (kA * wantedAccel)
@@ -50,46 +40,20 @@ public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveD
 
   @Override
   public TankDriveData apply(TankDriveData command) {
-    OpenLoopDriveSignal signal = getDriveSignal(
-        command.left.velocity.orElse(0),
-        command.left.acceleration.orElse(0),
-        command.right.velocity.orElse(0),
-        command.right.acceleration.orElse(0));
-
     return new TankDriveData(
         new DriveData(command.left.position,
             command.left.velocity,
             command.left.acceleration,
-            OptionalDouble
-                .of(command.left.additionalFeedForward.orElse(0) + signal.getLeftThrottle())),
+            OptionalDouble.of(command.left.additionalFeedForward.orElse(0)
+                + getThrottle(command.left.velocity.orElse(0),
+                command.left.acceleration.orElse(0)))),
         new DriveData(command.right.position,
             command.right.velocity,
             command.right.acceleration,
-            OptionalDouble
-                .of(command.right.additionalFeedForward.orElse(0) + signal.getRightThrottle())),
+            OptionalDouble.of(command.right.additionalFeedForward.orElse(0)
+                + getThrottle(command.right.velocity.orElse(0),
+                command.right.acceleration.orElse(0)))),
         command.heading,
         command.turningRate);
-  }
-
-  /**
-   * Data structure for a drive's left and right throttles.
-   */
-  private static class OpenLoopDriveSignal {
-
-    private final double leftThrottle;
-    private final double rightThrottle;
-
-    public OpenLoopDriveSignal(double leftThrottle, double rightThrottle) {
-      this.leftThrottle = leftThrottle;
-      this.rightThrottle = rightThrottle;
-    }
-
-    public double getLeftThrottle() {
-      return leftThrottle;
-    }
-
-    public double getRightThrottle() {
-      return rightThrottle;
-    }
   }
 }
