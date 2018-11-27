@@ -20,7 +20,7 @@ public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveD
    * Creates a {@code FeedForwardProcessor} with the provided \(k_v\) and \(v_{Intercept}\)
    *
    * @param kV The velocity constant feed-forward, in output units per speed unit.
-   * @param vIntercept The velocity intercept, in output units
+   * @param vIntercept The velocity intercept, in output units.
    * @param kA The acceleration constant feed-forward, in output units per acceleration unit.
    */
   public FeedForwardProcessor(double kV, double vIntercept, double kA) {
