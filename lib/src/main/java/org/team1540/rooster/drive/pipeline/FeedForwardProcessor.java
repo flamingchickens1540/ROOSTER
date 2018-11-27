@@ -1,14 +1,5 @@
 package org.team1540.rooster.drive.pipeline;
 
-
-/*
-Implementation note:
-This is not a command, as I realized that with PIDDrive so much of the configuration was simply
-dealing with scaling the joysticks and creating a full pipeline from joystick to motor controller.
-This just takes speed values in a method, and outputs a drive signal. This also means it can
-be plugged into a motion profile executor.
-*/
-
 import java.util.OptionalDouble;
 import org.jetbrains.annotations.Contract;
 
