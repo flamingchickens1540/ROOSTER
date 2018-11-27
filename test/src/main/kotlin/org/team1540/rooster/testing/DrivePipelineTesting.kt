@@ -17,6 +17,10 @@ import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier
 
+/**
+ * Base class that all other testing classes inherit from; just has a command that gets started when
+ * teleop starts.
+ */
 abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val command: Command
 
@@ -29,6 +33,9 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
     }
 }
 
+/**
+ * just to test that everything's sane; joystick tank drive
+ * */
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     override val command = SimpleLoopCommand("Drive",
             SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
@@ -36,6 +43,9 @@ class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     )
 }
 
+/**
+ * Testing class for [AdvancedArcadeJoystickInput].
+ */
 class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
@@ -97,6 +107,9 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override val command get() = _command
 }
 
+/**
+ * Common drive train object to be used by all pipeline test robots.
+ */
 @Suppress("unused")
 private object PipelineDriveTrain {
     val left1 = ChickenTalon(1).apply {
@@ -163,6 +176,9 @@ private object PipelineDriveTrain {
     }
 }
 
+/**
+ * Just an object to hold a navx for pipeline testers.
+ */
 private object PipelineNavx {
     val navx = AHRS(SPI.Port.kMXP)
 }
