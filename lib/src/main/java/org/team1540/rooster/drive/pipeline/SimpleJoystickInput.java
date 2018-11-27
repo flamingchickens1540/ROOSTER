@@ -7,7 +7,7 @@ import org.team1540.rooster.Utilities;
 /**
  * Simple tank-style input from a WPILib {@link Joystick}. The left and right joysticks are used to
  * control the left and right sides of the robot respectively. Additionally, there is an optional
- * "forward axis" and "back axis"; if the forward axis is bound to one trigger on an XBox controller
+ * "forward axis" and "back axis"; if the forward axis is bound to one trigger on an Xbox controller
  * and the back to the other, the forward trigger will cause the robot to drive straight forward and
  * the back trigger will cause it to drive straight backwards. This {@link Input} creates a {@link
  * TankDriveData} with only the feed-forward fields set on the left and right sides.
