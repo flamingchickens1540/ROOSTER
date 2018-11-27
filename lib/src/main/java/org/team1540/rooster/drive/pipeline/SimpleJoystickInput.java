@@ -34,15 +34,13 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
       triggerValue = 0;
     }
     double leftThrottle = Utilities.constrain(
-        Utilities.processDeadzone(Utilities.invertIf(invertLeft, joystick.getRawAxis(leftAxis)),
-            deadzone) + triggerValue,
-        1
-    );
+        Utilities.processDeadzone(
+            Utilities.invertIf(invertLeft, joystick.getRawAxis(leftAxis)), deadzone
+        ) + triggerValue, 1);
     double rightThrottle = Utilities.constrain(
-        Utilities.processDeadzone(Utilities.invertIf(invertRight, joystick.getRawAxis(rightAxis)),
-            deadzone) + triggerValue,
-        1
-    );
+        Utilities.processDeadzone(
+            Utilities.invertIf(invertRight, joystick.getRawAxis(rightAxis)), deadzone
+        ) + triggerValue, 1);
 
     return new TankDriveData(
         new DriveData(
