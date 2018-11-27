@@ -177,7 +177,7 @@ private object PipelineDriveTrain {
 }
 
 /**
- * Just an object to hold a navx for pipeline testers.
+ * Just an object to hold a NavX for pipeline testers.
  */
 private object PipelineNavx {
     val navx = AHRS(SPI.Port.kMXP)
