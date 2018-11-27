@@ -12,38 +12,38 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveData> {
 
-  private final double kV;
-  private final double vIntercept;
-  private final double kA;
+  private final double velocityFeedFwd;
+  private final double throtBump;
+  private final double accelFeedFwd;
 
   /**
    * Creates a {@code FeedForwardProcessor} with the provided \(k_v\) and \(v_{Intercept}\)
    *
-   * @param kV The velocity constant feed-forward, in output units per speed unit.
-   * @param vIntercept The velocity intercept, in output units.
-   * @param kA The acceleration constant feed-forward, in output units per acceleration unit.
+   * @param velocityFeedFwd The velocity constant feed-forward \(k_v\), in output units per speed unit.
+   * @param throtBump The velocity intercept \(V_{intercept}\), in output units.
+   * @param accelFeedFwd The acceleration constant feed-forward \(k_a\), in output units per acceleration unit.
    */
-  public FeedForwardProcessor(double kV, double vIntercept, double kA) {
-    this.kV = kV;
-    this.vIntercept = vIntercept;
-    this.kA = kA;
+  public FeedForwardProcessor(double velocityFeedFwd, double throtBump, double accelFeedFwd) {
+    this.velocityFeedFwd = velocityFeedFwd;
+    this.throtBump = throtBump;
+    this.accelFeedFwd = accelFeedFwd;
   }
 
   @Contract(pure = true)
   private double getThrottle(double wantedSpeed, double wantedAccel) {
-    return (kV * wantedSpeed)
-        + (kA * wantedAccel)
-        + (wantedSpeed != 0 ? Math.copySign(vIntercept, wantedSpeed) : 0);
+    return (velocityFeedFwd * wantedSpeed)
+        + (accelFeedFwd * wantedAccel)
+        + (wantedSpeed != 0 ? Math.copySign(throtBump, wantedSpeed) : 0);
   }
 
   /**
-   * Applys feed-forwards to the provided {@link TankDriveData}. The method for calculating the
+   * Applies feed-forwards to the provided {@link TankDriveData}. The method for calculating the
    * feed-forward is as follows:
    * <ol>
    * <li>The feed-forward starts at 0. </li>
-   * <li>The product of the velocity (if present) and the kV is added.</li>
-   * <li>The product of the acceleration (if present) and the kA is added.</li>
-   * <li>If the velocity is present and nonzero, the velocity intercept (with the sign of the
+   * <li>The product of the velocity (if present) and the velocity feed-forward is added.</li>
+   * <li>The product of the acceleration (if present) and the acceleration feed-forward is added.</li>
+   * <li>If the velocity is present and nonzero, the throttle bump (with the sign of the
    * velocity) is added.</li>
    * </ol>
    * The calculated feed-forward is then added to any feed-forward already present in the
