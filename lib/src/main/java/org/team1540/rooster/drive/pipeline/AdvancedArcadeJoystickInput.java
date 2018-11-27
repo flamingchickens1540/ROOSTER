@@ -66,9 +66,13 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
     double soft = softTurnInput.getAsDouble();
     double hard = hardTurnInput.getAsDouble();
 
+    // scale the soft turn by the throttle, but don't scale the hard turn
+    // add turn value to left and subtract from right
     double leftPowerRaw = throttle + (soft * Math.abs(throttle)) + hard;
     double rightPowerRaw = throttle - (soft * Math.abs(throttle)) - hard;
 
+    // scale the powers, so if the total power for one side is greater than 1 we start reducing the
+    // other side to compensate
     double maxPower = Math.max(Math.abs(leftPowerRaw), Math.abs(rightPowerRaw));
 
     double leftPower, rightPower;
