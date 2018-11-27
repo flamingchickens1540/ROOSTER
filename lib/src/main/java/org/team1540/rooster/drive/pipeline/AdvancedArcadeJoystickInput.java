@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * radians per second. All other values are empty {@link OptionalDouble OptionalDoubles}.
  *
  * @see Input
- * @see OpenLoopFeedForwardProcessor
+ * @see FeedForwardProcessor
  */
 public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 

@@ -12,7 +12,7 @@ be plugged into a motion profile executor.
 import java.util.OptionalDouble;
 import org.jetbrains.annotations.Contract;
 
-public class OpenLoopFeedForwardProcessor implements Processor<TankDriveData, TankDriveData> {
+public class FeedForwardProcessor implements Processor<TankDriveData, TankDriveData> {
 
   private final double kV;
   private final double vIntercept;
@@ -21,13 +21,13 @@ public class OpenLoopFeedForwardProcessor implements Processor<TankDriveData, Ta
   // TODO: Add explanation of units in class docs
 
   /**
-   * Creates a {@code CharacterizedDriveHelper} with the provided \(k_v\) and \(v_{Intercept}\)
+   * Creates a {@code FeedForwardProcessor} with the provided \(k_v\) and \(v_{Intercept}\)
    *
    * @param kV The velocity constant feed-forward, in output units per speed unit.
    * @param vIntercept The velocity intercept, in output units
    * @param kA The acceleration constant feed-forward, in output units per acceleration unit.
    */
-  public OpenLoopFeedForwardProcessor(double kV, double vIntercept, double kA) {
+  public FeedForwardProcessor(double kV, double vIntercept, double kA) {
     this.kV = kV;
     this.vIntercept = vIntercept;
     this.kA = kA;

@@ -73,7 +73,7 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                         Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
                                 - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), 2.0)
                     })
-                    + (OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
+                    + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
                     + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
 
