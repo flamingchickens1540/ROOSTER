@@ -56,6 +56,9 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
     var tpu = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var power = 0.0
 
     @JvmField
     @Preference(persistent = false)
@@ -77,11 +80,11 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         val reset = SimpleCommand("reset", Executable {
             _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(
                     maxVelocity, trackWidth,
-                    DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), 2.0) },
-                    DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), 2.0) },
+                    DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
+                    DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
                     DoubleSupplier {
                         Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
-                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), 2.0)
+                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
                     })
                     + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
