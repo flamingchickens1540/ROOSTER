@@ -25,9 +25,12 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
   private double maxVelocity;
   private double trackWidth;
-  private @NotNull DoubleSupplier throttleInput;
-  private @NotNull DoubleSupplier softTurnInput;
-  private @NotNull DoubleSupplier hardTurnInput;
+  @NotNull
+  private DoubleSupplier throttleInput;
+  @NotNull
+  private DoubleSupplier softTurnInput;
+  @NotNull
+  private DoubleSupplier hardTurnInput;
 
   /**
    * Creates a new {@code AdvancedArcadeJoystickInput}.
