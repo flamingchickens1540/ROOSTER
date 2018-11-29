@@ -18,11 +18,17 @@ A common library of useful classes and systems intended to be used for all Team 
 
 Advanced closed-loop drive code for a tank drive.
 
+#### Drive Pipeline System
+
+`org.team1540.rooster.drive.pipeline`
+
+A flexible system for controlling a robot drive. More docs [here](docs/Drive%20Pipelines.md).
+
 #### Motion Profiling
 
 `org.team1540.rooster.motionprofiling`
 
-A system for executing Pathfinder motion profiles on a tank drive.
+A system for executing motion profiles on a tank drive.
 
 #### Power Management
 
@@ -68,13 +74,12 @@ Classes (mostly WPILib `Commands`) to make life easier.
 
 ### Installation
 
-#### Using Gradle
 Add the library by adding these lines in your `build.gradle` file:
 
 ```Gradle
 repositories {
 	// other repositories
-     mavenCentral() // needed for JetBrains Annotations
+     mavenCentral()
      maven { url 'https://jitpack.io' }
 }
 
@@ -91,19 +96,6 @@ Using `master-SNAPSHOT` as a version number is good for projects you're actively
 If needed, you can build off of specific commits or branches. See the [JitPack page](https://jitpack.io/#org.team1540/rooster) for details.
 
 _Note: If you need to use changes that have just been pushed to master, you may need to force Gradle to check for a new version instead of using an already-cached older version.  Open a terminal in your project and run `./gradlew build --refresh-dependencies`._
-
-#### Manually
-
-Download the latest version from the [releases page](https://github.com/flamingchickens1540/ROOSTER/releases) and attach it to your project. 
-
-You'll also need ROOSTER's dependencies:
-
-- WPILibJ version 2018.3.2 or higher
-- CTRE Phoenix version 5.3.1.0 or higher
-- [Kauai's NavX library](https://www.pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/) 3.0.346 or higher
-- [Jaci's Pathfinder](https://github.com/JacisNonsense/Pathfinder) version 1.8 or higher
-- [MatchData](https://github.com/Open-RIO/2018-MatchData) version 2018.01.07 or higher
-- [Jetbrains Annotations](https://mvnrepository.com/artifact/org.jetbrains/annotations/15.0) version 15.0 or higher
 
 ## Developing ROOSTER
 
