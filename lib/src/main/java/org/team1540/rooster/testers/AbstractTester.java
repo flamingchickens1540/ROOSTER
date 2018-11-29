@@ -24,7 +24,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * used for estimating the queue depth based on the update delay, not actually checked against
    * while running. Defaults to 150 seconds.
    */
-  private float logTime;
+  private double logTime;
 
   private int updateDelay;
   private boolean running = true;
