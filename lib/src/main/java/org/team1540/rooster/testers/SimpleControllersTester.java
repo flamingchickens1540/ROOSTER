@@ -14,6 +14,12 @@ import java.util.Optional;
 import java.util.TreeMap;
 import org.team1540.rooster.util.SimpleCommand;
 
+/**
+ * A simple command for testing a series of {@link IMotorController}s. Simply add the
+ * controllers, specify control bindings or use the defaults, and you're ready! Select the motor in
+ * the SmartDashboard or move next/previous with buttons and control the percent output of the
+ * motor with a joystick axis.
+ */
 public class SimpleControllersTester extends Command implements Sendable {
 
   private static final int DEFAULT_JOYSTICK_ID = 0;
@@ -28,16 +34,32 @@ public class SimpleControllersTester extends Command implements Sendable {
   // because the size of the map is small? Also yes.
   private NavigableMap<Integer, IMotorController> controllers = new TreeMap<>();
 
-  // Do not manually update either of these values. Instead, call setCurrentController()
+  // Do not manually update this value. Instead, call setCurrentController()
   private IMotorController currentController;
 
   private SendableChooser<Integer> controllerChooser = new SendableChooser<>();
 
+  /**
+   * Construct a new instance with the default bindings on {@link Joystick} 0. On an Xbox
+   * controller, the right thumbstick y-axis controls {@link ControlMode}.PERCENT_OUTPUT, the A
+   * button goes to the next {@link IMotorController}, and the B button goes to the previous
+   * {@link IMotorController}.
+   *
+   * @param controllers The {@link IMotorController}s to test.
+   */
   public SimpleControllersTester(IMotorController... controllers) {
     this(new Joystick(DEFAULT_JOYSTICK_ID), DEFAULT_AXIS_ID, DEFAULT_NEXT_BUTTON_ID,
         DEFAULT_PREVIOUS_BUTTON_ID, controllers);
   }
 
+  /**
+   * Construct a new instance with the specified bindings.
+   * @param joystick The joystick port to use.
+   * @param axisId The axis on the joystick to use.
+   * @param nextButtonId The button to use to proceed to the next {@link IMotorController}.
+   * @param previousButtonId The button to use to proceed to the nex {@link IMotorController}.
+   * @param controllers The {@link IMotorController}s to test.
+   */
   @SuppressWarnings("WeakerAccess")
   public SimpleControllersTester(Joystick joystick, int axisId, int nextButtonId,
       int previousButtonId,
@@ -71,6 +93,10 @@ public class SimpleControllersTester extends Command implements Sendable {
 
   }
 
+  /**
+   * Checks every tick if the chooser is set to a controller or to use buttons, then sets the
+   * output according to the value of the active joystick.
+   */
   @Override
   protected void execute() {
     if (controllerChooser.getSelected() != null) {
@@ -79,6 +105,10 @@ public class SimpleControllersTester extends Command implements Sendable {
     currentController.set(ControlMode.PercentOutput, joystick.getRawAxis(axisId));
   }
 
+  /**
+   * Updates the currently active {@link IMotorController}.
+   * @param newId The ID of the new {@link IMotorController}.
+   */
   @SuppressWarnings("WeakerAccess")
   public void setCurrentController(int newId) {
     if (currentController != null) {
@@ -87,25 +117,41 @@ public class SimpleControllersTester extends Command implements Sendable {
     currentController = controllers.get(newId);
   }
 
+  /**
+   * Prevents the command from finishing.
+   * @return false.
+   */
   @Override
   protected boolean isFinished() {
     return false;
   }
 
+  /**
+   * Gets the chooser used for selecting the current {@link IMotorController}.
+   * @return A chooser.
+   */
   @SuppressWarnings("WeakerAccess")
   public SendableChooser<Integer> getControllerChooser() {
     return controllerChooser;
   }
 
+  /**
+   * Adds a single property showing the current active controller.
+   * @param builder The thing to add the things to.
+   */
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.addDoubleProperty("Controller ID", () -> this.currentController.getDeviceID(),
         (id) -> setCurrentController((int) id));
   }
 
+  /**
+   * Add all the sendables to the {@link SmartDashboard}. Includes chooser for selecting the
+   * active {@link IMotorController} and information about the tester.
+   */
   public void addAllSendables() {
-    SmartDashboard.putData("ya", this);
-    SmartDashboard.putData("yeet", getControllerChooser());
+    SmartDashboard.putData("Controller tester info", this);
+    SmartDashboard.putData("Controller choose", getControllerChooser());
   }
 
 
