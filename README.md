@@ -42,6 +42,14 @@ A flexible, dynamic power management system. Uses a centralized `PowerManager` t
 
 A system to easily set tuning fields through WPILib `Preferences`.
 
+#### Testing
+
+`org.team1540.rooster.testers`
+
+Various classes for testing common things.
+- `BurnoutTester` for testing if motors are burned out.
+- `SimpleControllersTester` for easily running motors.
+
 #### Triggers
 
 `org.team1540.rooster.triggers`
