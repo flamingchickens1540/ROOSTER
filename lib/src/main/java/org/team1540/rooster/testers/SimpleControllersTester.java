@@ -16,10 +16,9 @@ import org.team1540.rooster.util.SimpleCommand;
 
 /**
  * A simple command for testing a series of {@link IMotorController IMotorControllers}. Simply
- * add the
- * controllers, specify control bindings or use the defaults, and you're ready! Select the motor in
- * the SmartDashboard or move next/previous with buttons and control the percent output of the
- * motor with a joystick axis.
+ * add the controllers, specify control bindings or use the defaults, and you're ready! Select
+ * the motor in the SmartDashboard or move next/previous with buttons and control the percent
+ * output of the motor with a joystick axis.
  */
 public class SimpleControllersTester extends Command implements Sendable {
 
