@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Deploy HelloWorldTestRobot" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Deploy AdvancedJoystickInputPipelineTestRobot" type="GradleRunConfiguration" factoryName="Gradle" folderName="Drive Pipeline Testing">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="-ProbotClass=org.team1540.rooster.testing.HelloWorldTestRobot" />
+      <option name="scriptParameters" value="-ProbotClass=org.team1540.rooster.testing.AdvancedJoystickInputPipelineTestRobot" />
       <option name="taskDescriptions">
         <list />
       </option>
