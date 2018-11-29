@@ -1,5 +1,6 @@
 package org.team1540.rooster.testers;
 
+import com.ctre.phoenix.motorcontrol.IMotorController;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
@@ -8,14 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
-import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
  * Reports motor burnouts by comparing the current draw across a series of similarly-purposed
  * motors and reporting low outliers.
  */
 @SuppressWarnings("unused")
-public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> implements Sendable {
+public class BurnoutTester extends AbstractTester<IMotorController, Boolean> implements Sendable {
 
 
   private static final Median medianCalculator = new Median();
@@ -30,7 +30,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
    *
    * @param motorsToTest The motors to compare to each other.
    */
-  public BurnoutTester(ChickenTalon... motorsToTest) {
+  public BurnoutTester(IMotorController... motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, Arrays.asList(motorsToTest),
         Collections.singletonList((ignore) -> true), 150, 500);
@@ -43,7 +43,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
    *
    * @param motorsToTest The motors to compare to each other.
    */
-  public BurnoutTester(List<ChickenTalon> motorsToTest) {
+  public BurnoutTester(List<IMotorController> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, motorsToTest,
         Collections.singletonList((ignore) -> true), 150, 500);
@@ -57,7 +57,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
    * @return Boolean indicating burnout.
    */
   @SuppressWarnings("WeakerAccess")
-  public Boolean testBurnout(ChickenTalon manageable) {
+  public Boolean testBurnout(IMotorController manageable) {
     return manageable.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
   }
 
@@ -66,7 +66,8 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
    */
   @Override
   void periodic() {
-    double[] currents = itemsToTest.stream().mapToDouble(ChickenTalon::getOutputCurrent).toArray();
+    double[] currents = itemsToTest.stream().mapToDouble(IMotorController::getOutputCurrent)
+        .toArray();
     medianCurrent = medianCalculator.evaluate(currents);
     stdDevCurrent = stdDevCalculator.evaluate(currents);
     super.periodic();
@@ -98,7 +99,7 @@ public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> impleme
    */
   @Override
   public void initSendable(SendableBuilder builder) {
-    for (ChickenTalon t : getItemsToTest()) {
+    for (IMotorController t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
       builder.addBooleanProperty(t.getDeviceID() + "", () -> {
         // TODO probably cleaner version of this, at the least ifPresentOrElse() in Java 9
