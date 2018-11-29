@@ -15,7 +15,8 @@ import java.util.TreeMap;
 import org.team1540.rooster.util.SimpleCommand;
 
 /**
- * A simple command for testing a series of {@link IMotorController}s. Simply add the
+ * A simple command for testing a series of {@link IMotorController IMotorControllers}. Simply
+ * add the
  * controllers, specify control bindings or use the defaults, and you're ready! Select the motor in
  * the SmartDashboard or move next/previous with buttons and control the percent output of the
  * motor with a joystick axis.
@@ -45,7 +46,7 @@ public class SimpleControllersTester extends Command implements Sendable {
    * button goes to the next {@link IMotorController}, and the B button goes to the previous
    * {@link IMotorController}.
    *
-   * @param controllers The {@link IMotorController}s to test.
+   * @param controllers The {@link IMotorController IMotorControllers} to test.
    */
   public SimpleControllersTester(IMotorController... controllers) {
     this(new Joystick(DEFAULT_JOYSTICK_ID), DEFAULT_AXIS_ID, DEFAULT_NEXT_BUTTON_ID,
@@ -58,7 +59,7 @@ public class SimpleControllersTester extends Command implements Sendable {
    * @param axisId The axis on the joystick to use.
    * @param nextButtonId The button to use to proceed to the next {@link IMotorController}.
    * @param previousButtonId The button to use to proceed to the nex {@link IMotorController}.
-   * @param controllers The {@link IMotorController}s to test.
+   * @param controllers The {@link IMotorController IMotorControllers} to test.
    */
   @SuppressWarnings("WeakerAccess")
   public SimpleControllersTester(Joystick joystick, int axisId, int nextButtonId,
