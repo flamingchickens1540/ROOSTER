@@ -38,6 +38,7 @@ public class SimpleControllersTester extends Command implements Sendable {
         DEFAULT_PREVIOUS_BUTTON_ID, controllers);
   }
 
+  @SuppressWarnings("WeakerAccess")
   public SimpleControllersTester(Joystick joystick, int axisId, int nextButtonId,
       int previousButtonId,
       IMotorController... controllers) {
@@ -78,6 +79,7 @@ public class SimpleControllersTester extends Command implements Sendable {
     currentController.set(ControlMode.PercentOutput, joystick.getRawAxis(axisId));
   }
 
+  @SuppressWarnings("WeakerAccess")
   public void setCurrentController(int newId) {
     if (currentController != null) {
       currentController.set(ControlMode.PercentOutput, 0);
@@ -90,6 +92,7 @@ public class SimpleControllersTester extends Command implements Sendable {
     return false;
   }
 
+  @SuppressWarnings("WeakerAccess")
   public SendableChooser<Integer> getControllerChooser() {
     return controllerChooser;
   }
