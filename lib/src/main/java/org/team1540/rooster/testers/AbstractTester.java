@@ -19,13 +19,6 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   private static float DEFAULT_LOG_TIME = 150;
   private static int DEFAULT_UPDATE_DELAY = 2500;
 
-  /**
-   * The maximum length of time for which we want to store the results. Note that this is just
-   * used for estimating the queue depth based on the update delay, not actually checked against
-   * while running. Defaults to 150 seconds.
-   */
-  private double logTime;
-
   private int updateDelay;
   private boolean running = true;
   @NotNull
@@ -57,14 +50,15 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param itemsToTest The items to apply the test to.
    * @param runConditions The conditions that must be met before the test will be executed on an
    * item.
-   * @param logTime The maximum length of time for which we want to store the results.
+   * @param logTime The maximum length of time for which we want to store the results. Note that
+   * this is just used for estimating the queue depth based on the update delay, not actually
+   * checked against while running.
    * @param updateDelay The delay between the test being run on the items.
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this(test, itemsToTest, runConditions,
         (int) (logTime / ((float) updateDelay / 1000f)));
-    this.logTime = logTime;
     this.updateDelay = updateDelay;
   }
 
