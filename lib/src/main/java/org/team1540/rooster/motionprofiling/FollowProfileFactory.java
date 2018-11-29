@@ -399,7 +399,7 @@ public class FollowProfileFactory {
    *
    * @param left The profile for the left side.
    * @param right The profile for the right side.
-   * @return A new {@link FollowProfile} command with the previously configured settings following 
+   * @return A new {@link FollowProfile} command with the previously configured settings following
    * the provided profile.
    */
   @NotNull

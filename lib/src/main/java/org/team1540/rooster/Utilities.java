@@ -101,6 +101,14 @@ public class Utilities {
     }
   }
 
+  /**
+   * Raises the input to the provided power while preserving the sign. Useful for joystick scaling.
+   *
+   * @param input The input to be raised.
+   * @param pow The power.
+   * @return The input raised to the provided power, with the sign of the input.
+   */
+  @Contract(pure = true)
   public static double scale(double input, double pow) {
     return Math.copySign(Math.pow(Math.abs(input), pow), input);
   }

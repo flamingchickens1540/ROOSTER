@@ -6,18 +6,15 @@ Some "stock" classes (inputs, processors, and outputs) are available in the `org
 
 ## What's a Drive Pipeline?
 
-
 A pipeline can be used for almost any concievable method of drivetrain control, including standard open-loop teleop drive, closed-loop motion profiling, and anywhere in between.
 
 Pipelines consist of three different kinds of stages: *inputs*, *processors*, and *outputs*. Since inputs, processors, and outputs are just `Suppliers`, `Functions`, and `Consumers` respectively, they can be extended easily and flexibly.
 
 - An input produces target values for processing; for example, an input could get current values from the driver's joysticks, or the currently executing point in a motion profile.
 
-- A processor, well, processes values; for example, a closed-loop processor might take a desired position, velocity, and/or acceleration and convert them into setpoints, feed-forwards, etc. to send to motors. Note that processors can receive data from things that are not the currently configured input; for example, a gyro.
+- A processor, well, processes values: for example, a closed-loop processor might take a desired position, velocity, and/or acceleration and convert them into setpoints, feed-forwards, etc. to send to motors. Note that processors can receive data from things that are not the currently configured input; for example, a gyro.
 
 - An output turns values from a processor into commands for motors or other things. An output for Talon SRX motors might just pass a setpoint to the Talons' native closed-loop functionality, while an output for PWM motors might perform additional PID logic.
-
-
 
 ## Examples
 

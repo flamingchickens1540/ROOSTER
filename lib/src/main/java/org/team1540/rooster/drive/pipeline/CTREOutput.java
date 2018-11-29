@@ -26,42 +26,33 @@ public class CTREOutput implements Output<TankDriveData> {
    * it is {@code false}, or if the provided {@link TankDriveData} has empty position and velocity
    * fields, {@link DriveData#additionalFeedForward} (or 0 if it is not present) will be passed in
    * as the motor throttle from -1 to 1 inclusive.
-   * <p>Note that if the filled state (i.e. whether the optional actually contains a value) of the
-   * position/velocity fields must be the same between the left and right side.
    *
    * @param tankDriveData The data to accept.
    */
-  @SuppressWarnings("OptionalGetWithoutIsPresent")
   @Override
   @Contract(pure = true)
   public void accept(@NotNull TankDriveData tankDriveData) {
-    if (tankDriveData.left.position.isPresent() && closedLoop) {
-      if (tankDriveData.left.additionalFeedForward.isPresent()) {
-        left.set(ControlMode.Position, tankDriveData.left.position.getAsDouble(),
-            DemandType.ArbitraryFeedForward,
-            tankDriveData.left.additionalFeedForward.getAsDouble());
-        right.set(ControlMode.Position, tankDriveData.right.position.getAsDouble(),
-            DemandType.ArbitraryFeedForward,
-            tankDriveData.right.additionalFeedForward.getAsDouble());
+    processSide(tankDriveData.left, left);
+    processSide(tankDriveData.right, right);
+  }
+
+  private void processSide(DriveData data, IMotorController controller) {
+    if (data.position.isPresent() && closedLoop) {
+      if (data.additionalFeedForward.isPresent()) {
+        controller.set(ControlMode.Position, data.position.getAsDouble(),
+            DemandType.ArbitraryFeedForward, data.additionalFeedForward.getAsDouble());
       } else {
-        left.set(ControlMode.Position, tankDriveData.left.position.getAsDouble());
-        right.set(ControlMode.Position, tankDriveData.right.position.getAsDouble());
+        controller.set(ControlMode.Position, data.position.getAsDouble());
       }
-    } else if (tankDriveData.left.velocity.isPresent() && closedLoop) {
-      if (tankDriveData.left.additionalFeedForward.isPresent()) {
-        left.set(ControlMode.Velocity, tankDriveData.left.velocity.getAsDouble(),
-            DemandType.ArbitraryFeedForward,
-            tankDriveData.left.additionalFeedForward.getAsDouble());
-        right.set(ControlMode.Velocity, tankDriveData.right.velocity.getAsDouble(),
-            DemandType.ArbitraryFeedForward,
-            tankDriveData.right.additionalFeedForward.getAsDouble());
+    } else if (data.velocity.isPresent() && closedLoop) {
+      if (data.additionalFeedForward.isPresent()) {
+        controller.set(ControlMode.Velocity, data.velocity.getAsDouble(),
+            DemandType.ArbitraryFeedForward, data.additionalFeedForward.getAsDouble());
       } else {
-        left.set(ControlMode.Velocity, tankDriveData.left.velocity.getAsDouble());
-        right.set(ControlMode.Velocity, tankDriveData.right.velocity.getAsDouble());
+        controller.set(ControlMode.Velocity, data.velocity.getAsDouble());
       }
     } else {
-      left.set(ControlMode.PercentOutput, tankDriveData.left.additionalFeedForward.orElse(0));
-      right.set(ControlMode.PercentOutput, tankDriveData.right.additionalFeedForward.orElse(0));
+      controller.set(ControlMode.PercentOutput, data.additionalFeedForward.orElse(0));
     }
   }
 
@@ -70,7 +61,7 @@ public class CTREOutput implements Output<TankDriveData> {
    * possible. If {@code true}, when {@link #accept(TankDriveData) accept()} is called and the
    * provided {@link TankDriveData} has non-empty position or velocity fields, that setpoint will be
    * sent to the motor controllers as a closed-loop setpoint, with any additional feed-forward sent
-   * via throttle bump. (Position has priority over velocity when deciding which setpoint to send.)
+   * via throttle bump (position has priority over velocity when deciding which setpoint to send.)
    * If {@code false}, or if the provided {@link TankDriveData} has empty position and velocity
    * fields, {@link DriveData#additionalFeedForward} (or 0 if it is not present) will be passed in
    * as the motor throttle from -1 to 1 inclusive.

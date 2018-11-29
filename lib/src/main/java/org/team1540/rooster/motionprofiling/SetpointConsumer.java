@@ -19,8 +19,8 @@ public interface SetpointConsumer {
    * {@link ControlMode#Position} and the {@code DemandType} set to {@link
    * DemandType#ArbitraryFeedForward}.
    * <p>
-   * See the {@linkplain org.team1540.rooster.motionprofiling package documentation} for an explanation
-   * of profile units, bump units, etc..
+   * See the {@linkplain org.team1540.rooster.motionprofiling package documentation} for an
+   * explanation of profile units, bump units, etc..
    *
    * @param setpoint The position PID setpoint, in profile units. (Unit conversion to Talon SRX
    * native units etc. should be performed within this method.)

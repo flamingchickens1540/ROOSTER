@@ -18,6 +18,12 @@ A common library of useful classes and systems intended to be used for all Team 
 
 Advanced closed-loop drive code for a tank drive.
 
+#### Drive Pipeline System
+
+`org.team1540.rooster.drive.pipeline`
+
+A flexible system for controlling a robot drive. More docs [here](docs/Drive%20Pipelines.md).
+
 #### Motion Profiling
 
 `org.team1540.rooster.motionprofiling`

@@ -19,6 +19,10 @@ import org.team1540.rooster.wrappers.ChickenTalon
 import java.net.InetSocketAddress
 import java.util.function.DoubleSupplier
 
+/**
+ * Base class that all other testing classes inherit from; just has a command that gets started when
+ * teleop starts.
+ */
 abstract class DrivePipelineTestRobot : IterativeRobot() {
     protected abstract val command: Command
 
@@ -31,6 +35,9 @@ abstract class DrivePipelineTestRobot : IterativeRobot() {
     }
 }
 
+/**
+ * just to test that everything's sane; joystick tank drive
+ * */
 class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     override val command = SimpleLoopCommand("Drive",
             SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
@@ -38,6 +45,9 @@ class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
     )
 }
 
+/**
+ * Testing class for [AdvancedArcadeJoystickInput].
+ */
 class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
@@ -48,6 +58,9 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
     var tpu = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var power = 0.0
 
     @JvmField
     @Preference(persistent = false)
@@ -61,6 +74,10 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     @JvmField
     @Preference(persistent = false)
     var ramp = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var revBack = false
+
 
     private val joystick = XboxController(0)
 
@@ -68,14 +85,14 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
             _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(
-                    maxVelocity, trackWidth,
-                    DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), 2.0) },
-                    DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), 2.0) },
+                    maxVelocity, trackWidth, revBack,
+                    DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
+                    DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
                     DoubleSupplier {
                         Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
-                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), 2.0)
+                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
                     })
-                    + (OpenLoopFeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
+                    + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
                     + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
 
@@ -153,6 +170,9 @@ class UdpTebPipelineTestRobot : DrivePipelineTestRobot() {
     override val command get() = _command
 }
 
+/**
+ * Common drive train object to be used by all pipeline test robots.
+ */
 @Suppress("unused")
 private object PipelineDriveTrain {
     val left1 = ChickenTalon(1).apply {
@@ -219,6 +239,9 @@ private object PipelineDriveTrain {
     }
 }
 
+/**
+ * Just an object to hold a NavX for pipeline testers.
+ */
 private object PipelineNavx {
     val navx = AHRS(SPI.Port.kMXP)
 }

@@ -52,14 +52,16 @@ public class ProfileFollower {
    * For an explanation of units, see the {@linkplain org.team1540.rooster.motionprofiling package
    * docs}.
    *
-   * @param lVelCoeff The left velocity coefficient (kV), in bump units per profile unit per second.
+   * @param lVelCoeff The left velocity coefficient (kV), in bump units per profile unit per
+   * second.
    * @param lVelIntercept The left velocity intercept (VIntercept), in bump units.
-   * @param lAccelCoeff The left acceleration coefficient (kA), in bump units per profile unit per second
-   * squared.
-   * @param rVelCoeff The right velocity coefficient (kV), in bump units per profile unit per second.
+   * @param lAccelCoeff The left acceleration coefficient (kA), in bump units per profile unit per
+   * second squared.
+   * @param rVelCoeff The right velocity coefficient (kV), in bump units per profile unit per
+   * second.
    * @param rVelIntercept The right velocity intercept (VIntercept), in bump units.
-   * @param rAccelCoeff The right acceleration coefficient (kA), in bump units per profile unit per second
-   * squared.
+   * @param rAccelCoeff The right acceleration coefficient (kA), in bump units per profile unit per
+   * second squared.
    * @param headingP The P coefficient for the heading controller, in profile units per radian.
    * @param headingI The I coefficient for the heading controller, in profile units per
    * radian-second.

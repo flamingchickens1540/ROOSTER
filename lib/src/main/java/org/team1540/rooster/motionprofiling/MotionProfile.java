@@ -57,13 +57,13 @@ public class MotionProfile {
      */
     public double dt;
     /**
-     * The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile units},
-     * or 0 if not applicable.
+     * The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
+     * units}, or 0 if not applicable.
      */
     public double x;
     /**
-     * The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile units},
-     * or 0 if not applicable.
+     * The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
+     * units}, or 0 if not applicable.
      */
     public double y;
     /**
@@ -82,8 +82,8 @@ public class MotionProfile {
      */
     public double acceleration;
     /**
-     * The jerk of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling profile
-     * units} per second cubed.
+     * The jerk of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
+     * profile units} per second cubed.
      */
     public double jerk;
     /**
@@ -95,10 +95,10 @@ public class MotionProfile {
      * Creates a new {@code Point}.
      *
      * @param dt The time change since the previous point, in seconds.
-     * @param x The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
-     * units}, or 0 if not applicable.
-     * @param y The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
-     * units}, or 0 if not applicable.
+     * @param x The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling
+     * profile units}, or 0 if not applicable.
+     * @param y The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling
+     * profile units}, or 0 if not applicable.
      * @param position The position of the profiled mechanism, in {@linkplain
      * org.team1540.rooster.motionprofiling profile units}.
      * @param velocity The velocity of the profiled mechanism, in {@linkplain
