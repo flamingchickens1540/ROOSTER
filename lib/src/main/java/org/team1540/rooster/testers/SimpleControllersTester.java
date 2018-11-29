@@ -1,6 +1,7 @@
 package org.team1540.rooster.testers;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.IMotorController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -12,7 +13,6 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 import org.team1540.rooster.util.SimpleCommand;
-import org.team1540.rooster.wrappers.ChickenController;
 
 public class SimpleControllersTester extends Command implements Sendable {
 
@@ -26,21 +26,21 @@ public class SimpleControllersTester extends Command implements Sendable {
 
   // Is the retrieval time poor, despite the need for a lot of retrievals? Yes. Are we ignoring that
   // because the size of the map is small? Also yes.
-  private NavigableMap<Integer, ChickenController> controllers = new TreeMap<>();
+  private NavigableMap<Integer, IMotorController> controllers = new TreeMap<>();
 
   // Do not manually update either of these values. Instead, call setCurrentController()
-  private ChickenController currentController;
+  private IMotorController currentController;
 
   private SendableChooser<Integer> controllerChooser = new SendableChooser<>();
 
-  public SimpleControllersTester(ChickenController... controllers) {
+  public SimpleControllersTester(IMotorController... controllers) {
     this(new Joystick(DEFAULT_JOYSTICK_ID), DEFAULT_AXIS_ID, DEFAULT_NEXT_BUTTON_ID,
         DEFAULT_PREVIOUS_BUTTON_ID, controllers);
   }
 
   public SimpleControllersTester(Joystick joystick, int axisId, int nextButtonId,
       int previousButtonId,
-      ChickenController... controllers) {
+      IMotorController... controllers) {
     this.joystick = joystick;
     this.axisId = axisId;
 
@@ -59,7 +59,7 @@ public class SimpleControllersTester extends Command implements Sendable {
     // Add a chooser that you can use to select the controller and initialize it to null,
     // corresponding with buttons should be used
     this.controllerChooser.addObject("Use buttons", null);
-    for (ChickenController controller : controllers) {
+    for (IMotorController controller : controllers) {
       this.controllers.put(controller.getDeviceID(), controller);
       this.controllerChooser.addObject(String.valueOf(controller.getDeviceID()),
           controller.getDeviceID());
@@ -80,7 +80,7 @@ public class SimpleControllersTester extends Command implements Sendable {
 
   public void setCurrentController(int newId) {
     if (currentController != null) {
-      currentController.set(0);
+      currentController.set(ControlMode.PercentOutput, 0);
     }
     currentController = controllers.get(newId);
   }
