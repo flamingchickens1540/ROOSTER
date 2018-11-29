@@ -16,25 +16,24 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings({"unused", "UnstableApiUsage"})
 public abstract class AbstractTester<T, R> implements Tester<T, R> {
 
+  private static float DEFAULT_LOG_TIME = 150;
+  private static int DEFAULT_UPDATE_DELAY = 2500;
+
   /**
    * The maximum length of time for which we want to store the results. Note that this is just
    * used for estimating the queue depth based on the update delay, not actually checked against
-   * while running.
+   * while running. Defaults to 150 seconds.
    */
-  private float logTime = 150;
+  private float logTime;
 
-  private int updateDelay = 2500;
+  private int updateDelay;
   private boolean running = true;
-  @SuppressWarnings("NullableProblems")
   @NotNull
   List<T> itemsToTest;
-  @SuppressWarnings("NullableProblems")
   @NotNull
   private Function<T, R> test;
-  @SuppressWarnings("NullableProblems")
   @NotNull
   private List<Function<T, Boolean>> runConditions;
-  @SuppressWarnings("NullableProblems")
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
 
@@ -48,7 +47,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions) {
-    realConstructor(test, itemsToTest, runConditions, (int) logTime / (updateDelay / 1000));
+    this(test, itemsToTest, runConditions, (int) DEFAULT_LOG_TIME / (DEFAULT_UPDATE_DELAY / 1000));
   }
 
   /**
@@ -63,10 +62,10 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
+    this(test, itemsToTest, runConditions,
+        (int) (logTime / ((float) updateDelay / 1000f)));
     this.logTime = logTime;
     this.updateDelay = updateDelay;
-    realConstructor(test, itemsToTest, runConditions,
-        (int) (logTime / ((float) updateDelay / 1000f)));
   }
 
   /**
@@ -79,11 +78,6 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param queueDepth The maximum number of items that the {@link EvictingQueue} can hold.
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
-    realConstructor(test, itemsToTest, runConditions, queueDepth);
-  }
-
-  private void realConstructor(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
     this.test = test;
     this.itemsToTest = itemsToTest;
