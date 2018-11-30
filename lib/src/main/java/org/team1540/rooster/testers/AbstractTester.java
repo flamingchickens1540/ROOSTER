@@ -25,7 +25,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   List<T> itemsToTest;
   @NotNull
   private Function<T, R> test;
-  @NotNull
+  @Nullable
   private List<Function<T, Boolean>> runConditions;
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
@@ -39,7 +39,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * item.
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions) {
+      @Nullable List<Function<T, Boolean>> runConditions) {
     this(test, itemsToTest, runConditions, (int) DEFAULT_LOG_TIME / (DEFAULT_UPDATE_DELAY / 1000));
   }
 
@@ -56,7 +56,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param updateDelay The delay between the test being run on the items.
    */
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
+      @Nullable List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this(test, itemsToTest, runConditions,
         (int) (logTime / ((float) updateDelay / 1000f)));
     this.updateDelay = updateDelay;
@@ -71,8 +71,9 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * item.
    * @param queueDepth The maximum number of items that the {@link EvictingQueue} can hold.
    */
+  @SuppressWarnings("WeakerAccess")
   AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
+      @Nullable List<Function<T, Boolean>> runConditions, int queueDepth) {
     this.test = test;
     this.itemsToTest = itemsToTest;
     this.runConditions = runConditions;
@@ -95,10 +96,17 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   }
 
   @Override
-  @NotNull
+  @Nullable
   public List<Function<T, Boolean>> getRunConditions() {
-    return Collections.unmodifiableList(runConditions);
+    return runConditions;
   }
+
+  @Override
+  public void setRunConditions(
+      @Nullable List<Function<T, Boolean>> runConditions) {
+    this.runConditions = runConditions;
+  }
+
 
   @Override
   @NotNull
@@ -143,12 +151,16 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    */
   void periodic() {
     for (T t : itemsToTest) {
-      // Run through all the run conditions and make sure they all return true
-      for (Function<T, Boolean> runCondition : runConditions) {
-        if (!runCondition.apply(t)) {
-          return;
+      // If there are run conditions
+      if (runConditions != null) {
+        // Run through all the run conditions and make sure they all return true
+        for (Function<T, Boolean> runCondition : runConditions) {
+          if (!runCondition.apply(t)) {
+            return;
+          }
         }
       }
+
       this.storedResults.get(t).addResult(this.test.apply(t), System.currentTimeMillis());
     }
   }

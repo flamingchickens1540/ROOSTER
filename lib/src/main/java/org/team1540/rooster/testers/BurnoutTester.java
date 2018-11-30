@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.IMotorController;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
@@ -26,39 +25,38 @@ public class BurnoutTester extends AbstractTester<IMotorController, Boolean> imp
   private String name = "BurnoutTester";
 
   /**
-   * Construct a new instance.
+   * Construct a new instance with the default logTime of 150 seconds and an update delay of 500
+   * ms. Equivalent to {@link BurnoutTester#BurnoutTester(List) EncoderTester(Arrays.asList
+   * (motorsToTest))}.
    *
    * @param motorsToTest The motors to compare to each other.
    */
+  @SuppressWarnings("WeakerAccess")
   public BurnoutTester(IMotorController... motorsToTest) {
-    // Because passing in a reference to a non-static method in the constructor doesn't work.
-    super((stupid) -> null, Arrays.asList(motorsToTest),
-        Collections.singletonList((ignore) -> true), 150, 500);
-    this.setTest(this::testBurnout);
-    this.setUpdateDelay(500);
+    this(Arrays.asList(motorsToTest));
   }
 
   /**
-   * Construct a new instance.
+   * Construct a new instance with the default logTime of 150 seconds and an update delay of 500 ms.
    *
    * @param motorsToTest The motors to compare to each other.
    */
+  @SuppressWarnings("WeakerAccess")
   public BurnoutTester(List<IMotorController> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
-    super((stupid) -> null, motorsToTest,
-        Collections.singletonList((ignore) -> true), 150, 500);
+    super((stupid) -> null, motorsToTest, null, 150, 500);
     this.setTest(this::testBurnout);
   }
 
   /**
    * Tests to see if a motor is burned out by checking to see if it is at least one standard
    * deviation below the median.
-   * @param manageable The motor to test for burnout.
+   * @param controller The motor to test for burnout.
    * @return Boolean indicating burnout.
    */
   @SuppressWarnings("WeakerAccess")
-  public Boolean testBurnout(IMotorController manageable) {
-    return manageable.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
+  public Boolean testBurnout(IMotorController controller) {
+    return controller.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
   }
 
   /**
@@ -101,6 +99,7 @@ public class BurnoutTester extends AbstractTester<IMotorController, Boolean> imp
   public void initSendable(SendableBuilder builder) {
     for (IMotorController t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
+      //noinspection Duplicates
       builder.addBooleanProperty(t.getDeviceID() + "", () -> {
         // TODO probably cleaner version of this, at the least ifPresentOrElse() in Java 9
         Optional<ResultWithMetadata<Boolean>> result = Optional.ofNullable(peekMostRecentResult(t));
