@@ -73,6 +73,40 @@ public class TurningRateClosedLoopProcessor implements Processor<TankDriveData, 
     }
   }
 
+  /**
+   * Gets the current value of the integral accumulator.
+   *
+   * @return The integral accumulator, in radians. If the PID loop has not yet been run (i.e. {@link
+   * #apply(TankDriveData)} apply()} has not yet been called since instantiation/the last call to
+   * {@link #reset()}), returns 0.
+   */
+  public double getIAccum() {
+    return iAccum;
+  }
+
+  /**
+   * Gets the closed-loop error from the last run of the PID loop.
+   *
+   * @return The closed-loop error, in radians per second. If the PID loop has not yet been run
+   * (i.e. {@link #apply(TankDriveData)} apply()} has not yet been called since instantiation/the
+   * last call to {@link #reset()}), returns 0.
+   */
+  public double getError() {
+    return lastError;
+  }
+
+  /**
+   * Resets the PID loop. This clears the integral accumulator and error values, and should be
+   * called if the {@code TurningRateClosedLoopProcessor} is being reused for multiple discrete
+   * occasions (i.e. executions of different motion profile segments). Calling this is functionally
+   * equivalent to creating a new processor instance.
+   */
+  public void reset() {
+    iAccum = 0;
+    lastError = 0;
+    lastTime = -1;
+  }
+
   public TurningRateClosedLoopProcessor(DoubleSupplier yawRateSupplier, double p) {
     this(yawRateSupplier, p, 0);
   }
