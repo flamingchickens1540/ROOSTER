@@ -172,6 +172,61 @@ class HeadingPIDPipelineTestRobot : DrivePipelineTestRobot() {
     override val command get() = _command
 }
 
+class TurningRatePIDPipelineTestRobot : DrivePipelineTestRobot() {
+
+    @JvmField
+    @Preference(persistent = false)
+    var p = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var i = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var d = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var turnSet = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+
+    private var turningRatePIDProcessor: TurningRatePIDProcessor? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            turningRatePIDProcessor = TurningRatePIDProcessor({ Math.toRadians(PipelineNavx.navx.rate) }, p, i, d, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20,
+                    Input {
+                        TankDriveData(
+                                DriveData(OptionalDouble.empty()),
+                                DriveData(OptionalDouble.empty()),
+                                OptionalDouble.empty(),
+                                OptionalDouble.of(turnSet))
+                    } + turningRatePIDProcessor!! + FeedForwardProcessor(1.0, 0.0, 0.0) + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1))
+            )
+
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        turningRatePIDProcessor?.error?.let { SmartDashboard.putNumber("Error", it) }
+        turningRatePIDProcessor?.iAccum?.let { SmartDashboard.putNumber("Iaccum", it) }
+        SmartDashboard.putNumber("hdg", Math.toRadians(PipelineNavx.navx.yaw.toDouble()))
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+}
+
 /**
  * Common drive train object to be used by all pipeline test robots.
  */
