@@ -15,6 +15,7 @@ import org.team1540.rooster.util.SimpleAsyncCommand
 import org.team1540.rooster.util.SimpleCommand
 import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
+import java.util.OptionalDouble
 import java.util.function.DoubleSupplier
 
 /**
@@ -108,6 +109,63 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         }
 
         SmartDashboard.putData(reset)
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+}
+
+class HeadingPIDPipelineTestRobot : DrivePipelineTestRobot() {
+
+    @JvmField
+    @Preference(persistent = false)
+    var p = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var i = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var d = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgSet = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+
+    private var headingPIDProcessor: HeadingPIDProcessor? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            headingPIDProcessor = HeadingPIDProcessor(p, i, d,
+                    { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) },
+                    false, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20,
+                    Input {
+                        TankDriveData(
+                                DriveData(OptionalDouble.empty()),
+                                DriveData(OptionalDouble.empty()),
+                                OptionalDouble.of(hdgSet),
+                                OptionalDouble.empty())
+                    } + headingPIDProcessor!! + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1))
+            )
+
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        headingPIDProcessor?.error?.let { SmartDashboard.putNumber("Error", it) }
+        headingPIDProcessor?.iAccum?.let { SmartDashboard.putNumber("Iaccum", it) }
+        SmartDashboard.putNumber("hdg", Math.toRadians(PipelineNavx.navx.yaw.toDouble()))
     }
 
     private lateinit var _command: Command
