@@ -37,6 +37,19 @@ deploy {
             */
             debug = project.hasProperty("deploy-debug")
         }
+
+        /*
+        This deploys anything that's in the test/deploy/ directory to the /home/lvuser/roostertest
+        directory on the roboRIO. This is useful for deploying motion profiles, etc. Note that
+        (until we switch to a version of GradleRIO that deploys a file tree) any directory structure
+        will be flattened and the files will just be dumped in.
+        */
+        fileCollectionArtifact("testFiles") {
+            targets << "roborio"
+
+            directory = "roostertest"
+            files = fileTree(dir: "deploy")
+        }
     }
 }
 
