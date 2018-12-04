@@ -1,4 +1,4 @@
-package org.team1540.rooster.testers;
+package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;

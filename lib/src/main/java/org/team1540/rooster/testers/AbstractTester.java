@@ -22,7 +22,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   private int updateDelay;
   private boolean running = true;
   @NotNull
-  List<T> itemsToTest;
+  private List<T> itemsToTest;
   @NotNull
   private Function<T, R> test;
   @Nullable
@@ -38,7 +38,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param runConditions The conditions that must be met before the test will be executed on an
    * item.
    */
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @Nullable List<Function<T, Boolean>> runConditions) {
     this(test, itemsToTest, runConditions, (int) DEFAULT_LOG_TIME / (DEFAULT_UPDATE_DELAY / 1000));
   }
@@ -55,7 +55,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * checked against while running.
    * @param updateDelay The delay between the test being run on the items.
    */
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @Nullable List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this(test, itemsToTest, runConditions,
         (int) (logTime / ((float) updateDelay / 1000f)));
@@ -72,7 +72,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param queueDepth The maximum number of items that the {@link EvictingQueue} can hold.
    */
   @SuppressWarnings("WeakerAccess")
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
       @Nullable List<Function<T, Boolean>> runConditions, int queueDepth) {
     this.test = test;
     this.itemsToTest = itemsToTest;
@@ -149,7 +149,7 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * The code that should be called every tick. This does the actual testing. Override me as
    * necessary (but don't forget to call super!)
    */
-  void periodic() {
+  protected void periodic() {
     for (T t : itemsToTest) {
       // If there are run conditions
       if (runConditions != null) {

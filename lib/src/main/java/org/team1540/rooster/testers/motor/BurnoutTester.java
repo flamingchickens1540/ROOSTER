@@ -1,4 +1,4 @@
-package org.team1540.rooster.testers;
+package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import edu.wpi.first.wpilibj.Sendable;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
+import org.team1540.rooster.testers.AbstractTester;
+import org.team1540.rooster.testers.ResultWithMetadata;
 
 /**
  * Reports motor burnouts by comparing the current draw across a series of similarly-purposed
@@ -15,7 +17,6 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
  */
 @SuppressWarnings("unused")
 public class BurnoutTester extends AbstractTester<IMotorController, Boolean> implements Sendable {
-
 
   private static final Median medianCalculator = new Median();
   private static final StandardDeviation stdDevCalculator = new StandardDeviation();

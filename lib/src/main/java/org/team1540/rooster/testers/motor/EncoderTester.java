@@ -1,4 +1,4 @@
-package org.team1540.rooster.testers;
+package org.team1540.rooster.testers.motor;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.team1540.rooster.wrappers.ChickenTalon;
+import org.team1540.rooster.testers.AbstractTester;
+import org.team1540.rooster.testers.ResultWithMetadata;
 
 /**
  * Reports if an encoder appears to be non-functional by checking to see if a motor is running
