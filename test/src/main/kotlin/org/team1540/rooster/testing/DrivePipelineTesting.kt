@@ -10,12 +10,14 @@ import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
 import org.team1540.rooster.functional.Executable
 import org.team1540.rooster.functional.Input
+import org.team1540.rooster.motionprofiling.ProfileContainer
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
 import org.team1540.rooster.util.SimpleAsyncCommand
 import org.team1540.rooster.util.SimpleCommand
 import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
+import java.io.File
 import java.util.OptionalDouble
 import java.util.function.DoubleSupplier
 
@@ -226,6 +228,125 @@ class TurningRatePIDPipelineTestRobot : DrivePipelineTestRobot() {
 
     private lateinit var _command: Command
     override val command get() = _command
+}
+
+class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
+    @JvmField
+    @Preference(persistent = false)
+    var hdgP = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgI = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgD = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveP = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveI = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveD = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+    @JvmField
+    @Preference(persistent = false)
+    var kV = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var kA = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var vIntercept = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var profileName = ""
+    @JvmField
+    @Preference(persistent = false)
+    var tpu = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var ramp = 0.0;
+
+    private var hdgPIDProcessor: HeadingPIDProcessor? = null
+    private var profileInput: ProfileInput? = null
+    private var hdgTgt = 0.0
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            val container = ProfileContainer(File("/home/lvuser/roostertest"))
+            println("Loaded profiles: ${container.profileNames}")
+
+            val profile = container[profileName]
+            if (profile == null) {
+                System.err.println("Motion profile not found, aborting reset")
+                return@Executable
+            }
+
+            PipelineNavx.navx.zeroYaw()
+
+            profileInput = ProfileInput(profile.left, profile.right)
+
+            hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20, profileInput!!
+                    + FeedForwardProcessor(kV, vIntercept, kA)
+                    + HeadingTransformProcessor(false) // pathfinder motprofs have headings from 0 to 2pi and we need to convert those
+                    + hdgPIDProcessor!!
+                    + UnitScaler(tpu, 0.1)
+                    + CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+            )
+
+            PipelineDriveTrain.masters {
+                config_kP(0, driveP)
+                config_kI(0, driveI)
+                config_kD(0, driveD)
+                config_kF(0, 0.0)
+            }
+            PipelineDriveTrain.all {
+                configClosedloopRamp(ramp)
+            }
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        hdgPIDProcessor?.let {
+            SmartDashboard.putNumber("HDG ERR", Math.toDegrees(it.error))
+            SmartDashboard.putNumber("HDG IACC", it.iAccum)
+        }
+
+        profileInput?.get()?.let {
+            SmartDashboard.putNumber("LPOSTGT", it.left.position.orElse(0.0))
+            SmartDashboard.putNumber("LVELTGT", it.left.velocity.orElse(0.0))
+            SmartDashboard.putNumber("LACCTGT", it.left.acceleration.orElse(0.0))
+            SmartDashboard.putNumber("RPOSTGT", it.right.position.orElse(0.0))
+            SmartDashboard.putNumber("RVELTGT", it.right.velocity.orElse(0.0))
+            SmartDashboard.putNumber("RACCTGT", it.right.acceleration.orElse(0.0))
+            SmartDashboard.putNumber("HTGT", Math.toDegrees(hdgTgt))
+        }
+
+        SmartDashboard.putNumber("HDG", PipelineNavx.navx.yaw.toDouble())
+        SmartDashboard.putNumber("LPOS", PipelineDriveTrain.left1.selectedSensorPosition / tpu)
+        SmartDashboard.putNumber("RPOS", PipelineDriveTrain.right1.selectedSensorPosition / tpu)
+        SmartDashboard.putNumber("LVEL", (PipelineDriveTrain.left1.selectedSensorVelocity * 10) / tpu)
+        SmartDashboard.putNumber("RVEL", (PipelineDriveTrain.right1.selectedSensorVelocity * 10) / tpu)
+        SmartDashboard.putNumber("LERR", PipelineDriveTrain.left1.closedLoopError / tpu)
+        SmartDashboard.putNumber("RERR", PipelineDriveTrain.right1.closedLoopError / tpu)
+    }
 }
 
 /**
