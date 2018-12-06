@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.IMotorController;
 import java.util.Objects;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Output;
 
 /**
  * {@link Output} to pass drive commands to Talon SRX and Victor SPX motor controllers. For output

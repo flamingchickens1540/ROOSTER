@@ -3,6 +3,7 @@ package org.team1540.rooster.drive.pipeline;
 import edu.wpi.first.wpilibj.Joystick;
 import java.util.OptionalDouble;
 import org.team1540.rooster.Utilities;
+import org.team1540.rooster.functional.Input;
 
 /**
  * Simple tank-style input from a WPILib {@link Joystick}. The left and right joysticks are used to

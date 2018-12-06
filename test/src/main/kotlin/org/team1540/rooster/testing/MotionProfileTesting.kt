@@ -14,12 +14,12 @@ import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import jaci.pathfinder.modifiers.TankModifier
 import org.team1540.rooster.Utilities
+import org.team1540.rooster.functional.Executable
 import org.team1540.rooster.motionprofiling.FollowProfile
 import org.team1540.rooster.motionprofiling.FollowProfileFactory
 import org.team1540.rooster.motionprofiling.MotionProfileUtils
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
-import org.team1540.rooster.util.Executable
 import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
 import java.util.function.DoubleSupplier

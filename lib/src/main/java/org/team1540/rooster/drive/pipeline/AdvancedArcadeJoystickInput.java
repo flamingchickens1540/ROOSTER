@@ -4,6 +4,7 @@ import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.rooster.Utilities;
+import org.team1540.rooster.functional.Input;
 
 /**
  * Modified arcade drive joystick input.

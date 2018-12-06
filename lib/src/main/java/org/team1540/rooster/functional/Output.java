@@ -1,17 +1,15 @@
-package org.team1540.rooster.drive.pipeline;
+package org.team1540.rooster.functional;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.team1540.rooster.util.Executable;
 
 /**
  * Extension of a {@link Consumer} adding an additional composition method.
  *
  * {@code Output} can be used exactly like {@link Consumer} (and library functions should not take
  * {@code Outputs} as method parameters, instead using {@link Consumer}). However, library functions
- * pertaining to drive pipelines should return an {@code Output} where they would normally return a
- * {@link Consumer}.
+ * should return an {@code Output} where they would normally return a {@link Consumer}.
  *
  * @param <T> The type of the output.
  */

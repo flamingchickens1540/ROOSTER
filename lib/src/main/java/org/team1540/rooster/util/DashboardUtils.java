@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Executable;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
 
 /**

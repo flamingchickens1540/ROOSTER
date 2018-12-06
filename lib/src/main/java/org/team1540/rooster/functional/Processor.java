@@ -1,4 +1,4 @@
-package org.team1540.rooster.drive.pipeline;
+package org.team1540.rooster.functional;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -9,8 +9,7 @@ import java.util.function.Supplier;
  *
  * {@code Processor} can be used exactly like {@link Function} (and library functions should not
  * take {@code Processors} as method parameters, instead using {@link Function}). However, library
- * functions pertaining to drive pipelines should return a {@code Processor} where they would
- * normally return a {@link Function}.
+ * functions should return a {@code Processor} where they would normally return a {@link Function}.
  *
  * @param <T> The type of the output.
  */

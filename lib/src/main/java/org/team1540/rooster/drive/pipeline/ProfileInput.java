@@ -3,11 +3,12 @@ package org.team1540.rooster.drive.pipeline;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.OptionalDouble;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Input;
 import org.team1540.rooster.motionprofiling.MotionProfile;
 import org.team1540.rooster.motionprofiling.MotionProfile.Point;
 
 public class ProfileInput implements
-    org.team1540.rooster.drive.pipeline.Input<org.team1540.rooster.drive.pipeline.TankDriveData> {
+    Input<TankDriveData> {
 
   private MotionProfile left;
   private MotionProfile right;

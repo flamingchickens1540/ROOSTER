@@ -1,5 +1,7 @@
 package org.team1540.rooster.drive.pipeline;
 
+import org.team1540.rooster.functional.Processor;
+
 /**
  * Processor to execute a generic PID loop.
  *

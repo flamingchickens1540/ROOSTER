@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Processor;
 
 /**
  * Modifies velocity set-points to keep a desired turning rate. This {@link Processor} accepts a

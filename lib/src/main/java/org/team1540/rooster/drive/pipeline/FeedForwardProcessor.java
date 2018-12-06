@@ -3,6 +3,7 @@ package org.team1540.rooster.drive.pipeline;
 import java.util.OptionalDouble;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Processor;
 
 /**
  * {@link Processor} to apply an <a href="https://www.chiefdelphi.com/media/papers/3402">Oblarg-style</a>

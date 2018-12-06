@@ -8,9 +8,10 @@ import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
+import org.team1540.rooster.functional.Executable
+import org.team1540.rooster.functional.Input
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
-import org.team1540.rooster.util.Executable
 import org.team1540.rooster.util.SimpleAsyncCommand
 import org.team1540.rooster.util.SimpleCommand
 import org.team1540.rooster.util.SimpleLoopCommand

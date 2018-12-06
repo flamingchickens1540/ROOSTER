@@ -1,6 +1,7 @@
 package org.team1540.rooster.drive.pipeline;
 
 import java.util.OptionalDouble;
+import org.team1540.rooster.functional.Processor;
 
 /**
  * Scales units by a desired factor. For details of the scaling, see {@link #apply(TankDriveData)

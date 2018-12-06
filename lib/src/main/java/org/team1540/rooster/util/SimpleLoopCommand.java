@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
+import org.team1540.rooster.functional.Executable;
 
 /**
  * A simple way to construct a {@link Command} which executes every tick. <p> To create a {@code
