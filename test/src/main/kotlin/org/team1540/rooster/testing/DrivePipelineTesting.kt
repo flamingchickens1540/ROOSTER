@@ -269,7 +269,7 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
     var tpu = 1.0
     @JvmField
     @Preference(persistent = false)
-    var ramp = 0.0;
+    var ramp = 0.0
 
     private var hdgPIDProcessor: HeadingPIDProcessor? = null
     private var profileInput: ProfileInput? = null
