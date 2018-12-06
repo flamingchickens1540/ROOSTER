@@ -7,8 +7,7 @@ import org.team1540.rooster.functional.Input;
 import org.team1540.rooster.motionprofiling.MotionProfile;
 import org.team1540.rooster.motionprofiling.MotionProfile.Point;
 
-public class ProfileInput implements
-    Input<TankDriveData> {
+public class ProfileInput implements Input<TankDriveData> {
 
   private MotionProfile left;
   private MotionProfile right;
