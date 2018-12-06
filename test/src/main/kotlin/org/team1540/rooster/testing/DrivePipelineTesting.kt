@@ -96,12 +96,12 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
                     + UnitScaler(tpu, 0.1)
                     + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
 
-            listOf(PipelineDriveTrain.left1, PipelineDriveTrain.right1).forEach {
-                it.configClosedloopRamp(ramp)
-                it.config_kP(0, p)
-                it.config_kI(0, i)
-                it.config_kD(0, d)
-                it.config_kF(0, 0.0)
+            PipelineDriveTrain.masters {
+                configClosedloopRamp(ramp)
+                config_kP(0, p)
+                config_kI(0, i)
+                config_kD(0, d)
+                config_kF(0, 0.0)
             }
 
         }).apply {
@@ -294,6 +294,18 @@ private object PipelineDriveTrain {
         enableCurrentLimit(false)
         inverted = true
         set(ControlMode.Follower, right1.deviceID.toDouble())
+    }
+
+    fun all(block: ChickenTalon.() -> Unit) {
+        for (talon in listOf(left1, left2, left3, right1, right2, right3)) {
+            talon.block()
+        }
+    }
+
+    fun masters(block: ChickenTalon.() -> Unit) {
+        for (talon in listOf(left1, right1)) {
+            talon.block()
+        }
     }
 }
 
