@@ -53,6 +53,13 @@ deploy {
     }
 }
 
+// add the deploy directory as an input; now we can run this in continuous mode and files are
+// deployed as soon as they change
+// (to run in continuous mode add "--continuous" to the command line, i.e. "deployTestFiles --continuous")
+deployTestFiles {
+    inputs.dir("deploy")
+}
+
 jar {
     // declare the robot class property as an input, as normally since we
     // set it at runtime this wouldn't run if the class changed due to up-to-date checking
