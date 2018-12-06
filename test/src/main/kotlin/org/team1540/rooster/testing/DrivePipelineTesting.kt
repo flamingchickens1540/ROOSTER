@@ -10,6 +10,7 @@ import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
 import org.team1540.rooster.functional.Executable
 import org.team1540.rooster.functional.Input
+import org.team1540.rooster.functional.Processor
 import org.team1540.rooster.motionprofiling.ProfileContainer
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
@@ -274,6 +275,7 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
     private var hdgPIDProcessor: HeadingPIDProcessor? = null
     private var profileInput: ProfileInput? = null
     private var hdgTgt = 0.0
+    private var lastProf: TankDriveData? = null
 
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
@@ -293,6 +295,7 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
 
             hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
             _command = SimpleAsyncCommand("Drive", 20, profileInput!!
+                    + Processor<TankDriveData, TankDriveData> { lastProf = it; it }
                     + FeedForwardProcessor(kV, vIntercept, kA)
                     + HeadingTransformProcessor(false) // pathfinder motprofs have headings from 0 to 2pi and we need to convert those
                     + hdgPIDProcessor!!
@@ -329,7 +332,7 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
             SmartDashboard.putNumber("HDG IACC", it.iAccum)
         }
 
-        profileInput?.get()?.let {
+        lastProf?.let {
             SmartDashboard.putNumber("LPOSTGT", it.left.position.orElse(0.0))
             SmartDashboard.putNumber("LVELTGT", it.left.velocity.orElse(0.0))
             SmartDashboard.putNumber("LACCTGT", it.left.acceleration.orElse(0.0))
