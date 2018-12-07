@@ -293,10 +293,10 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
 
             hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
             _command = SimpleAsyncCommand("Drive", 20, profileInput!!
-                    + Processor<TankDriveData, TankDriveData> { lastProf = it; it }
                     + FeedForwardProcessor(kV, vIntercept, kA)
                     + HeadingTransformProcessor(false) // pathfinder motprofs have headings from 0 to 2pi and we need to convert those
                     + hdgPIDProcessor!!
+                    + Processor<TankDriveData, TankDriveData> { lastProf = it; hdgTgt = it.heading.asDouble;it }
                     + UnitScaler(tpu, 0.1)
                     + CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
             )
