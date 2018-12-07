@@ -56,6 +56,7 @@ public class ControllersMultiTester extends Command {
           index++;
         });
     this.stateMachine = new StateMachine<>(State.INITIALIZING, stateMachineConfig);
+    this.stateMachine.setShouldLog(false);
   }
 
   /**
