@@ -29,6 +29,7 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
    *
    * @param motorsToTest The {@link IMotorController IMotorControllers} to compare to each other.
    */
+  @SuppressWarnings("WeakerAccess")
   public EncoderTester(IMotorController... motorsToTest) {
     this(Arrays.asList(motorsToTest));
   }
