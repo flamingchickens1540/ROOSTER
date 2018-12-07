@@ -1,7 +1,8 @@
-package org.team1540.rooster.testers;
+package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -86,11 +87,11 @@ public class SimpleControllersTester extends Command implements Sendable {
       this.controllers.put(controller.getDeviceID(), controller);
       this.controllerChooser.addObject(String.valueOf(controller.getDeviceID()),
           controller.getDeviceID());
+      controller.setNeutralMode(NeutralMode.Coast);
     }
 
     // Set the active controller to the first controller
     setCurrentController(controllers[0].getDeviceID());
-
   }
 
   /**

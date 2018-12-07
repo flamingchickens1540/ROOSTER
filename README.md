@@ -48,7 +48,9 @@ A system to easily set tuning fields through WPILib `Preferences`.
 
 Various classes for testing common things.
 - `BurnoutTester` for testing if motors are burned out.
+- `EncoderTester` for testing if motors have working encoders attached.
 - `SimpleControllersTester` for easily running motors.
+- `ControllersMultiTester` for automatically running multiple tests across motor groups.
 
 #### Triggers
 
