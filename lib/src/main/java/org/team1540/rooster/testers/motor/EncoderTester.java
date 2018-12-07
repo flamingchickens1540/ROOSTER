@@ -126,6 +126,7 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
    */
   @Override
   public void initSendable(SendableBuilder builder) {
+    //noinspection Duplicates
     for (IMotorController t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
       //noinspection Duplicates

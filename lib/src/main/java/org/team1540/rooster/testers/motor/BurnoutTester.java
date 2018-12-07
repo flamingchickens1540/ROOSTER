@@ -156,9 +156,9 @@ public class BurnoutTester extends AbstractTester<IMotorController, Boolean> imp
    */
   @Override
   public void initSendable(SendableBuilder builder) {
+    //noinspection Duplicates
     for (IMotorController t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
-      //noinspection Duplicates
       builder.addBooleanProperty(t.getDeviceID() + "", () -> {
         // TODO probably cleaner version of this, at the least ifPresentOrElse() in Java 9
         Optional<ResultWithMetadata<Boolean>> result = Optional.ofNullable(peekMostRecentResult(t));
