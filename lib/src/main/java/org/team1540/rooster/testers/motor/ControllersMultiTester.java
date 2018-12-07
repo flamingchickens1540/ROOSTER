@@ -15,6 +15,10 @@ import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
+/**
+ * Simple automated testing for motors. Add the motors with the specified test using the builder
+ * methods, then run the command.
+ */
 public class ControllersMultiTester extends Command {
 
   private Timer timer = new Timer();
@@ -22,6 +26,11 @@ public class ControllersMultiTester extends Command {
   private List<TesterAndCommand> tests = new LinkedList<>();
   private int index = 0;
 
+  /**
+   * Default constructor. Note that this class follows a builder pattern; use
+   * {@link #addControllerGroup(IMotorController...)} and
+   * {@link #addEncoderGroup(ChickenTalon...)} to add the motors.
+   */
   public ControllersMultiTester() {
     StateMachineConfig<State, Trigger> stateMachineConfig = new StateMachineConfig<>();
     stateMachineConfig.configure(State.INITIALIZING)
@@ -49,11 +58,25 @@ public class ControllersMultiTester extends Command {
     this.stateMachine = new StateMachine<>(State.INITIALIZING, stateMachineConfig);
   }
 
+  /**
+   * Add a group of motors to test together with the default function (disables braking and sets
+   * the motors to full.) Currently uses only {@link BurnoutTester}.
+   *
+   * @param controllerGroup The motors to add.
+   * @return this
+   */
   public ControllersMultiTester addControllerGroup(IMotorController... controllerGroup) {
     addControllerGroup(this::setMotorToFull, controllerGroup);
     return this;
   }
 
+  /**
+   * Add a group of motors to test together with the specified function. Currently uses only
+   * {@link BurnoutTester}.
+   * @param function The function to apply before running the tests.
+   * @param controllerGroup The motors to add.
+   * @return this
+   */
   @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
   public ControllersMultiTester addControllerGroup(Consumer<IMotorController> function,
       IMotorController... controllerGroup) {
@@ -61,11 +84,24 @@ public class ControllersMultiTester extends Command {
     return this;
   }
 
+  /**
+   * Add a group of motors with encoders to test together with the default function (disables
+   * braking and sets the motors to full.) Currently uses only {@link EncoderTester}.
+   * @param controllerGroup The motors to add.
+   * @return this
+   */
   public ControllersMultiTester addEncoderGroup(ChickenTalon... controllerGroup) {
     addEncoderGroup(this::setMotorToFull, controllerGroup);
     return this;
   }
 
+  /**
+   * Add a group of motors with encoders to test together with the specified function. Currently
+   * uses only {@link EncoderTester}.
+   * @param function The function to apply before running the tests.
+   * @param controllerGroup The motors to add.
+   * @return this
+   */
   @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
   public ControllersMultiTester addEncoderGroup(Consumer<IMotorController> function,
       ChickenTalon... controllerGroup) {
