@@ -68,6 +68,7 @@ public class WheelbaseTestRobot extends IterativeRobot {
     Command reset = new SimpleCommand("Reset", () -> {
       if (lMotor1ID != -1) {
         lMotor1 = new ChickenTalon(lMotor1ID);
+        lMotor1.setSensorPhase(invertLeftSensor);
       } else {
         System.err.println("Left Motor 1 must be set!");
         return;
@@ -93,6 +94,7 @@ public class WheelbaseTestRobot extends IterativeRobot {
 
       if (rMotor1ID != -1) {
         rMotor1 = new ChickenTalon(rMotor1ID);
+        rMotor1.setSensorPhase(invertRightSensor);
       } else {
         System.err.println("Right Motor 1 must be set!");
         return;
@@ -125,6 +127,13 @@ public class WheelbaseTestRobot extends IterativeRobot {
           motor.enableCurrentLimit(false);
           motor.setBrake(brake);
         }
+      }
+
+      for (ChickenTalon motor : new ChickenTalon[]{lMotor1, lMotor2, lMotor3}) {
+        motor.setInverted(invertLeftMotor);
+      }
+      for (ChickenTalon motor : new ChickenTalon[]{rMotor1, rMotor2, rMotor3}) {
+        motor.setInverted(invertRightMotor);
       }
     });
     reset.setRunWhenDisabled(true);
