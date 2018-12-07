@@ -53,14 +53,14 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
    * than 1 amp and if the selected {@link IMotorController} is moving at a velocity of less than 5.
    *
    * @param controller The {@link IMotorController} to test for burnout.
-   * @return Boolean indicating if the encoder is encoder has failed: true if it is not suspected
-   * of failure, false if it is suspected of failure.
+   * @return Boolean indicating if the encoder is encoder has failed: true if it is suspected
+   * of failure, false if it is not suspected of failure.
    */
   @SuppressWarnings("WeakerAccess")
   public Boolean testEncoder(IMotorController controller) {
     // Do the wrappers provide pidIdx nicely? Yes. Can we just use zero? Also probably yes.
-    return !(controller.getOutputCurrent() > currentThreshold
-        && controller.getSelectedSensorVelocity(0) < velocityThreshold);
+    return controller.getOutputCurrent() > currentThreshold
+        && Math.abs(controller.getSelectedSensorVelocity(0)) < velocityThreshold;
   }
 
   @Override
