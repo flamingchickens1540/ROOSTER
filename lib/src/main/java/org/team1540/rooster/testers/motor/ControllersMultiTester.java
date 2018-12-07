@@ -2,6 +2,7 @@ package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
 import org.team1540.rooster.wrappers.ChickenTalon;
@@ -17,42 +19,63 @@ public class ControllersMultiTester extends Command {
 
   private Timer timer = new Timer();
   private StateMachine<State, Trigger> stateMachine;
-  private List<AbstractTester<IMotorController, Boolean>> tests = new LinkedList<>();
+  private List<TesterAndCommand> tests = new LinkedList<>();
   private int index = 0;
 
   public ControllersMultiTester() {
     StateMachineConfig<State, Trigger> stateMachineConfig = new StateMachineConfig<>();
-    stateMachineConfig.configure(State.SPIN_UP).permit(Trigger.TIME_HAS_PASSED, State.EXECUTING)
+    stateMachineConfig.configure(State.INITIALIZING)
+        .permit(Trigger.TIME_HAS_PASSED, State.SPIN_UP);
+    stateMachineConfig.configure(State.SPIN_UP)
+        .permit(Trigger.TIME_HAS_PASSED, State.EXECUTING)
         .onEntry(() -> {
-          for (IMotorController motor : tests.get(index).getItemsToTest()) {
-            motor.set(ControlMode.PercentOutput, 1);
+          for (IMotorController motor : tests.get(index).getTest().getItemsToTest()) {
+            tests.get(index).getFunction().accept(motor);
           }
         });
-    stateMachineConfig.configure(State.EXECUTING).permit(Trigger.TIME_HAS_PASSED,
-        State.SPIN_DOWN).onEntry(() -> new Thread(tests.get(0)).start())
-        .onExit(() -> tests.get(0).setRunning(false));
-    stateMachineConfig.configure(State.SPIN_DOWN).permit(Trigger.TIME_HAS_PASSED, State.SPIN_UP)
-        .permit(Trigger.FINISHED, State.FINISHED).onEntry(() -> {
-      for (IMotorController motor : tests.get(index).getItemsToTest()) {
-        motor.set(ControlMode.PercentOutput, 0);
-      }
-      index++;
-    });
-    this.stateMachine = new StateMachine<>(State.SPIN_UP, stateMachineConfig);
+    stateMachineConfig.configure(State.EXECUTING)
+        .permit(Trigger.TIME_HAS_PASSED, State.SPIN_DOWN)
+        .onEntry(() -> new Thread(tests.get(index).getTest()).start())
+        .onExit(() -> tests.get(index).getTest().setRunning(false));
+    stateMachineConfig.configure(State.SPIN_DOWN)
+        .permit(Trigger.TIME_HAS_PASSED, State.SPIN_UP)
+        .permit(Trigger.FINISHED, State.FINISHED)
+        .onEntry(() -> {
+          for (IMotorController motor : tests.get(index).getTest().getItemsToTest()) {
+            motor.set(ControlMode.PercentOutput, 0);
+          }
+          index++;
+        });
+    this.stateMachine = new StateMachine<>(State.INITIALIZING, stateMachineConfig);
   }
 
   public ControllersMultiTester addControllerGroup(IMotorController... controllerGroup) {
-    tests.add(new BurnoutTester(controllerGroup));
+    addControllerGroup(this::setMotorToFull, controllerGroup);
+    return this;
+  }
+
+  @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
+  public ControllersMultiTester addControllerGroup(Consumer<IMotorController> function,
+      IMotorController... controllerGroup) {
+    tests.add(new TesterAndCommand(new BurnoutTester(controllerGroup), function));
     return this;
   }
 
   public ControllersMultiTester addEncoderGroup(ChickenTalon... controllerGroup) {
-    tests.add(new EncoderTester(controllerGroup));
+    addEncoderGroup(this::setMotorToFull, controllerGroup);
+    return this;
+  }
+
+  @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
+  public ControllersMultiTester addEncoderGroup(Consumer<IMotorController> function,
+      ChickenTalon... controllerGroup) {
+    tests.add(new TesterAndCommand(new EncoderTester(controllerGroup), function));
     return this;
   }
 
   @Override
   protected void initialize() {
+    timer.reset();
     timer.start();
   }
 
@@ -72,10 +95,11 @@ public class ControllersMultiTester extends Command {
   @Override
   protected void end() {
     // Very optimized yes no duplicate code either
-    for (AbstractTester<IMotorController, Boolean> tester : tests) {
-      for (IMotorController controller : tester.getItemsToTest()) {
+    for (TesterAndCommand testerAndCommand : tests) {
+      for (IMotorController controller : testerAndCommand.getTest().getItemsToTest()) {
         int failureCount = 0;
-        for (ResultWithMetadata<Boolean> result : tester.getStoredResults(controller)) {
+        for (ResultWithMetadata<Boolean> result : testerAndCommand.getTest()
+            .getStoredResults(controller)) {
           if (result.getResult().equals(Boolean.TRUE)) {
             failureCount++;
           }
@@ -83,7 +107,7 @@ public class ControllersMultiTester extends Command {
         if (failureCount > 0) {
           DriverStation
               .reportError("Motor " + controller.getDeviceID() + " reported " + failureCount +
-                  " failures of type " + tester, false);
+                  " failures of type " + testerAndCommand.getTest(), false);
         }
       }
     }
@@ -95,8 +119,13 @@ public class ControllersMultiTester extends Command {
     return stateMachine.getState().equals(State.FINISHED);
   }
 
+  private void setMotorToFull(IMotorController motor) {
+    motor.setNeutralMode(NeutralMode.Coast);
+    motor.set(ControlMode.PercentOutput, 1.0);
+  }
+
   private enum State {
-    SPIN_UP(0.25), EXECUTING(3), SPIN_DOWN(0.25), FINISHED;
+    INITIALIZING(0), SPIN_UP(0.25), EXECUTING(1), SPIN_DOWN(0), FINISHED;
 
     private final Double timeToComplete;
 
@@ -115,6 +144,27 @@ public class ControllersMultiTester extends Command {
 
   private enum Trigger {
     TIME_HAS_PASSED, FINISHED
+  }
+
+  private class TesterAndCommand {
+
+    private AbstractTester<IMotorController, Boolean> test;
+    private Consumer<IMotorController> function;
+
+    private TesterAndCommand(
+        AbstractTester<IMotorController, Boolean> test,
+        Consumer<IMotorController> function) {
+      this.test = test;
+      this.function = function;
+    }
+
+    private AbstractTester<IMotorController, Boolean> getTest() {
+      return test;
+    }
+
+    private Consumer<IMotorController> getFunction() {
+      return function;
+    }
   }
 
 }
