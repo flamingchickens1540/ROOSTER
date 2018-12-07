@@ -22,10 +22,10 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   private int updateDelay;
   private boolean running = true;
   @NotNull
-  List<T> itemsToTest;
+  private List<T> itemsToTest;
   @NotNull
   private Function<T, R> test;
-  @NotNull
+  @Nullable
   private List<Function<T, Boolean>> runConditions;
   @NotNull
   private Map<T, ResultStorage<R>> storedResults;
@@ -38,8 +38,8 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * @param runConditions The conditions that must be met before the test will be executed on an
    * item.
    */
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions) {
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+      @Nullable List<Function<T, Boolean>> runConditions) {
     this(test, itemsToTest, runConditions, (int) DEFAULT_LOG_TIME / (DEFAULT_UPDATE_DELAY / 1000));
   }
 
@@ -55,8 +55,8 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * checked against while running.
    * @param updateDelay The delay between the test being run on the items.
    */
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+      @Nullable List<Function<T, Boolean>> runConditions, float logTime, int updateDelay) {
     this(test, itemsToTest, runConditions,
         (int) (logTime / ((float) updateDelay / 1000f)));
     this.updateDelay = updateDelay;
@@ -71,8 +71,9 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * item.
    * @param queueDepth The maximum number of items that the {@link EvictingQueue} can hold.
    */
-  AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
-      @NotNull List<Function<T, Boolean>> runConditions, int queueDepth) {
+  @SuppressWarnings("WeakerAccess")
+  protected AbstractTester(@NotNull Function<T, R> test, @NotNull List<T> itemsToTest,
+      @Nullable List<Function<T, Boolean>> runConditions, int queueDepth) {
     this.test = test;
     this.itemsToTest = itemsToTest;
     this.runConditions = runConditions;
@@ -95,10 +96,17 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
   }
 
   @Override
-  @NotNull
+  @Nullable
   public List<Function<T, Boolean>> getRunConditions() {
-    return Collections.unmodifiableList(runConditions);
+    return runConditions;
   }
+
+  @Override
+  public void setRunConditions(
+      @Nullable List<Function<T, Boolean>> runConditions) {
+    this.runConditions = runConditions;
+  }
+
 
   @Override
   @NotNull
@@ -141,14 +149,18 @@ public abstract class AbstractTester<T, R> implements Tester<T, R> {
    * The code that should be called every tick. This does the actual testing. Override me as
    * necessary (but don't forget to call super!)
    */
-  void periodic() {
+  protected void periodic() {
     for (T t : itemsToTest) {
-      // Run through all the run conditions and make sure they all return true
-      for (Function<T, Boolean> runCondition : runConditions) {
-        if (!runCondition.apply(t)) {
-          return;
+      // If there are run conditions
+      if (runConditions != null) {
+        // Run through all the run conditions and make sure they all return true
+        for (Function<T, Boolean> runCondition : runConditions) {
+          if (!runCondition.apply(t)) {
+            return;
+          }
         }
       }
+
       this.storedResults.get(t).addResult(this.test.apply(t), System.currentTimeMillis());
     }
   }
