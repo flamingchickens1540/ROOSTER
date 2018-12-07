@@ -289,8 +289,6 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
                 return@Executable
             }
 
-            PipelineNavx.navx.zeroYaw()
-
             profileInput = ProfileInput(profile.left, profile.right)
 
             hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
@@ -349,6 +347,13 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
         SmartDashboard.putNumber("RVEL", (PipelineDriveTrain.right1.selectedSensorVelocity * 10) / tpu)
         SmartDashboard.putNumber("LERR", PipelineDriveTrain.left1.closedLoopError / tpu)
         SmartDashboard.putNumber("RERR", PipelineDriveTrain.right1.closedLoopError / tpu)
+    }
+
+    override fun teleopInit() {
+        super.teleopInit()
+
+        PipelineDriveTrain.masters { setSelectedSensorPosition(0) }
+        PipelineNavx.navx.zeroYaw()
     }
 }
 
