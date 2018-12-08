@@ -23,11 +23,20 @@ public interface Tester<T, R> extends Runnable {
   /**
    * Gets the conditions that must be met before the test will be executed on an item.
    *
-   * @return An {@link EvictingQueue} of the run conditions.
+   * @return An potentially {@link List} of the run conditions, or null if there are none (always
+   * execute.)
    */
   @SuppressWarnings("UnstableApiUsage")
-  @NotNull // TODO how to annotate as unmodifiable?
+  @Nullable
   List<Function<T, Boolean>> getRunConditions();
+
+  /**
+   * Sets the run conditions that must be met before the test will be executed on an item.
+   *
+   * @param runConditions A {@link List} of the run conditions, or null if the test should always
+   * run.
+   */
+  void setRunConditions(@Nullable List<Function<T, Boolean>> runConditions);
 
   /**
    * Gets the items that the tests are being applied to.
