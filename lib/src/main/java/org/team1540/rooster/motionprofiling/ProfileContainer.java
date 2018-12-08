@@ -40,21 +40,40 @@ public class ProfileContainer {
   private Map<String, DriveProfile> profiles;
 
   /**
-   * Creates a new {@code ProfileContainer}. This constructor also searches the provided directory
-   * for profiles and loads all the profiles into RAM. For this reason, initialization may take some
-   * time (especially for large amounts of profiles).
+   * Creates a new {@code ProfileContainer} that searches the provided directory using a left suffix
+   * of "{@code _left.csv}" and a right suffix of "{@code _right.csv}"
+   *
+   * This constructor also searches the provided directory for profiles and loads all the profiles
+   * into RAM. For this reason, initialization may take some time (especially for large amounts of
+   * profiles).
    *
    * @param profileDirectory The directory containing the profiles. See the {@linkplain
    * ProfileContainer class documentation} for a description of the folder structure.
    * @throws RuntimeException If an I/O error occurs during profile loading.
    */
   public ProfileContainer(@NotNull File profileDirectory) {
+    this(profileDirectory, "_left.csv", "_right.csv");
+  }
+
+  /**
+   * Creates a new {@code ProfileContainer}. This constructor also searches the provided directory
+   * for profiles and loads all the profiles into RAM. For this reason, initialization may take some
+   * time (especially for large amounts of profiles).
+   *
+   * @param profileDirectory The directory containing the profiles. See the {@linkplain
+   * ProfileContainer class documentation} for a description of the folder structure.
+   * @param leftSuffix The suffix to use to identify left-side profile files.
+   * @param rightSuffix The suffix to use to identify right-side profile files.
+   * @throws RuntimeException If an I/O error occurs during profile loading.
+   */
+  public ProfileContainer(@NotNull File profileDirectory, @NotNull String leftSuffix,
+      @NotNull String rightSuffix) {
     if (!profileDirectory.isDirectory()) {
       throw new IllegalArgumentException("Not a directory");
     }
 
-    File[] lFiles = profileDirectory.listFiles((file) -> file.getName().endsWith("_left.csv"));
-    File[] rFiles = profileDirectory.listFiles((file) -> file.getName().endsWith("_right.csv"));
+    File[] lFiles = profileDirectory.listFiles((file) -> file.getName().endsWith(leftSuffix));
+    File[] rFiles = profileDirectory.listFiles((file) -> file.getName().endsWith(rightSuffix));
 
     if (lFiles == null || rFiles == null) {
       // according to listFiles() docs, it will only return null if the file isn't a directory
@@ -67,11 +86,11 @@ public class ProfileContainer {
     Set<String> profileNames = new HashSet<>();
 
     for (File f : lFiles) {
-      profileNames.add(f.getName().substring(0, f.getName().length() - "_left.csv".length()));
+      profileNames.add(f.getName().substring(0, f.getName().length() - leftSuffix.length()));
     }
 
     for (File f : rFiles) {
-      profileNames.add(f.getName().substring(0, f.getName().length() - "_right.csv".length()));
+      profileNames.add(f.getName().substring(0, f.getName().length() - rightSuffix.length()));
     }
 
     // initialize the map once we know the number of profiles so it doesn't expand.
@@ -82,7 +101,7 @@ public class ProfileContainer {
     for (String name : profileNames) {
       System.out.println("Loading profile " + name);
       File leftFile = Arrays.stream(lFiles)
-          .filter(file -> file.getName().equals(name + "_left.csv"))
+          .filter(file -> file.getName().equals(name + leftSuffix))
           .findFirst()
           .orElseGet(() -> {
             DriverStation
@@ -90,7 +109,7 @@ public class ProfileContainer {
             return null;
           });
       File rightFile = Arrays.stream(rFiles)
-          .filter(file -> file.getName().equals(name + "_right.csv"))
+          .filter(file -> file.getName().equals(name + rightSuffix))
           .findFirst()
           .orElseGet(() -> {
             DriverStation
