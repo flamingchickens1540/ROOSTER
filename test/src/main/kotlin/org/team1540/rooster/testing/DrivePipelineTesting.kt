@@ -291,6 +291,9 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
 
             profileInput = ProfileInput(profile.left, profile.right)
 
+            PipelineDriveTrain.masters { setSelectedSensorPosition(0) }
+            PipelineNavx.navx.zeroYaw()
+
             hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
             _command = SimpleAsyncCommand("Drive", 20, profileInput!!
                     + FeedForwardProcessor(kV, vIntercept, kA)
