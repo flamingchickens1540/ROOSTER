@@ -2,6 +2,7 @@ package org.team1540.rooster.drive.pipeline;
 
 import java.util.Objects;
 import java.util.OptionalDouble;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -81,5 +82,26 @@ public class DriveData {
         + (acceleration.isPresent() ? ", acceleration " + acceleration.getAsDouble() : "")
         + (additionalFeedForward.isPresent() ? ", feedforward " + additionalFeedForward
         .getAsDouble() : "");
+  }
+
+  @Override
+  @Contract(value = "null -> false", pure = true)
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DriveData)) {
+      return false;
+    }
+    DriveData driveData = (DriveData) o;
+    return position.equals(driveData.position) &&
+        velocity.equals(driveData.velocity) &&
+        acceleration.equals(driveData.acceleration) &&
+        additionalFeedForward.equals(driveData.additionalFeedForward);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(position, velocity, acceleration, additionalFeedForward);
   }
 }

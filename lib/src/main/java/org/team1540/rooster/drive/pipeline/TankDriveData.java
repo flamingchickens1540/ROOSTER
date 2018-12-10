@@ -2,6 +2,7 @@ package org.team1540.rooster.drive.pipeline;
 
 import java.util.Objects;
 import java.util.OptionalDouble;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -64,5 +65,26 @@ public class TankDriveData {
         + ", right:" + right
         + (heading.isPresent() ? ", heading " + heading.getAsDouble() : "")
         + (turningRate.isPresent() ? ", turning rate " + turningRate.getAsDouble() : "");
+  }
+
+  @Override
+  @Contract(value = "null -> false", pure = true)
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof TankDriveData)) {
+      return false;
+    }
+    TankDriveData that = (TankDriveData) o;
+    return left.equals(that.left) &&
+        right.equals(that.right) &&
+        heading.equals(that.heading) &&
+        turningRate.equals(that.turningRate);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(left, right, heading, turningRate);
   }
 }
