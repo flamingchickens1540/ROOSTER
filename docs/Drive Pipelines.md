@@ -64,14 +64,8 @@ Most "stock" pipeline elements pass around `TankDriveData` instances to encapsul
 An input that returns the same `TankDriveData` every time:
 
 ```java
-TankDriveData tankDriveData = new TankDriveData(
-    new DriveData(0), 
-    new DriveData(0), 
-    OptionalDouble.empty(), 
-    OptionalDouble.empty());
-
-Executable pipeline = ((Input) () -> tankDriveData)
-    .then(new CTREOutput(leftTalon, rightTalon))
+Executable pipeline = ((Input) () -> new TankDriveData().withVelocities(0, 0))
+   .then(new CTREOutput(leftTalon, rightTalon))
 ```
 
 #### Custom Processor
@@ -80,21 +74,9 @@ A processor that multiplies the received position by two:
 
 ```java
 Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, false)
-    .then(data -> return new TankDriveData(
-        new DriveData(
-            d.left.position.isPresent() ? OptionalDouble.of(d.left.position.getAsDouble() * 2) : d.left.position,
-            d.left.velocity,
-            d.left.acceleration,
-            d.left.additionalFeedForward
-        ),
-        new DriveData(
-            d.right.position.isPresent() ? OptionalDouble.of(d.right.position.getAsDouble() * 2) : d.right.position,
-            d.right.velocity,
-            d.right.acceleration,
-            d.right.additionalFeedForward
-        ),
-        d.heading, d.turningRate);
-    ))
+    .then(data -> data.modifyPositions(
+        (left) -> left.isPresent() ? left.getAsDouble() * 2 : left,
+        (right) -> right.isPresent() ? right.getAsDouble() * 2 : right)
     .then(new CTREOutput(leftTalon, rightTalon))
 ```
 
