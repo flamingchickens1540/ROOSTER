@@ -277,6 +277,8 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
     private var hdgTgt = 0.0
     private var lastProf: TankDriveData? = null
 
+    private var notifier: Notifier? = null
+
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
@@ -356,6 +358,21 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
 
         PipelineDriveTrain.masters { setSelectedSensorPosition(0) }
         PipelineNavx.navx.zeroYaw()
+
+        PipelineDriveTrain.all {
+            setBrake(true)
+        }
+    }
+
+    override fun disabledInit() {
+        super.disabledInit()
+        notifier = Notifier {
+            Thread.sleep(1000)
+            PipelineDriveTrain.all {
+                setBrake(false)
+            }
+        }
+        notifier?.startSingle(1.0)
     }
 }
 
