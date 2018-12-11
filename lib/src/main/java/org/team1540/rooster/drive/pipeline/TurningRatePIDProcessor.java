@@ -1,7 +1,6 @@
 package org.team1540.rooster.drive.pipeline;
 
 import java.util.Objects;
-import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.rooster.functional.Processor;
@@ -30,22 +29,7 @@ public class TurningRatePIDProcessor extends PIDProcessor<TankDriveData, TankDri
     // multiplying the output by -1 effectively flips the sides
     loopOutput *= invertSides ? -1 : 1;
 
-    return new TankDriveData(
-        new DriveData(
-            data.left.position,
-            OptionalDouble.of(data.left.velocity.orElse(0) - loopOutput),
-            data.left.acceleration,
-            data.left.additionalFeedForward
-        ),
-        new DriveData(
-            data.right.position,
-            OptionalDouble.of(data.right.velocity.orElse(0) + loopOutput),
-            data.right.acceleration,
-            data.right.additionalFeedForward
-        ),
-        data.heading,
-        data.turningRate
-    );
+    return data.plusVelocities(-loopOutput, loopOutput);
   }
 
   /**

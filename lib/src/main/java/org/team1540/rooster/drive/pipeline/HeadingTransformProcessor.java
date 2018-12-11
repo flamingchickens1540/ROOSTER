@@ -1,6 +1,5 @@
 package org.team1540.rooster.drive.pipeline;
 
-import java.util.OptionalDouble;
 import org.team1540.rooster.functional.Processor;
 
 /**
@@ -47,11 +46,7 @@ public class HeadingTransformProcessor implements Processor<TankDriveData, TankD
       double heading = data.heading.getAsDouble();
       double halfOfCircle = radians ? Math.PI : 180;
       double processed = heading + ((outputPositive ? 1 : -1) * halfOfCircle);
-      return new TankDriveData(
-          data.left,
-          data.right,
-          OptionalDouble.of(processed),
-          data.turningRate);
+      return data.withHeading(processed);
     } else {
       return data;
     }

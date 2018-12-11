@@ -125,10 +125,6 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
     double omega = (rightVelocity - leftVelocity) / trackWidth;
 
-    return new TankDriveData(
-        new DriveData(OptionalDouble.of(leftVelocity)),
-        new DriveData(OptionalDouble.of(rightVelocity)),
-        OptionalDouble.empty(),
-        OptionalDouble.of(omega));
+    return new TankDriveData().withVelocities(leftVelocity, rightVelocity).withTurningRate(omega);
   }
 }

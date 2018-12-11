@@ -1,6 +1,5 @@
 package org.team1540.rooster.drive.pipeline;
 
-import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 
 public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveData> {
@@ -12,8 +11,10 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
   /**
    * Create a new {@code HeadingPIDProcessor} without inverted sides that outputs to feed-forward
    * setpoints.
-   *  @param p The P coefficient.
-   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to &pi;.
+   *
+   * @param p The P coefficient.
+   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to
+   * &pi;.
    */
   public HeadingPIDProcessor(double p, DoubleSupplier headingSupplier) {
     this(p, 0, headingSupplier);
@@ -25,7 +26,8 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
    *
    * @param p The P coefficient.
    * @param i The I coefficient.
-   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to &pi;.
+   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to
+   * &pi;.
    */
   public HeadingPIDProcessor(double p, double i, DoubleSupplier headingSupplier) {
     this(p, i, 0, headingSupplier);
@@ -38,7 +40,8 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
    * @param p The P coefficient.
    * @param i The I coefficient.
    * @param d The D coefficient.
-   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to &pi;.
+   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to
+   * &pi;.
    */
   public HeadingPIDProcessor(double p, double i, double d, DoubleSupplier headingSupplier) {
     this(p, i, d, headingSupplier, false);
@@ -50,7 +53,8 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
    * @param p The P coefficient.
    * @param i The I coefficient.
    * @param d The D coefficient.
-   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to &pi;.
+   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to
+   * &pi;.
    * @param outputToPosition Whether to output to the position setpoints (as opposed to the
    * feed-forward setpoints.)
    */
@@ -65,7 +69,8 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
    * @param p The P coefficient.
    * @param i The I coefficient.
    * @param d The D coefficient.
-   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to &pi;.
+   * @param headingSupplier A supplier that returns the current heading, in radians from -&pi; to
+   * &pi;.
    * @param outputToPosition Whether to output to the position setpoints (as opposed to the
    * feed-forward setpoints.)
    * @param invertSides Whether to invert the output sides. (If {@code true}, the loop output will
@@ -97,29 +102,10 @@ public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveDa
     // multiplying the output by -1 effectively flips the sides
     loopOutput *= invertSides ? -1 : 1;
 
-    return new TankDriveData(
-        new DriveData(
-            outputToPosition ?
-                OptionalDouble.of(data.left.position.orElse(0) - loopOutput)
-                : data.left.position,
-            data.left.velocity,
-            data.left.acceleration,
-            !outputToPosition ?
-                OptionalDouble.of(data.left.additionalFeedForward.orElse(0) - loopOutput)
-                : data.left.additionalFeedForward
-        ),
-        new DriveData(
-            outputToPosition ?
-                OptionalDouble.of(data.right.position.orElse(0) + loopOutput)
-                : data.right.position,
-            data.right.velocity,
-            data.right.acceleration,
-            !outputToPosition ?
-                OptionalDouble.of(data.right.additionalFeedForward.orElse(0) + loopOutput)
-                : data.right.additionalFeedForward
-        ),
-        data.heading,
-        data.turningRate
-    );
+    if (outputToPosition) {
+      return data.plusPositions(-loopOutput, loopOutput);
+    } else {
+      return data.plusAdditionalFeedForwards(-loopOutput, loopOutput);
+    }
   }
 }
