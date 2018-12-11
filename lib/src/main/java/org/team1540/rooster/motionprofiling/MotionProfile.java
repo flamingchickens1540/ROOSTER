@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A sequence of {@link Point Points} that can be executed by a {@link FollowProfile}.
+ * A sequence of {@link Point Points} that can be used by motion profiling systems.
  */
 public class MotionProfile {
 
@@ -57,33 +57,27 @@ public class MotionProfile {
      */
     public double dt;
     /**
-     * The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
-     * units}, or 0 if not applicable.
+     * The x-position of the robot, or 0 if not applicable.
      */
     public double x;
     /**
-     * The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling profile
-     * units}, or 0 if not applicable.
+     * The y-position of the robot, or 0 if not applicable.
      */
     public double y;
     /**
-     * The position of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units}.
+     * The position of the profiled mechanism.
      */
     public double position;
     /**
-     * The velocity of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units} per second.
+     * The velocity of the profiled mechanism, in position units per second.
      */
     public double velocity;
     /**
-     * The acceleration of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units} per second squared.
+     * The acceleration of the profiled mechanism, in position units per second squared.
      */
     public double acceleration;
     /**
-     * The jerk of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units} per second cubed.
+     * The jerk of the profiled mechanism, in position units per second cubed.
      */
     public double jerk;
     /**
@@ -95,18 +89,13 @@ public class MotionProfile {
      * Creates a new {@code Point}.
      *
      * @param dt The time change since the previous point, in seconds.
-     * @param x The x-position of the robot in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units}, or 0 if not applicable.
-     * @param y The y-position of the robot in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units}, or 0 if not applicable.
-     * @param position The position of the profiled mechanism, in {@linkplain
-     * org.team1540.rooster.motionprofiling profile units}.
-     * @param velocity The velocity of the profiled mechanism, in {@linkplain
-     * org.team1540.rooster.motionprofiling profile units} per second.
-     * @param acceleration The acceleration of the profiled mechanism, in {@linkplain
-     * org.team1540.rooster.motionprofiling profile units} per second squared.
-     * @param jerk The jerk of the profiled mechanism, in {@linkplain org.team1540.rooster.motionprofiling
-     * profile units} per second cubed.
+     * @param x The x-position of the robot, or 0 if not applicable.
+     * @param y The y-position of the robot, or 0 if not applicable.
+     * @param position The position of the profiled mechanism.
+     * @param velocity The velocity of the profiled mechanism, in position units per second.
+     * @param acceleration The acceleration of the profiled mechanism, in position units per second
+     * squared.
+     * @param jerk The jerk of the profiled mechanism, in position units per second cubed.
      * @param heading The robot's heading in radians, or 0 if not applicable.
      */
     public Point(double dt, double x, double y, double position, double velocity,

@@ -5,7 +5,8 @@ import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
 /**
- * @deprecated Replaced by the {@link FollowProfile}-based system.
+ * @deprecated Replaced by the {@link org.team1540.rooster.drive.pipeline drive pipeline}-based
+ * system.
  */
 @Deprecated
 public class MotionProfilingProperties {
