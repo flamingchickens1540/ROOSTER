@@ -87,14 +87,15 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
-            _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(
-                    maxVelocity, trackWidth, revBack,
+            _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(revBack,
                     DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
                     DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
                     DoubleSupplier {
                         Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
                                 - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
                     })
+                    + FeedForwardToVelocityProcessor(maxVelocity)
+                    + VelocityToTurningRateProcessor(trackWidth)
                     + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
                     + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
