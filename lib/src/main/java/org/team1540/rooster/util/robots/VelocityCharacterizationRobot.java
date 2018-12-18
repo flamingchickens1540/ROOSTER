@@ -134,6 +134,8 @@ public class VelocityCharacterizationRobot extends IterativeRobot {
           driveLeftMotorC, driveRightMotorA, driveRightMotorB,
           driveRightMotorC}) {
         if (motor != null) {
+          motor.configVoltageCompSaturation(SATURATION_VOLTAGE);
+          motor.enableVoltageCompensation(true);
           motor.configClosedloopRamp(0);
           motor.configOpenloopRamp(0);
           motor.configPeakOutputForward(1);
