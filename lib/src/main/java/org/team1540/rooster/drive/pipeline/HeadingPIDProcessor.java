@@ -3,7 +3,7 @@ package org.team1540.rooster.drive.pipeline;
 import java.util.function.DoubleSupplier;
 
 /**
- * A {@link PIDProcessor for maintaining a robot's heading.}
+ * A {@link PIDProcessor} for maintaining a robot's heading.
  */
 public class HeadingPIDProcessor extends PIDProcessor<TankDriveData, TankDriveData> {
 
