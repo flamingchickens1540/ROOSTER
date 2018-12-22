@@ -1,6 +1,6 @@
 package org.team1540.rooster.triggers;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.buttons.Button;
 import java.util.Objects;
 import org.jetbrains.annotations.Contract;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class StrictDPadButton extends Button {
 
-  private Joystick stick;
+  private @NotNull GenericHID stick;
   private int pad;
 
   private DPadAxis axis;
@@ -25,7 +25,7 @@ public class StrictDPadButton extends Button {
    * @throws NullPointerException If {@code stick} or {@code axis} is {@code null}.
    * @throws IllegalArgumentException If {@code pad} is negative.
    */
-  public StrictDPadButton(@NotNull Joystick stick, int pad,
+  public StrictDPadButton(@NotNull GenericHID stick, int pad,
       @NotNull org.team1540.rooster.triggers.DPadAxis axis) {
     super();
     if (pad < 0) {
