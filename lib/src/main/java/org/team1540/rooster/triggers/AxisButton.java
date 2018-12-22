@@ -1,6 +1,6 @@
 package org.team1540.rooster.triggers;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.buttons.Button;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
  * joystick.
  */
 public class AxisButton extends Button {
-  private Joystick stick;
+
+  private GenericHID stick;
   private double threshold;
   private int axis;
 
@@ -22,7 +23,7 @@ public class AxisButton extends Button {
    * @param threshold The threshold for the button to be triggered
    * @throws NullPointerException If {@code stick} is {@code null}.
    */
-  public AxisButton(@NotNull Joystick stick, double threshold, int axis) {
+  public AxisButton(@NotNull GenericHID stick, double threshold, int axis) {
     this.stick = Objects.requireNonNull(stick);
     this.threshold = threshold;
     this.axis = axis;
