@@ -117,6 +117,12 @@ ROOSTER is made up of two separate Gradle projects, `lib` (the actual ROOSTER li
 
 We recommend using IntelliJ IDEA to develop ROOSTER. To import the project, on IntelliJ IDEA's main menu screen or from the `File > New` menu, select `Project from Version Control > GitHub`. Enter `https://github.com/flamingchickens1540/ROOSTER.git` as the Git Repository URL, and set the Parent Directory and Directory name functions according to your preference. The project should configure itself automatically.
 
+Alternatively, the project can be built from the command line with the Gradle Wrapper:
+
+```bash
+./gradlew build
+```
+
 ### Code Style
 
 Team 1540 (and ROOSTER) uses [Google Java Style](https://google.github.io/styleguide/javaguide.html) for all code. Additionally, all new code should have proper nullability annotations on all public-facing parameters and return types. (`@NotNull` for parameters that must not be `null` or methods that never return `null`, `@Nullable` for the opposite.)
