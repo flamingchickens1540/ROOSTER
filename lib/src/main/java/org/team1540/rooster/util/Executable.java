@@ -9,5 +9,5 @@ public interface Executable {
   /**
    * Perform the required action.
    */
-  public void execute();
+  void execute();
 }

@@ -27,7 +27,7 @@ public interface Input<T> extends Supplier<T> {
    * returned {@code Input}.
    * @return A new {@code Input} as described above.
    */
-  public default <R> Input<R> then(Function<T, R> f) {
+  default <R> Input<R> then(Function<T, R> f) {
     return () -> f.apply(get());
   }
 
@@ -38,7 +38,7 @@ public interface Input<T> extends Supplier<T> {
    * @param c The {@link Consumer} (or {@link Output} to use.
    * @return A new {@link Executable} as described above.
    */
-  public default Executable then(Consumer<T> c) {
+  default Executable then(Consumer<T> c) {
     return () -> c.accept(get());
   }
 }

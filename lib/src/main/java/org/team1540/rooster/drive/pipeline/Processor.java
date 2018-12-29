@@ -24,7 +24,7 @@ public interface Processor<T, R> extends Function<T, R> {
    * @param i The {@link Supplier} (or {@link Input}) to process in the returned {@link Input}.
    * @return An {@link Input} as described above.
    */
-  public default Input<R> process(Supplier<T> i) {
+  default Input<R> process(Supplier<T> i) {
     return () -> apply(i.get());
   }
 
@@ -35,7 +35,7 @@ public interface Processor<T, R> extends Function<T, R> {
    * @param o The {@link Consumer} (or {@link Output}) to pass the processed results to.
    * @return A new {@link Output} as described above.
    */
-  public default Output<T> followedBy(Consumer<R> o) {
+  default Output<T> followedBy(Consumer<R> o) {
     return t -> o.accept(apply(t));
   }
 }

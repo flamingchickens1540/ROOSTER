@@ -27,7 +27,7 @@ public interface Output<T> extends Consumer<T> {
    * resulting {@code Output}).
    * @return A new {@code Output} as described above.
    */
-  public default <I> Output<I> after(Function<I, T> f) {
+  default <I> Output<I> after(Function<I, T> f) {
     return i -> accept(f.apply(i));
   }
 
@@ -38,7 +38,7 @@ public interface Output<T> extends Consumer<T> {
    * @param i The {@link Supplier} (or {@link Input} to use.
    * @return A new {@link Executable} as described above.
    */
-  public default Executable after(Supplier<T> i) {
+  default Executable after(Supplier<T> i) {
     return () -> accept(i.get());
   }
 }
