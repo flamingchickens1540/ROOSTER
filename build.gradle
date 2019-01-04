@@ -1,3 +1,5 @@
+import edu.wpi.first.gradlerio.GradleRIOPlugin
+
 plugins {
     id "java"
     id "maven"
@@ -95,13 +97,19 @@ jar.dependsOn(compileTestbotsJava)
 jar {
     inputs.files(compileTestbotsJava.outputs.files)
     gradle.taskGraph.whenReady {
-        if (gradle.taskGraph.hasTask(":deploy")) { // fully qualified task name is needed
+        if (gradle.taskGraph.hasTask(":deployFrcJava") || gradle.taskGraph.hasTask(":simulateJava") || gradle.taskGraph.hasTask(":simulateExternalJava")) { // fully qualified task name is needed
+            System.out.println("Deployment or simulation detected.")
             from ((configurations.compile.collect {
                 it.isDirectory() ? it : zipTree(it)
             }) + sourceSets.testbots.output)
+            manifest GradleRIOPlugin.javaManifest("org.team1540.rooster.testing.TestbotLoaderMain")
         }
     }
 }
+
+simulateJava.dependsOn.removeAll()
+simulateJava.dependsOn(extractTestJNI)
+simulateJava.dependsOn(jar)
 
 wrapper {
     gradleVersion = '5.0'
