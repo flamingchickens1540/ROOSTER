@@ -40,6 +40,7 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
    * @param softTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
    * -1 (full left) to 1 (full right) inclusive.
    * @param hardTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
+   * -1 to 1 inclusive.
    */
   public AdvancedArcadeJoystickInput(@NotNull DoubleSupplier throttleInput,
       @NotNull DoubleSupplier softTurnInput,
@@ -57,6 +58,7 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
    * @param softTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
    * -1 (full left) to 1 (full right) inclusive.
    * @param hardTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
+   * -1 to 1 inclusive.
    */
   public AdvancedArcadeJoystickInput(boolean reverseBackwards,
       @NotNull DoubleSupplier throttleInput,
