@@ -1,33 +1,15 @@
-import jaci.openrio.gradle.GradleRIOPlugin
-import jaci.openrio.gradle.frc.FRCJavaArtifact
-import jaci.openrio.gradle.frc.RoboRIO
-
 plugins {
-    id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
+    id "edu.wpi.first.GradleRIO" version "2019.1.1"
 }
-
-wpi {
-    ctreVersion = "5.3.1.0"
-}
-
-dependencies {
-    compile project(":lib")
-    compile wpilib()
-    compile ctre()
-    compile navx()
-    compile pathfinder()
-}
-
-def TEAM = 1540
 
 deploy {
     targets {
-        target("roborio", RoboRIO) {
-            team = TEAM
+        roboRIO("roborio") {
+            team = frc.getTeamOrDefault(1540)
         }
     }
     artifacts {
-        artifact('frcJava', FRCJavaArtifact) {
+        frcJavaArtifact('frcJava') {
             targets << "roborio"
             /*
             IMPORTANT: With the "deploy-debug" property set (i.e. -Pdeploy-debug is on the
@@ -38,6 +20,23 @@ deploy {
             debug = project.hasProperty("deploy-debug")
         }
     }
+}
+
+
+dependencies {
+    compile(project(":lib")) {
+        exclude group: "edu.wpi.first.wpilibj"
+        exclude group: "edu.wpi.first.ntcore"
+        exclude group: "edu.wpi.first.cscore"
+        exclude group: "org.opencv"
+        exclude group: "com.ctre.phoenix"
+        exclude group: "com.kauailabs.navx.frc"
+    }
+
+    compile wpi.deps.wpilib()
+    compile wpi.deps.vendor.java()
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
 }
 
 jar {
@@ -57,7 +56,7 @@ jar {
             } else {
                 println "Creating JAR for robot ${project.robotClass}"
             }
-            manifest GradleRIOPlugin.javaManifest(project.robotClass)
+            manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(project.robotClass)
         }
     }
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }

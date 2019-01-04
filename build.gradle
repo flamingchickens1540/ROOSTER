@@ -27,7 +27,14 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven { url "https://jitpack.io/" }
+        maven {
+            name "JitPack"
+            url "https://jitpack.io/"
+        }
+        maven {
+            name "Jaci"
+            url "http://dev.imjac.in/maven/"
+        }
     }
 
     dependencies {
