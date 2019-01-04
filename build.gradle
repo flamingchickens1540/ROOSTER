@@ -10,35 +10,113 @@ buildscript {
     }
 }
 
+plugins {
+    id "java"
+    id "maven"
+    id "edu.wpi.first.GradleRIO" version "2019.1.1"
+}
+
+apply plugin: "kotlin"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name "JitPack"
+        url "https://jitpack.io/"
+    }
+}
+
+javadoc {
+    options {
+        header '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
+        links 'http://first.wpi.edu/FRC/roborio/release/docs/java/', 'http://www.ctr-electronics.com/downloads/api/java/html/'
+        linksOffline('https://docs.oracle.com/javase/8/docs/api/', 'https://docs.oracle.com/javase/8/docs/api/')
+    }
+    options.addStringOption("doctitle", "ROOSTER API")
+    options.addStringOption("windowtitle", "ROOSTER API")
+    options.addBooleanOption("-allow-script-in-comments", true)
+    options.addBooleanOption('Xdoclint:all,-missing', true)
+}
+
+
+dependencies {
+    // FRC dependencies
+    compile wpi.deps.wpilib()
+    compile wpi.deps.vendor.java()
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
+
+    // Non-FRC depedencies
+    compile 'org.jetbrains:annotations:16.0.3'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    compile "com.google.guava:guava:27.0-jre"
+    compile "org.apache.commons:commons-math3:3.6.1"
+    // Last release was in 2014, so we're just pinning it to this commit instead
+    compile "com.github.oxo42:stateless4j:3dd512049f"
+}
+
+sourceSets {
+    testbots {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    testbotsCompile.extendsFrom compile
+    testbotsRuntimeOnly.extendsFrom runtimeOnly
+}
+
+deploy {
+    targets {
+        roboRIO("roborio") {
+            team = frc.getTeamOrDefault(1540)
+        }
+    }
+    artifacts {
+        frcJavaArtifact('frcJava') {
+            targets << "roborio"
+            /*
+            IMPORTANT: With the "deploy-debug" property set (i.e. -Pdeploy-debug is on the
+            command line), the robot code will not start until you connect your debugger to the
+            robot. Connect by running the "Remote Robot Debug" run configuration which should be
+            shared through version control. Alternatively, remove this line and redeploy.
+            */
+            debug = project.hasProperty("deploy-debug")
+        }
+    }
+}
+
+jar.dependsOn(compileTestbotsJava)
+
+jar {
+    inputs.files(compileTestbotsJava.outputs.files)
+    gradle.taskGraph.whenReady {
+        if (gradle.taskGraph.hasTask(":deploy")) { // fully qualified task name is needed
+            from ((configurations.compile.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }) + sourceSets.testbots.output)
+        }
+    }
+}
+
 wrapper {
     gradleVersion = '5.0'
     distributionType = Wrapper.DistributionType.ALL
-}
-
-subprojects {
-    apply plugin: "java"
-    apply plugin: "kotlin"
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
-    }
-
-    repositories {
-        mavenCentral()
-        maven {
-            name "JitPack"
-            url "https://jitpack.io/"
-        }
-        maven {
-            name "Jaci"
-            url "http://dev.imjac.in/maven/"
-        }
-    }
-
-    dependencies {
-        compile 'org.jetbrains:annotations:16.0.3'
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    }
 }

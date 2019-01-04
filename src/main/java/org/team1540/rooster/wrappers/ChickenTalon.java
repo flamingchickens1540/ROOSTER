@@ -721,7 +721,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return Position of selected sensor in raw sensor units per decisecond.
    */
   @Override
-  public double getSelectedSensorPosition() {
+  public int getSelectedSensorPosition() {
     return super.getSelectedSensorPosition(defaultPidIdx);
   }
 
@@ -731,7 +731,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return Velocity of selected sensor in raw sensor units per decisecond.
    */
   @Override
-  public double getSelectedSensorVelocity() {
+  public int getSelectedSensorVelocity() {
     return super.getSelectedSensorVelocity(defaultPidIdx);
   }
 

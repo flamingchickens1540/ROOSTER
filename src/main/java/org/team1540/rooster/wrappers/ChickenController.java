@@ -508,14 +508,14 @@ public interface ChickenController extends IMotorController {
    *
    * @return Position of selected sensor in raw sensor units per decisecond.
    */
-  double getSelectedSensorPosition();
+  int getSelectedSensorPosition();
 
   /**
    * Get the selected sensor velocity.
    *
    * @return Velocity of selected sensor in raw sensor units per decisecond.
    */
-  double getSelectedSensorVelocity();
+  int getSelectedSensorVelocity();
 
   int getStatusFramePeriod(StatusFrameEnhanced frame);
 

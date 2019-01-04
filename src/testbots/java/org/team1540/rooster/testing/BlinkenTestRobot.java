@@ -34,7 +34,7 @@ public class BlinkenTestRobot extends IterativeRobot {
     int newID = (int) SmartDashboard.getNumber("Spark ID", currentID);
     if (newID != currentID || blinken == null) {
       if (blinken != null) {
-        blinken.free();
+        blinken.close();
       }
 
       blinken = new RevBlinken(newID);
