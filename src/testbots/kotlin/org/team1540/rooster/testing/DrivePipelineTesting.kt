@@ -21,7 +21,7 @@ import java.util.function.DoubleSupplier
  * Base class that all other testing classes inherit from; just has a command that gets started when
  * teleop starts.
  */
-abstract class DrivePipelineTestRobot : IterativeRobot() {
+abstract class DrivePipelineTestRobot : TimedRobot() {
     protected abstract val command: Command
 
     override fun teleopInit() {

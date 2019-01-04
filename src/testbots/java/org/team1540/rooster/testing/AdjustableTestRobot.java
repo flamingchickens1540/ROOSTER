@@ -1,8 +1,8 @@
 package org.team1540.rooster.testing;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import org.team1540.rooster.adjustables.AdjustableManager;
 import org.team1540.rooster.adjustables.Telemetry;
@@ -10,7 +10,7 @@ import org.team1540.rooster.adjustables.Tunable;
 import org.team1540.rooster.power.PowerManager;
 
 @Deprecated
-public class AdjustableTestRobot extends IterativeRobot {
+public class AdjustableTestRobot extends TimedRobot {
 
   @Tunable("A boolean")
   public boolean b;

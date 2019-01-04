@@ -1,12 +1,12 @@
 package org.team1540.rooster.testing;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.rooster.wrappers.RevBlinken;
 import org.team1540.rooster.wrappers.RevBlinken.ColorPattern;
 
-public class BlinkenTestRobot extends IterativeRobot {
+public class BlinkenTestRobot extends TimedRobot {
 
   private SendableChooser<ColorPattern> patternChooser = new SendableChooser<>();
   private int currentID = -1;

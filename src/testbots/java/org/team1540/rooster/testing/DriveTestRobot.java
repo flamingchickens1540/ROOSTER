@@ -3,13 +3,13 @@ package org.team1540.rooster.testing;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
-public class DriveTestRobot extends IterativeRobot {
+public class DriveTestRobot extends TimedRobot {
   Compressor compressor = new Compressor();
   Joystick joystick;
   ChickenTalon lMaster;

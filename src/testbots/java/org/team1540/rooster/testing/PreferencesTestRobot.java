@@ -1,14 +1,14 @@
 
 package org.team1540.rooster.testing;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import org.team1540.rooster.power.PowerManager;
 import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
 
-public class PreferencesTestRobot extends IterativeRobot {
+public class PreferencesTestRobot extends TimedRobot {
 
   @Preference("A boolean")
   public boolean b;
