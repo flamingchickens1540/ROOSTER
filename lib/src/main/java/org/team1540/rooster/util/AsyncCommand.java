@@ -21,7 +21,7 @@ public abstract class AsyncCommand extends Command {
   /**
    * Constructs a new {@code AsyncCommand} with a preset periodic interval.
    *
-   * @param interval The interval between {@link #run()} calls, in milliseconds.
+   * @param interval The interval between {@link #runPeriodic()} ()} calls, in milliseconds.
    */
   public AsyncCommand(long interval) {
     this.interval = interval / 1000.0;
@@ -103,7 +103,7 @@ public abstract class AsyncCommand extends Command {
   }
 
   /**
-   * Marks the command as finished. The {@link #run()} method will no longer be called, and the
+   * Marks the command as finished. The {@link #runPeriodic()} method will no longer be called, and the
    * command will be canceled on the next scheduler tick.
    */
   protected void markAsFinished() {
@@ -111,7 +111,7 @@ public abstract class AsyncCommand extends Command {
   }
 
   /**
-   * Gets the periodic interval between calls to {@link #run()}.
+   * Gets the periodic interval between calls to {@link #runPeriodic()}.
    *
    * @return The interval, in milliseconds.
    */
@@ -121,7 +121,7 @@ public abstract class AsyncCommand extends Command {
   }
 
   /**
-   * Sets the periodic interval between calls to {@link #run()}.
+   * Sets the periodic interval between calls to {@link #runPeriodic()}.
    *
    * @param interval The interval, in milliseconds.
    */

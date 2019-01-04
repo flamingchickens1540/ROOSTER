@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import org.team1540.rooster.adjustables.Tunable;
+import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.util.AsyncCommand;
 
 public class AsyncCommandTestRobot extends IterativeRobot {
@@ -14,7 +14,7 @@ public class AsyncCommandTestRobot extends IterativeRobot {
   Command command1 = new NonAsyncTest();
   Command command2 = new AsyncTest();
 
-  @Tunable("End commands")
+  @Preference(value = "End commands", persistent = false)
   public boolean endCommands = false;
 
   private static Subsystem subsystem = new Subsystem() {
