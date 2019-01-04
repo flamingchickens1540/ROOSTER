@@ -1,6 +1,6 @@
 package org.team1540.rooster.triggers;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.buttons.Button;
 import java.util.Objects;
 import org.jetbrains.annotations.Contract;
@@ -21,7 +21,7 @@ public class DPadButton extends Button {
     UP, DOWN, LEFT, RIGHT
   }
 
-  private Joystick stick;
+  private GenericHID stick;
   private int pad;
 
   private org.team1540.rooster.triggers.DPadAxis axis;
@@ -29,14 +29,14 @@ public class DPadButton extends Button {
   /**
    * Constructs a {@link DPadButton}.
    *
-   * @deprecated Use {@link #DPadButton(Joystick, int, org.team1540.rooster.triggers.DPadAxis)}
+   * @deprecated Use {@link #DPadButton(GenericHID, int, org.team1540.rooster.triggers.DPadAxis)}
    *
    * @param stick The joystick with the button.
    * @param pad The ID of the d-pad.
    * @param axis The axis of the button.
    */
   @Deprecated
-  public DPadButton(Joystick stick, int pad, DPadAxis axis) {
+  public DPadButton(GenericHID stick, int pad, DPadAxis axis) {
     super();
     this.stick = stick;
     this.pad = pad;
@@ -65,7 +65,7 @@ public class DPadButton extends Button {
    * @throws NullPointerException If {@code stick} or {@code axis} is {@code null}.
    * @throws IllegalArgumentException If {@code pad} is negative.
    */
-  public DPadButton(@NotNull Joystick stick, int pad,
+  public DPadButton(@NotNull GenericHID stick, int pad,
       @NotNull org.team1540.rooster.triggers.DPadAxis axis) {
     super();
     if (pad < 0) {

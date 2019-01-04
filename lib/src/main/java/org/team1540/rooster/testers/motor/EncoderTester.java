@@ -103,7 +103,7 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
   }
 
   /**
-   * Gets the encoder velocity under which an encody failure will be reported. Defaults to 5.
+   * Gets the encoder velocity under which an encoder failure will be reported. Defaults to 5.
    *
    * @return A double representing the velocity in whatever units are set.
    */
@@ -112,7 +112,7 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
   }
 
   /**
-   * Sets the encoder velocity under which an encody failure will be reported.
+   * Sets the encoder velocity under which an encoder failure will be reported.
    *
    * @param velocityThreshold A double representing the velocity in whatever units are set.
    */

@@ -5,9 +5,9 @@ import org.team1540.rooster.functional.Processor;
 @FunctionalInterface
 public interface JoystickScaling extends Processor<Double, Double> {
 
-  public double scale(double input);
+  double scale(double input);
 
-  public default Double apply(Double input) {
+  default Double apply(Double input) {
     return scale(input);
   }
 }
