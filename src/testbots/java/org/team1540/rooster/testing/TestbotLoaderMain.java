@@ -8,6 +8,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Class to load test robots. This class reads a robotclass.txt file from the RoboRIO filesystem and
+ * uses that to decide which robot to instantiate. This is so that the robot class can be specified
+ * at build time (by modifying a robotclass.txt to be deployed to the RIO) rather than compile
+ * time.
+ */
 public class TestbotLoaderMain {
 
   public static void main(String... args) {
