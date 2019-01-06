@@ -149,7 +149,7 @@ public class SimpleControllersTester extends Command implements Sendable {
   /**
    * Add all the sendables to the {@link SmartDashboard}. Includes chooser for selecting the
    * active {@link IMotorController} and information about the tester. Follows a builder pattern.
-   * @return Follows a builder pattern.
+   * @return This {@code SimpleControllersTester} in a builder pattern.
    */
   public SimpleControllersTester addAllSendables() {
     SmartDashboard.putData("Controller tester info", this);
