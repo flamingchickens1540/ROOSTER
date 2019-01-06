@@ -99,6 +99,8 @@ dependencies {
 }
 ```
 
+Additionally, you should be using the latest version of GradleRIO with CTRE Phoenix, Kauai Labs NavX, and Pathfinder v1 vendor libraries installed.
+
 We use [JitPack](https://jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files.
 
 Using `master-SNAPSHOT` as a version number is good for projects you're actively developing, but after you've finished it's better to anchor it to a specific version (simply change "`master-SNAPSHOT`" to the version number) to avoid possible backwards-compatibility issues.
