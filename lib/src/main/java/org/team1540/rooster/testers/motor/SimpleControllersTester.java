@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
+import org.jetbrains.annotations.Contract;
 import org.team1540.rooster.util.SimpleCommand;
 
 /**
@@ -151,6 +152,8 @@ public class SimpleControllersTester extends Command implements Sendable {
    * active {@link IMotorController} and information about the tester. Follows a builder pattern.
    * @return This {@code SimpleControllersTester} in a builder pattern.
    */
+  @SuppressWarnings("UnusedReturnValue")
+  @Contract(" -> this")
   public SimpleControllersTester addAllSendables() {
     SmartDashboard.putData("Controller tester info", this);
     SmartDashboard.putData("Controller choose", getControllerChooser());
