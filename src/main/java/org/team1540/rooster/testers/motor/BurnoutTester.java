@@ -1,6 +1,5 @@
 package org.team1540.rooster.testers.motor;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
@@ -10,13 +9,14 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
  * Reports motor burnouts by comparing the current draw across a series of similarly-purposed
  * motors and reporting low outliers or checking if a single motor is below the cutoff.
  */
 @SuppressWarnings("unused")
-public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements Sendable {
+public class BurnoutTester extends AbstractTester<ChickenTalon, Boolean> implements Sendable {
 
   private static final Median medianCalculator = new Median();
   private static final StandardDeviation stdDevCalculator = new StandardDeviation();
@@ -30,27 +30,28 @@ public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements 
 
   /**
    * Construct a new instance with the default logTime of 150 seconds and an update delay of 500
-   * ms, using the {@link BurnoutTester#testBurnoutMultiMotor(TalonSRX)} if there is more
-   * than one motor and {@link BurnoutTester#testBurnoutSingleMotor(TalonSRX)} if there is
+   * ms, using the {@link BurnoutTester#testBurnoutMultiMotor(ChickenTalon)} if there is more
+   * than one motor and {@link BurnoutTester#testBurnoutSingleMotor(ChickenTalon)} if there is
    * one or few motors. Equivalent to {@link BurnoutTester#BurnoutTester(List) EncoderTester
    * (Arrays.asList(motorsToTest))}.
    *
    * @param motorsToTest The motors to compare to each other.
    */
-  public BurnoutTester(TalonSRX... motorsToTest) {
+  @SuppressWarnings("WeakerAccess")
+  public BurnoutTester(ChickenTalon... motorsToTest) {
     this(Arrays.asList(motorsToTest));
   }
 
   /**
    * Construct a new instance with the default logTime of 150 seconds and an update delay of 500
-   * ms, using the {@link BurnoutTester#testBurnoutMultiMotor(TalonSRX)} if there are more
-   * than two motor sand {@link BurnoutTester#testBurnoutSingleMotor(TalonSRX)} if there two
+   * ms, using the {@link BurnoutTester#testBurnoutMultiMotor(ChickenTalon)} if there are more
+   * than two motor sand {@link BurnoutTester#testBurnoutSingleMotor(ChickenTalon)} if there two
    * two or few motors.
    *
    * @param motorsToTest The motors to compare to each other.
    */
   @SuppressWarnings("WeakerAccess")
-  public BurnoutTester(List<TalonSRX> motorsToTest) {
+  public BurnoutTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     super((stupid) -> null, motorsToTest, null, 150, 500);
     this.setTest(motorsToTest.size() > 2 ? this::testBurnoutMultiMotor :
@@ -64,7 +65,7 @@ public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements 
    * @return Boolean indicating burnout.
    */
   @SuppressWarnings("WeakerAccess")
-  public boolean testBurnoutMultiMotor(TalonSRX controller) {
+  public boolean testBurnoutMultiMotor(ChickenTalon controller) {
     return controller.getOutputCurrent() < (this.medianCurrent - 1 * this.stdDevCurrent);
   }
 
@@ -76,7 +77,7 @@ public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements 
    * @return Boolean indicating burnout.
    */
   @SuppressWarnings("WeakerAccess")
-  public boolean testBurnoutSingleMotor(TalonSRX controller) {
+  public boolean testBurnoutSingleMotor(ChickenTalon controller) {
     return controller.getMotorOutputPercent() > percentOutputCutoff
         && controller.getOutputCurrent() < currentCutoff;
   }
@@ -86,7 +87,7 @@ public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements 
    */
   @Override
   protected void periodic() {
-    double[] currents = getItemsToTest().stream().mapToDouble(TalonSRX::getOutputCurrent)
+    double[] currents = getItemsToTest().stream().mapToDouble(ChickenTalon::getOutputCurrent)
         .toArray();
     medianCurrent = medianCalculator.evaluate(currents);
     stdDevCurrent = stdDevCalculator.evaluate(currents);
@@ -155,7 +156,7 @@ public class BurnoutTester extends AbstractTester<TalonSRX, Boolean> implements 
    */
   @Override
   public void initSendable(SendableBuilder builder) {
-    for (TalonSRX t : getItemsToTest()) {
+    for (ChickenTalon t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
       builder.addBooleanProperty(t.getDeviceID() + "",
           () -> Optional.ofNullable(peekMostRecentResult(t))

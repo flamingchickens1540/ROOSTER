@@ -1,7 +1,5 @@
 package org.team1540.rooster.testers.motor;
 
-import com.ctre.phoenix.motorcontrol.IMotorController;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
@@ -10,13 +8,14 @@ import java.util.List;
 import java.util.Optional;
 import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
  * Reports if an encoder appears to be non-functional by checking to see if a motor is running
  * and if the corresponding encoder is moving.
  */
 @SuppressWarnings("unused")
-public class EncoderTester extends AbstractTester<IMotorController, Boolean> implements Sendable {
+public class EncoderTester extends AbstractTester<ChickenTalon, Boolean> implements Sendable {
 
   private String name = "EncoderTester";
 
@@ -28,47 +27,40 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
    * ms. Equivalent to {@link EncoderTester#EncoderTester(List) EncoderTester(Arrays.asList
    * (motorsToTest))}.
    *
-   * @param motorsToTest The {@link IMotorController IMotorControllers} to compare to each other.
+   * @param motorsToTest The {@link ChickenTalon ChickenTalons} to compare to each other.
    */
   @SuppressWarnings("WeakerAccess")
-  public EncoderTester(IMotorController... motorsToTest) {
+  public EncoderTester(ChickenTalon... motorsToTest) {
     this(Arrays.asList(motorsToTest));
   }
 
   /**
    * Construct a new instance with the default logTime of 150 seconds and an update delay of 500 ms.
    *
-   * @param motorsToTest The {@link IMotorController IMotorControllers} to compare to each other.
+   * @param motorsToTest The {@link ChickenTalon ChickenTalons} to compare to each other.
    */
   @SuppressWarnings("WeakerAccess")
-  public EncoderTester(List<IMotorController> motorsToTest) {
+  public EncoderTester(List<ChickenTalon> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
     // Test will run if the motor is drawing over 1A of current if telemetry is available, or else,
     super((stupid) -> null, motorsToTest, null, 150, 500);
     this.setTest(this::testEncoder);
     this.setRunConditions(
-        Collections.singletonList((motor) -> {
-          if (motor instanceof TalonSRX) {
-            return ((TalonSRX) motor).getOutputCurrent() > currentThreshold;
-          } else {
-            return true;
-          }
-        }));
+        Collections.singletonList((motor) -> motor.getOutputCurrent() > currentThreshold));
   }
 
   /**
    * Tests to see if the encoder is working by checking to see if the controller is drawing more
-   * than 1 amp and if the selected {@link IMotorController} is moving at a velocity of less than 5.
+   * than 1 amp and if the selected {@link ChickenTalon} is moving at a velocity of less than 5.
    *
-   * @param controller The {@link IMotorController} to test for burnout.
+   * @param controller The {@link ChickenTalon} to test for burnout.
    * @return Boolean indicating if the encoder is encoder has failed: true if it is suspected
    * of failure, false if it is not suspected of failure.
    */
   @SuppressWarnings("WeakerAccess")
-  public Boolean testEncoder(IMotorController controller) {
+  public Boolean testEncoder(ChickenTalon controller) {
     // Do the wrappers provide pidIdx nicely? Yes. Can we just use zero? Also probably yes.
-    return (controller instanceof TalonSRX
-        && ((TalonSRX) controller).getOutputCurrent() > currentThreshold)
+    return controller.getOutputCurrent() > currentThreshold
         && Math.abs(controller.getSelectedSensorVelocity(0)) < velocityThreshold;
   }
 
@@ -129,13 +121,13 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
   }
 
   /**
-   * Displays the current status of each {@link IMotorController}.
+   * Displays the current status of each {@link ChickenTalon}.
    *
    * @param builder The {@link SendableBuilder} to use.
    */
   @Override
   public void initSendable(SendableBuilder builder) {
-    for (IMotorController t : getItemsToTest()) {
+    for (ChickenTalon t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
       builder.addBooleanProperty(t.getDeviceID() + "",
           () -> Optional.ofNullable(peekMostRecentResult(t))

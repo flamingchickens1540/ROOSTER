@@ -1,19 +1,15 @@
 package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
 import org.team1540.rooster.wrappers.ChickenTalon;
@@ -32,7 +28,7 @@ public class ControllersMultiTester extends Command {
 
   /**
    * Default constructor. Note that this class follows a builder pattern; use
-   * {@link #addControllerGroup(IMotorController...)} and
+   * {@link #addControllerGroup(ChickenTalon...)} and
    * {@link #addEncoderGroup(ChickenTalon...)} to add the motors.
    */
   public ControllersMultiTester() {
@@ -42,7 +38,7 @@ public class ControllersMultiTester extends Command {
     stateMachineConfig.configure(State.SPIN_UP)
         .permit(Trigger.TIME_HAS_PASSED, State.EXECUTING)
         .onEntry(() -> {
-          for (IMotorController motor : tests.get(index).getTest().getItemsToTest()) {
+          for (ChickenTalon motor : tests.get(index).getTest().getItemsToTest()) {
             tests.get(index).getFunction().accept(motor);
           }
         });
@@ -54,7 +50,7 @@ public class ControllersMultiTester extends Command {
         .permit(Trigger.TIME_HAS_PASSED, State.SPIN_UP)
         .permit(Trigger.FINISHED, State.FINISHED)
         .onEntry(() -> {
-          for (IMotorController motor : tests.get(index).getTest().getItemsToTest()) {
+          for (ChickenTalon motor : tests.get(index).getTest().getItemsToTest()) {
             motor.set(ControlMode.PercentOutput, 0);
           }
           index++;
@@ -71,7 +67,7 @@ public class ControllersMultiTester extends Command {
    * @return this
    */
   @SuppressWarnings("WeakerAccess")
-  public ControllersMultiTester addControllerGroup(IMotorController... controllerGroup) {
+  public ControllersMultiTester addControllerGroup(ChickenTalon... controllerGroup) {
     addControllerGroup(this::setMotorToFull, controllerGroup);
     return this;
   }
@@ -84,12 +80,9 @@ public class ControllersMultiTester extends Command {
    * @return this
    */
   @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
-  public ControllersMultiTester addControllerGroup(Consumer<IMotorController> function,
-      IMotorController... controllerGroup) {
-    List<TalonSRX> talons =
-        Arrays.stream(controllerGroup).filter(TalonSRX.class::isInstance).map(TalonSRX.class::cast)
-            .collect(Collectors.toList());
-    tests.add(new TesterAndCommand(new BurnoutTester(talons), function));
+  public ControllersMultiTester addControllerGroup(Consumer<ChickenTalon> function,
+      ChickenTalon... controllerGroup) {
+    tests.add(new TesterAndCommand(new BurnoutTester(controllerGroup), function));
     return this;
   }
 
@@ -113,7 +106,7 @@ public class ControllersMultiTester extends Command {
    * @return this
    */
   @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
-  public ControllersMultiTester addEncoderGroup(Consumer<IMotorController> function,
+  public ControllersMultiTester addEncoderGroup(Consumer<ChickenTalon> function,
       ChickenTalon... controllerGroup) {
     tests.add(new TesterAndCommand(new EncoderTester(controllerGroup), function));
     return this;
@@ -142,7 +135,7 @@ public class ControllersMultiTester extends Command {
   protected void end() {
     // Very optimized yes no duplicate code either
     for (TesterAndCommand testerAndCommand : tests) {
-      for (IMotorController controller : testerAndCommand.getTest().getItemsToTest()) {
+      for (ChickenTalon controller : testerAndCommand.getTest().getItemsToTest()) {
         int failureCount = 0;
         for (ResultWithMetadata<Boolean> result : testerAndCommand.getTest()
             .getStoredResults(controller)) {
@@ -165,7 +158,7 @@ public class ControllersMultiTester extends Command {
     return stateMachine.getState().equals(State.FINISHED);
   }
 
-  private void setMotorToFull(IMotorController motor) {
+  private void setMotorToFull(ChickenTalon motor) {
     motor.setNeutralMode(NeutralMode.Coast);
     motor.set(ControlMode.PercentOutput, 1.0);
   }
@@ -194,21 +187,21 @@ public class ControllersMultiTester extends Command {
 
   private class TesterAndCommand {
 
-    private AbstractTester<IMotorController, Boolean> test;
-    private Consumer<IMotorController> function;
+    private AbstractTester<ChickenTalon, Boolean> test;
+    private Consumer<ChickenTalon> function;
 
     private TesterAndCommand(
-        AbstractTester<IMotorController, Boolean> test,
-        Consumer<IMotorController> function) {
+        AbstractTester<ChickenTalon, Boolean> test,
+        Consumer<ChickenTalon> function) {
       this.test = test;
       this.function = function;
     }
 
-    private AbstractTester<IMotorController, Boolean> getTest() {
+    private AbstractTester<ChickenTalon, Boolean> getTest() {
       return test;
     }
 
-    private Consumer<IMotorController> getFunction() {
+    private Consumer<ChickenTalon> getFunction() {
       return function;
     }
   }
