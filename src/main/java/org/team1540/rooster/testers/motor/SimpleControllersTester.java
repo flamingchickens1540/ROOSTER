@@ -22,6 +22,7 @@ import org.team1540.rooster.util.SimpleCommand;
  * the motor in the SmartDashboard or move next/previous with buttons and control the percent
  * output of the motor with a joystick axis.
  */
+@SuppressWarnings("unused")
 public class SimpleControllersTester extends Command implements Sendable {
 
   private static final int DEFAULT_JOYSTICK_ID = 0;
@@ -49,6 +50,7 @@ public class SimpleControllersTester extends Command implements Sendable {
    *
    * @param controllers The {@link IMotorController IMotorControllers} to test.
    */
+  @SuppressWarnings({"SpellCheckingInspection", "unused"})
   public SimpleControllersTester(IMotorController... controllers) {
     this(new Joystick(DEFAULT_JOYSTICK_ID), DEFAULT_AXIS_ID, DEFAULT_NEXT_BUTTON_ID,
         DEFAULT_PREVIOUS_BUTTON_ID, controllers);
@@ -83,10 +85,10 @@ public class SimpleControllersTester extends Command implements Sendable {
 
     // Add a chooser that you can use to select the controller and initialize it to null,
     // corresponding with buttons should be used
-    this.controllerChooser.addObject("Use buttons", null);
+    this.controllerChooser.addOption("Use buttons", null);
     for (IMotorController controller : controllers) {
       this.controllers.put(controller.getDeviceID(), controller);
-      this.controllerChooser.addObject(String.valueOf(controller.getDeviceID()),
+      this.controllerChooser.addOption(String.valueOf(controller.getDeviceID()),
           controller.getDeviceID());
       controller.setNeutralMode(NeutralMode.Coast);
     }
@@ -152,7 +154,7 @@ public class SimpleControllersTester extends Command implements Sendable {
    * active {@link IMotorController} and information about the tester. Follows a builder pattern.
    * @return This {@code SimpleControllersTester} in a builder pattern.
    */
-  @SuppressWarnings("UnusedReturnValue")
+  @SuppressWarnings({"UnusedReturnValue", "SpellCheckingInspection"})
   @Contract(" -> this")
   public SimpleControllersTester addAllSendables() {
     SmartDashboard.putData("Controller tester info", this);

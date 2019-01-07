@@ -3,14 +3,17 @@ package org.team1540.rooster.testers.motor;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.team1540.rooster.testers.AbstractTester;
 import org.team1540.rooster.testers.ResultWithMetadata;
 import org.team1540.rooster.wrappers.ChickenTalon;
@@ -19,6 +22,7 @@ import org.team1540.rooster.wrappers.ChickenTalon;
  * Simple automated testing for motors. Add the motors with the specified test using the builder
  * methods, then run the command.
  */
+@SuppressWarnings("unused")
 public class ControllersMultiTester extends Command {
 
   private Timer timer = new Timer();
@@ -66,6 +70,7 @@ public class ControllersMultiTester extends Command {
    * @param controllerGroup The motors to add.
    * @return this
    */
+  @SuppressWarnings("WeakerAccess")
   public ControllersMultiTester addControllerGroup(IMotorController... controllerGroup) {
     addControllerGroup(this::setMotorToFull, controllerGroup);
     return this;
@@ -81,7 +86,10 @@ public class ControllersMultiTester extends Command {
   @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
   public ControllersMultiTester addControllerGroup(Consumer<IMotorController> function,
       IMotorController... controllerGroup) {
-    tests.add(new TesterAndCommand(new BurnoutTester(controllerGroup), function));
+    List<TalonSRX> talons =
+        Arrays.stream(controllerGroup).filter(TalonSRX.class::isInstance).map(TalonSRX.class::cast)
+            .collect(Collectors.toList());
+    tests.add(new TesterAndCommand(new BurnoutTester(talons), function));
     return this;
   }
 
@@ -91,6 +99,7 @@ public class ControllersMultiTester extends Command {
    * @param controllerGroup The motors to add.
    * @return this
    */
+  @SuppressWarnings("WeakerAccess")
   public ControllersMultiTester addEncoderGroup(ChickenTalon... controllerGroup) {
     addEncoderGroup(this::setMotorToFull, controllerGroup);
     return this;

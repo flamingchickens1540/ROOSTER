@@ -1,6 +1,7 @@
 package org.team1540.rooster.testers.motor;
 
 import com.ctre.phoenix.motorcontrol.IMotorController;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import java.util.Arrays;
@@ -42,11 +43,17 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
   @SuppressWarnings("WeakerAccess")
   public EncoderTester(List<IMotorController> motorsToTest) {
     // Because passing in a reference to a non-static method in the constructor doesn't work.
-    // Test will run if the motor is drawing over 1A of current.
+    // Test will run if the motor is drawing over 1A of current if telemetry is available, or else,
     super((stupid) -> null, motorsToTest, null, 150, 500);
     this.setTest(this::testEncoder);
     this.setRunConditions(
-        Collections.singletonList((motor) -> (motor).getOutputCurrent() > currentThreshold));
+        Collections.singletonList((motor) -> {
+          if (motor instanceof TalonSRX) {
+            return ((TalonSRX) motor).getOutputCurrent() > currentThreshold;
+          } else {
+            return true;
+          }
+        }));
   }
 
   /**
@@ -60,7 +67,8 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
   @SuppressWarnings("WeakerAccess")
   public Boolean testEncoder(IMotorController controller) {
     // Do the wrappers provide pidIdx nicely? Yes. Can we just use zero? Also probably yes.
-    return controller.getOutputCurrent() > currentThreshold
+    return (controller instanceof TalonSRX
+        && ((TalonSRX) controller).getOutputCurrent() > currentThreshold)
         && Math.abs(controller.getSelectedSensorVelocity(0)) < velocityThreshold;
   }
 
@@ -127,19 +135,11 @@ public class EncoderTester extends AbstractTester<IMotorController, Boolean> imp
    */
   @Override
   public void initSendable(SendableBuilder builder) {
-    //noinspection Duplicates
     for (IMotorController t : getItemsToTest()) {
       // Get the most recent value if present, else simply don't add it to the builder
-      //noinspection Duplicates
-      builder.addBooleanProperty(t.getDeviceID() + "", () -> {
-        // TODO probably cleaner version of this, at the least ifPresentOrElse() in Java 9
-        Optional<ResultWithMetadata<Boolean>> result = Optional.ofNullable(peekMostRecentResult(t));
-        if (result.isPresent()) {
-          return result.get().getResult();
-        } else {
-          return false;
-        }
-      }, null);
+      builder.addBooleanProperty(t.getDeviceID() + "",
+          () -> Optional.ofNullable(peekMostRecentResult(t))
+              .map(ResultWithMetadata::getResult).orElse(false), null);
     }
   }
 }
