@@ -4,6 +4,7 @@ import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.team1540.rooster.Utilities;
+import org.team1540.rooster.functional.Input;
 
 /**
  * Modified arcade drive joystick input.
@@ -15,17 +16,14 @@ import org.team1540.rooster.Utilities;
  * <a href="https://github.com/TeamMeanMachine/2018FRC/blob/13c96d2f0e2e780b0cec03fe71ad4919f70f6368/src/main/kotlin/org/team2471/frc/powerup/drivetrain/Drivetrain.kt#L163">here</a>.
  * <p>
  * This class is an {@link Input} that provides a {@link TankDriveData}. The resulting {@link
- * TankDriveData} will have the left and right velocities set with units corresponding to the max
- * velocity set on construction, as well as the turning rate in radians per second. All other values
- * are empty {@link OptionalDouble OptionalDoubles}.
+ * TankDriveData} will have the left and right feed-forwards set to throttles between -1 and 1. All
+ * other values are empty {@link OptionalDouble OptionalDoubles}.
  *
  * @see Input
  * @see FeedForwardProcessor
  */
 public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
 
-  private double maxVelocity;
-  private double trackWidth;
   private boolean reverseBackwards;
   @NotNull
   private DoubleSupplier throttleInput;
@@ -37,32 +35,22 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
   /**
    * Creates a new {@code AdvancedArcadeJoystickInput} that does not reverse while going backwards.
    *
-   * @param maxVelocity The maximum velocity of the robot; joystick values will be scaled to this
-   * amount. This should be in position units per second to keep with the specification of {@link
-   * TankDriveData}.
-   * @param trackWidth The track width of the robot (distance between the wheels); this should be in
-   * the same position units as maxVelocity.
    * @param throttleInput A {@link DoubleSupplier} that supplies the input for the throttle, from -1
    * to 1 inclusive.
    * @param softTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
    * -1 (full left) to 1 (full right) inclusive.
    * @param hardTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
+   * -1 to 1 inclusive.
    */
-  public AdvancedArcadeJoystickInput(double maxVelocity, double trackWidth,
-      @NotNull DoubleSupplier throttleInput,
+  public AdvancedArcadeJoystickInput(@NotNull DoubleSupplier throttleInput,
       @NotNull DoubleSupplier softTurnInput,
       @NotNull DoubleSupplier hardTurnInput) {
-    this(maxVelocity, trackWidth, true, throttleInput, softTurnInput, hardTurnInput);
+    this(false, throttleInput, softTurnInput, hardTurnInput);
   }
 
   /**
    * Creates a new {@code AdvancedArcadeJoystickInput}.
    *
-   * @param maxVelocity The maximum velocity of the robot; joystick values will be scaled to this
-   * amount. This should be in position units per second to keep with the specification of {@link
-   * TankDriveData}.
-   * @param trackWidth The track width of the robot (distance between the wheels); this should be in
-   * the same position units as maxVelocity.
    * @param reverseBackwards If {@code true}, reverses the direction of the soft turn when the
    * throttle is negative.
    * @param throttleInput A {@link DoubleSupplier} that supplies the input for the throttle, from -1
@@ -70,13 +58,12 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
    * @param softTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
    * -1 (full left) to 1 (full right) inclusive.
    * @param hardTurnInput A {@link DoubleSupplier} that supplies the input for the soft-turn, from
+   * -1 to 1 inclusive.
    */
-  public AdvancedArcadeJoystickInput(double maxVelocity, double trackWidth,
-      boolean reverseBackwards, @NotNull DoubleSupplier throttleInput,
+  public AdvancedArcadeJoystickInput(boolean reverseBackwards,
+      @NotNull DoubleSupplier throttleInput,
       @NotNull DoubleSupplier softTurnInput,
       @NotNull DoubleSupplier hardTurnInput) {
-    this.maxVelocity = maxVelocity;
-    this.trackWidth = trackWidth;
     this.reverseBackwards = reverseBackwards;
     this.throttleInput = throttleInput;
     this.softTurnInput = softTurnInput;
@@ -116,18 +103,6 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
       rightPower = rightPowerRaw;
     }
 
-    // omega (dtheta / dt or yaw rate) is just the difference in velocities (powers) divided by the
-    // track width
-
-    double leftVelocity = leftPower * maxVelocity;
-    double rightVelocity = rightPower * maxVelocity;
-
-    double omega = (rightVelocity - leftVelocity) / trackWidth;
-
-    return new TankDriveData(
-        new DriveData(OptionalDouble.of(leftVelocity)),
-        new DriveData(OptionalDouble.of(rightVelocity)),
-        OptionalDouble.empty(),
-        OptionalDouble.of(omega));
+    return new TankDriveData().withAdditionalFeedForwards(leftPower, rightPower);
   }
 }

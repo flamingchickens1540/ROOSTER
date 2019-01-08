@@ -30,7 +30,7 @@ Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, fals
 Breakdown:
 
 - ` SimpleJoystickInput(new Joystick(0), 1, 5, false, false)`: Takes values from a joystick on port 0, with axis 1 as the left and axis 5 on the right, inverting neither
-- `.then(new TalonSRXOutput(leftTalon, rightTalon))`: Sends the output of the previous `SimpleJoystickInput` to your `leftTalon` and `rightTalon`. Since the output of `SimpleJoystickInput` only sets the feed-forward (i.e. raw throttle) term, it'll automatically use `PercentOutput` output mode.
+- `.then(new CTREOutput(leftTalon, rightTalon))`: Sends the output of the previous `SimpleJoystickInput` to your `leftTalon` and `rightTalon`. Since the output of `SimpleJoystickInput` only sets the feed-forward (i.e. raw throttle) term, it'll automatically use `PercentOutput` output mode.
 
 ### Execute a Motion Profile
 
@@ -44,7 +44,7 @@ Breakdown:
 
 - `ProfileInput` takes values from two provided `MotionProfile` instances and returns the setpoint for the current time. The timer starts when the pipeline is first executed.
 - `OpenLoopFeedForward` takes the velocity and acceleration setpoints from the `ProfileInput` and calculates a suitable feed-forward for them using coefficients you provide, Oblarg-style. It then passes those velocities down.
-- `TalonSRXOutput`, since it's receiving position setpoints from the `ProfileInput`, tells the Talon closed-loop to PID to those setpoints while providing the feed-forward from the `OpenLoopFeedForward` as an additional bump term.
+- `CTREOutput`, since it's receiving position setpoints from the `ProfileInput`, tells the Talon closed-loop to PID to those setpoints while providing the feed-forward from the `OpenLoopFeedForward` as an additional bump term.
 
 ### Use in a Command
 
@@ -64,14 +64,8 @@ Most "stock" pipeline elements pass around `TankDriveData` instances to encapsul
 An input that returns the same `TankDriveData` every time:
 
 ```java
-TankDriveData tankDriveData = new TankDriveData(
-    new DriveData(0), 
-    new DriveData(0), 
-    OptionalDouble.empty(), 
-    OptionalDouble.empty());
-
-Executable pipeline = ((Input) () -> tankDriveData)
-    .then(new CTREOutput(leftTalon, rightTalon))
+Executable pipeline = ((Input) () -> new TankDriveData().withVelocities(0, 0))
+   .then(new CTREOutput(leftTalon, rightTalon))
 ```
 
 #### Custom Processor
@@ -80,21 +74,9 @@ A processor that multiplies the received position by two:
 
 ```java
 Executable pipeline = new SimpleJoystickInput(new Joystick(0), 1, 5, false, false)
-    .then(data -> return new TankDriveData(
-        new DriveData(
-            d.left.position.isPresent() ? OptionalDouble.of(d.left.position.getAsDouble() * 2) : d.left.position,
-            d.left.velocity,
-            d.left.acceleration,
-            d.left.additionalFeedForward
-        ),
-        new DriveData(
-            d.right.position.isPresent() ? OptionalDouble.of(d.right.position.getAsDouble() * 2) : d.right.position,
-            d.right.velocity,
-            d.right.acceleration,
-            d.right.additionalFeedForward
-        ),
-        d.heading, d.turningRate);
-    ))
+    .then(data -> data.modifyPositions(
+        (left) -> left.isPresent() ? left.getAsDouble() * 2 : left,
+        (right) -> right.isPresent() ? right.getAsDouble() * 2 : right)
     .then(new CTREOutput(leftTalon, rightTalon))
 ```
 

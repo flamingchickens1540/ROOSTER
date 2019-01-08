@@ -9,9 +9,9 @@
       <module name="ROOSTER.lib.test" target="1.8" />
       <module name="ROOSTER.test.main" target="1.8" />
       <module name="ROOSTER.test.test" target="1.8" />
-      <module name="ROOSTER_main" target="11" />
-      <module name="ROOSTER_test" target="11" />
-      <module name="ROOSTER_testbots" target="11" />
+      <module name="ROOSTER_main" target="1.8" />
+      <module name="ROOSTER_test" target="1.8" />
+      <module name="ROOSTER_testbots" target="1.8" />
       <module name="test_main" target="1.8" />
       <module name="test_test" target="1.8" />
     </bytecodeTargetLevel>

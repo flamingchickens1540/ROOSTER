@@ -4,6 +4,11 @@ import jaci.pathfinder.Trajectory;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
+/**
+ * @deprecated Replaced by the {@link org.team1540.rooster.drive.pipeline drive pipeline}-based
+ * system.
+ */
+@Deprecated
 public class MotionProfilingProperties {
 
   private double encoderTicksPerUnit = 1023 * 0.1 * Math.PI;

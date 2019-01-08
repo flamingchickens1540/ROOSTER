@@ -9,7 +9,11 @@ import java.util.Set;
 
 /**
  * Executes a set of motion profiles (with respective properties.)
+ *
+ * @deprecated Replaced by the {@link org.team1540.rooster.drive.pipeline drive pipeline}-based
+ * system.
  */
+@Deprecated
 public class RunMotionProfiles extends Command {
 
   private int slotId = 0;
