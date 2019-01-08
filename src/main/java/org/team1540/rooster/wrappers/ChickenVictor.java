@@ -362,6 +362,7 @@ public class ChickenVictor extends VictorSPX implements ChickenController {
     return super.setIntegralAccumulator(iaccum, defaultPidIdx, defaultTimeoutMs);
   }
 
+  @Override
   public ErrorCode setSelectedSensorPosition(int sensorPos, int pidIdx) {
     return super.setSelectedSensorPosition(sensorPos, pidIdx, defaultTimeoutMs);
   }
