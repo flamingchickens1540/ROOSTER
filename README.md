@@ -99,6 +99,8 @@ dependencies {
 }
 ```
 
+Additionally, you should be using the latest version of GradleRIO with CTRE Phoenix, Kauai Labs NavX, and Pathfinder v1 vendor libraries installed.
+
 We use [JitPack](https://jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files.
 
 Using `master-SNAPSHOT` as a version number is good for projects you're actively developing, but after you've finished it's better to anchor it to a specific version (simply change "`master-SNAPSHOT`" to the version number) to avoid possible backwards-compatibility issues.
@@ -111,7 +113,7 @@ _Note: If you need to use changes that have just been pushed to master, you may 
 
 ### Project Structure
 
-ROOSTER is made up of two separate Gradle projects, `lib` (the actual ROOSTER library) and `test` (self-contained robot classes to test library components). Anything in `lib` gets packaged into the distribution JARs, while `test` is only for testing the components from `lib` (and as such includes GradleRIO etc. for deploying to a robot).
+ROOSTER's code is divided into two segments: `main` (in `src/main`), containing main library code which is packed into distribution JARs and given to anyone who adds the library as a dependency, and `testbots` (in `src/testbots`), containing robot classes etc. for testing the components in `main`.  
 
 ### Building
 
