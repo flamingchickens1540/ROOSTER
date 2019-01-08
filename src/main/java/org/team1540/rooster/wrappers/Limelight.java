@@ -2,8 +2,8 @@ package org.team1540.rooster.wrappers;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import jdk.internal.jline.internal.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class to interface with a Limelight vision system through NetworkTables. This class allows for
