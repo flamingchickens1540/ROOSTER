@@ -12,14 +12,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Class to preload motion profiles from a specified folder on disk. The preloaded motion profiles
+ * Base class to preload motion profiles from a specified folder on disk. The preloaded motion profiles
  * are stored in RAM so as to be quickly accessible.
  *
- * <p>The folder provided should contain profile CSV files (formatted so as to be read by {@link
- * Pathfinder#readFromCSV(File)}) where each profile named {@code name} is stored in two files,
- * {@code name}_left.csv for the left-side profile and {@code name}_right.csv for the right-side
- * profile. An example folder structure would be as follows (where the profiles/ directory is
- * provided to the constructor):
+ * Classes that inherit from this class provide their own logic for loading a profile from a given
+ * file, while this provides the logic and a common API.
+ * <p>The folder provided should contain profile CSV files where each profile named {@code name} is
+ * stored in two files,{@code name}_left.csv for the left-side profile and {@code name}_right.csv
+ * for the right-side profile. An example folder structure would be as follows (where the profiles/
+ * directory is provided to the constructor):
  *
  * <pre>
  * profiles/
@@ -34,7 +35,15 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>This class is immutable after instantiation.
  */
-public class ProfileContainer {
+public abstract class ProfileContainer {
+
+  /**
+   * Load a {@link MotionProfile} from the provided file.
+   *
+   * @param file The file to load
+   * @return A {@link MotionProfile} from the file.
+   */
+  protected abstract MotionProfile readProfile(File file);
 
   @NotNull
   private Map<String, DriveProfile> profiles;
