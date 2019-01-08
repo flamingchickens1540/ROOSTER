@@ -43,7 +43,8 @@ public abstract class ProfileContainer {
    * @param file The file to load
    * @return A {@link MotionProfile} from the file.
    */
-  protected abstract MotionProfile readProfile(File file);
+  @NotNull
+  protected abstract MotionProfile readProfile(@NotNull File file);
 
   @NotNull
   private Map<String, DriveProfile> profiles;

@@ -42,8 +42,9 @@ public class PathfinderProfileContainer extends ProfileContainer {
     super(profileDirectory, leftSuffix, rightSuffix);
   }
 
+  @NotNull
   @Override
-  protected MotionProfile readProfile(File file) {
+  protected MotionProfile readProfile(@NotNull File file) {
     return MotionProfileUtils.createProfile(Pathfinder.readFromCSV(file));
   }
 }
