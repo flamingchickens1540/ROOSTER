@@ -1,8 +1,8 @@
 package org.team1540.rooster.motionprofiling;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import jaci.pathfinder.Pathfinder;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,9 +42,10 @@ public abstract class ProfileContainer {
    *
    * @param file The file to load
    * @return A {@link MotionProfile} from the file.
+   * @throws IOException If an I/O error occurs.
    */
   @NotNull
-  protected abstract MotionProfile readProfile(@NotNull File file);
+  protected abstract MotionProfile readProfile(@NotNull File file) throws IOException;
 
   @NotNull
   private Map<String, DriveProfile> profiles;
@@ -128,10 +129,14 @@ public abstract class ProfileContainer {
           });
 
       if (leftFile != null && rightFile != null) {
-        MotionProfile left = MotionProfileUtils.createProfile(Pathfinder.readFromCSV(leftFile));
-        MotionProfile right = MotionProfileUtils.createProfile(Pathfinder.readFromCSV(rightFile));
+        try {
+          MotionProfile left = readProfile(leftFile);
+          MotionProfile right = readProfile(rightFile);
 
-        profiles.put(name, new DriveProfile(left, right));
+          profiles.put(name, new DriveProfile(left, right));
+        } catch (IOException e) {
+          throw new RuntimeException("IOException while reading profile " + name, e);
+        }
       }
     }
   }
