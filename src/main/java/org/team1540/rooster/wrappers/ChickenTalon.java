@@ -20,6 +20,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
  * Wrapper around a {@link TalonSRX} adding some features (that really should already be there) as
  * well as making functions easier to call.
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ChickenTalon extends TalonSRX implements ChickenController {
 
   ControlMode controlMode = ControlMode.PercentOutput;
@@ -507,7 +508,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return the 24bit analog value. The bottom ten bits is the ADC (0 - 1023) on the analog pin of
    * the Talon. The upper 14 bits tracks the overflows and underflows (continuous sensor).
    */
-  @Override
   public int getAnalogIn() {
     return getSensorCollection().getAnalogIn();
   }
@@ -518,7 +518,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the ADC (0 - 1023) on analog pin of the Talon.
    */
-  @Override
   public int getAnalogInRaw() {
     return getSensorCollection().getAnalogInRaw();
   }
@@ -529,7 +528,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
-  @Override
   public int getAnalogInVel() {
     return getSensorCollection().getAnalogInVel();
   }
@@ -628,7 +626,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pin state quad a.
    */
-  @Override
   public boolean getPinStateQuadA() {
     return getSensorCollection().getPinStateQuadA();
   }
@@ -638,7 +635,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return Digital level of QUADB pin.
    */
-  @Override
   public boolean getPinStateQuadB() {
     return getSensorCollection().getPinStateQuadB();
   }
@@ -648,7 +644,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return Digital level of QUAD Index pin.
    */
-  @Override
   public boolean getPinStateQuadIdx() {
     return getSensorCollection().getPinStateQuadIdx();
   }
@@ -658,7 +653,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width position.
    */
-  @Override
   public int getPulseWidthPosition() {
     return getSensorCollection().getPulseWidthPosition();
   }
@@ -668,7 +662,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width rise to fall us.
    */
-  @Override
   public int getPulseWidthRiseToFallUs() {
     return getSensorCollection().getPulseWidthRiseToFallUs();
   }
@@ -678,7 +671,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width rise to rise us.
    */
-  @Override
   public int getPulseWidthRiseToRiseUs() {
     return getSensorCollection().getPulseWidthRiseToRiseUs();
   }
@@ -688,7 +680,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the pulse width velocity.
    */
-  @Override
   public int getPulseWidthVelocity() {
     return getSensorCollection().getPulseWidthVelocity();
   }
@@ -699,7 +690,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the Error code of the request.
    */
-  @Override
   public int getQuadraturePosition() {
     return getSensorCollection().getQuadraturePosition();
   }
@@ -710,7 +700,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @return the value (0 - 1023) on the analog pin of the Talon.
    */
-  @Override
   public int getQuadratureVelocity() {
     return getSensorCollection().getQuadratureVelocity();
   }
@@ -768,7 +757,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return '1' iff forward limit switch is closed, 0 iff switch is open. This function works
    * regardless if limit switch feature is enabled.
    */
-  @Override
   public boolean isFwdLimitSwitchClosed() {
     return getSensorCollection().isFwdLimitSwitchClosed();
   }
@@ -779,7 +767,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return '1' iff reverse limit switch is closed, 0 iff switch is open. This function works
    * regardless if limit switch feature is enabled.
    */
-  @Override
   public boolean isRevLimitSwitchClosed() {
     return getSensorCollection().isRevLimitSwitchClosed();
   }
@@ -815,7 +802,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The new position.
    * @return an ErrorCode.
    */
-  @Override
   public ErrorCode setAnalogPosition(int newPosition) {
     return getSensorCollection().setAnalogPosition(newPosition, defaultTimeoutMs);
   }
@@ -859,7 +845,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The position value to apply to the sensor.
    * @return an ErrErrorCode
    */
-  @Override
   public ErrorCode setPulseWidthPosition(int newPosition) {
     return getSensorCollection().setPulseWidthPosition(newPosition, defaultTimeoutMs);
   }
@@ -872,7 +857,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param newPosition The position value to apply to the sensor.
    * @return error code.
    */
-  @Override
   public ErrorCode setQuadraturePosition(int newPosition) {
     return getSensorCollection().setQuadraturePosition(newPosition, defaultTimeoutMs);
   }
@@ -884,7 +868,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param pidIdx The PID IDX to use.
    * @return Error Code generated by function. 0 indicates no error.
    */
-  @Override
   public ErrorCode setSelectedSensorPosition(int sensorPos, int pidIdx) {
     return super.setSelectedSensorPosition(sensorPos, pidIdx, defaultTimeoutMs);
   }
@@ -942,7 +925,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
   /**
    * @deprecated Use {@link #setControlMode(ControlMode)}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void changeControlMode(TalonControlMode controlMode) {
     if (controlMode.ctrl != null) {
@@ -1019,7 +1001,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param codesPerRev The number of counts per revolution.
    * @deprecated Functionality removed.
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void configEncoderCodesPerRev(int codesPerRev) {
     this.setEncoderCodesPerRev(codesPerRev);
@@ -1049,7 +1030,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
   /**
    * @deprecated Use {@link #configSelectedFeedbackSensor(FeedbackDevice)}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void setFeedbackDevice(FeedbackDevice device) {
     configSelectedFeedbackSensor(device);
@@ -1092,7 +1072,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    *
    * @deprecated Use {@link #getQuadratureVelocity()}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public int getEncVelocity() {
     return getQuadratureVelocity();
@@ -1116,7 +1095,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param flip True if motor output should be flipped; False if not.
    * @deprecated Use {@link #setInverted(boolean)}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void reverseOutput(boolean flip) {
     setInverted(flip);
@@ -1130,7 +1108,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param flip True if sensor input should be flipped; False if not.
    * @deprecated Use {@link #setSensorPhase(boolean)}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   public void reverseSensor(boolean flip) {
     setSensorPhase(flip);
   }
@@ -1139,7 +1116,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @deprecated Use {@link #configNominalOutputForward(double)} and
    * {@link #configNominalOutputReverse(double)}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void configNominalOutputVoltage(double forwardVoltage, double reverseVoltage) {
     configNominalOutputForward(forwardVoltage / 12);
@@ -1169,7 +1145,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @deprecated Use {@link #configPeakOutputForward(double) and
    * {@link #configPeakOutputReverse(double)}}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public void configPeakOutputVoltage(double forwardVoltage, double reverseVoltage) {
     configPeakOutputForward(forwardVoltage / 12);
@@ -1180,7 +1155,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return The voltage being output by the Talon, in Volts.
    * @deprecated Use {@link #getMotorOutputVoltage()}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public double getOutputVoltage() {
     return getMotorOutputVoltage();
@@ -1197,7 +1171,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @return The speed of the sensor currently providing feedback.
    * @deprecated Use {@link #getSelectedSensorVelocity()}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public double getSpeed() {
     return getSelectedSensorVelocity();
@@ -1206,7 +1179,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
   /**
    * @deprecated Use {@link ControlMode}
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
   public enum TalonControlMode {
     PercentVbus(0, ControlMode.PercentOutput),
