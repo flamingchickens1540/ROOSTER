@@ -22,13 +22,7 @@ Advanced closed-loop drive code for a tank drive.
 
 `org.team1540.rooster.drive.pipeline`
 
-A flexible system for controlling a robot drive. More docs [here](docs/Drive%20Pipelines.md).
-
-#### Motion Profiling
-
-`org.team1540.rooster.motionprofiling`
-
-A system for executing motion profiles on a tank drive.
+A flexible system for controlling a robot drive. More docs [here](docs/Drive%20Pipelines.md), with a specific section on motion profiling [here](docs/Motion%20Profiling.md).
 
 #### Power Management
 

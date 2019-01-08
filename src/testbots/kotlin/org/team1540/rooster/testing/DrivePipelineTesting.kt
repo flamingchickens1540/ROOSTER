@@ -8,13 +8,18 @@ import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
+import org.team1540.rooster.functional.Executable
+import org.team1540.rooster.functional.Input
+import org.team1540.rooster.functional.Processor
+import org.team1540.rooster.motionprofiling.ProfileContainer
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
-import org.team1540.rooster.util.Executable
 import org.team1540.rooster.util.SimpleAsyncCommand
 import org.team1540.rooster.util.SimpleCommand
 import org.team1540.rooster.util.SimpleLoopCommand
 import org.team1540.rooster.wrappers.ChickenTalon
+import java.io.File
+import java.util.OptionalDouble
 import java.util.function.DoubleSupplier
 
 /**
@@ -82,24 +87,24 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
-            _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(
-                    maxVelocity, trackWidth, revBack,
+            _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(revBack,
                     DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
                     DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
                     DoubleSupplier {
                         Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
                                 - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
                     })
+                    + FeedForwardToVelocityProcessor(maxVelocity)
                     + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))
                     + UnitScaler(tpu, 0.1)
                     + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)))
 
-            listOf(PipelineDriveTrain.left1, PipelineDriveTrain.right1).forEach {
-                it.configClosedloopRamp(ramp)
-                it.config_kP(0, p)
-                it.config_kI(0, i)
-                it.config_kD(0, d)
-                it.config_kF(0, 0.0)
+            PipelineDriveTrain.masters {
+                configClosedloopRamp(ramp)
+                config_kP(0, p)
+                config_kI(0, i)
+                config_kD(0, d)
+                config_kF(0, 0.0)
             }
 
         }).apply {
@@ -112,6 +117,263 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
 
     private lateinit var _command: Command
     override val command get() = _command
+}
+
+class HeadingPIDPipelineTestRobot : DrivePipelineTestRobot() {
+
+    @JvmField
+    @Preference(persistent = false)
+    var p = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var i = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var d = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgSet = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+
+    private var headingPIDProcessor: HeadingPIDProcessor? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            headingPIDProcessor = HeadingPIDProcessor(p, i, d,
+                    { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) },
+                    false, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20,
+                    Input {
+                        TankDriveData(
+                                DriveData(OptionalDouble.empty()),
+                                DriveData(OptionalDouble.empty()),
+                                OptionalDouble.of(hdgSet),
+                                OptionalDouble.empty())
+                    } + headingPIDProcessor!! + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1))
+            )
+
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        headingPIDProcessor?.error?.let { SmartDashboard.putNumber("Error", it) }
+        headingPIDProcessor?.iAccum?.let { SmartDashboard.putNumber("Iaccum", it) }
+        SmartDashboard.putNumber("hdg", Math.toRadians(PipelineNavx.navx.yaw.toDouble()))
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+}
+
+class TurningRatePIDPipelineTestRobot : DrivePipelineTestRobot() {
+
+    @JvmField
+    @Preference(persistent = false)
+    var p = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var i = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var d = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var turnSet = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+
+    private var turningRatePIDProcessor: TurningRatePIDProcessor? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            turningRatePIDProcessor = TurningRatePIDProcessor({ Math.toRadians(PipelineNavx.navx.rate) }, p, i, d, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20,
+                    Input {
+                        TankDriveData(
+                                DriveData(OptionalDouble.empty()),
+                                DriveData(OptionalDouble.empty()),
+                                OptionalDouble.empty(),
+                                OptionalDouble.of(turnSet))
+                    } + turningRatePIDProcessor!! + FeedForwardProcessor(1.0, 0.0, 0.0) + (CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1))
+            )
+
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        turningRatePIDProcessor?.error?.let { SmartDashboard.putNumber("Error", it) }
+        turningRatePIDProcessor?.iAccum?.let { SmartDashboard.putNumber("Iaccum", it) }
+        SmartDashboard.putNumber("hdg", Math.toRadians(PipelineNavx.navx.yaw.toDouble()))
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+}
+
+class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
+    @JvmField
+    @Preference(persistent = false)
+    var hdgP = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgI = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var hdgD = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveP = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveI = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var driveD = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var invertSides = false
+    @JvmField
+    @Preference(persistent = false)
+    var kV = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var kA = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var vIntercept = 0.0
+    @JvmField
+    @Preference(persistent = false)
+    var profileName = ""
+    @JvmField
+    @Preference(persistent = false)
+    var tpu = 1.0
+    @JvmField
+    @Preference(persistent = false)
+    var ramp = 0.0
+
+    private var hdgPIDProcessor: HeadingPIDProcessor? = null
+    private var profileInput: ProfileInput? = null
+    private var hdgTgt = 0.0
+    private var lastProf: TankDriveData? = null
+
+    private var notifier: Notifier? = null
+
+    override fun robotInit() {
+        PreferenceManager.getInstance().add(this)
+        val reset = SimpleCommand("reset", Executable {
+            val container = ProfileContainer(File("/home/lvuser/roostertest"))
+            println("Loaded profiles: ${container.profileNames}")
+
+            val profile = container[profileName]
+            if (profile == null) {
+                System.err.println("Motion profile not found, aborting reset")
+                return@Executable
+            }
+
+            profileInput = ProfileInput(profile.left, profile.right)
+
+            PipelineDriveTrain.masters { setSelectedSensorPosition(0) }
+            PipelineNavx.navx.zeroYaw()
+
+            hdgPIDProcessor = HeadingPIDProcessor(hdgP, hdgI, hdgD, { Math.toRadians(PipelineNavx.navx.yaw.toDouble()) }, true, invertSides)
+            _command = SimpleAsyncCommand("Drive", 20, profileInput!!
+                    + FeedForwardProcessor(kV, vIntercept, kA)
+                    + hdgPIDProcessor!!
+                    + Processor<TankDriveData, TankDriveData> { lastProf = it; hdgTgt = it.heading.asDouble;it }
+                    + UnitScaler(tpu, 0.1)
+                    + CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
+            )
+
+            PipelineDriveTrain.masters {
+                config_kP(0, driveP)
+                config_kI(0, driveI)
+                config_kD(0, driveD)
+                config_kF(0, 0.0)
+            }
+            PipelineDriveTrain.all {
+                configClosedloopRamp(ramp)
+            }
+
+        }).apply {
+            setRunWhenDisabled(true)
+            start()
+        }
+
+        SmartDashboard.putData(reset)
+    }
+
+    private lateinit var _command: Command
+    override val command get() = _command
+
+    override fun robotPeriodic() {
+        super.robotPeriodic()
+
+        hdgPIDProcessor?.let {
+            SmartDashboard.putNumber("HDG ERR", Math.toDegrees(it.error))
+            SmartDashboard.putNumber("HDG IACC", it.iAccum)
+        }
+
+        lastProf?.let {
+            SmartDashboard.putNumber("LPOSTGT", it.left.position.orElse(0.0))
+            SmartDashboard.putNumber("LVELTGT", it.left.velocity.orElse(0.0))
+            SmartDashboard.putNumber("LACCTGT", it.left.acceleration.orElse(0.0))
+            SmartDashboard.putNumber("RPOSTGT", it.right.position.orElse(0.0))
+            SmartDashboard.putNumber("RVELTGT", it.right.velocity.orElse(0.0))
+            SmartDashboard.putNumber("RACCTGT", it.right.acceleration.orElse(0.0))
+            SmartDashboard.putNumber("HTGT", Math.toDegrees(hdgTgt))
+        }
+
+        SmartDashboard.putNumber("HDG", PipelineNavx.navx.yaw.toDouble())
+        SmartDashboard.putNumber("LPOS", PipelineDriveTrain.left1.selectedSensorPosition / tpu)
+        SmartDashboard.putNumber("RPOS", PipelineDriveTrain.right1.selectedSensorPosition / tpu)
+        SmartDashboard.putNumber("LVEL", (PipelineDriveTrain.left1.selectedSensorVelocity * 10) / tpu)
+        SmartDashboard.putNumber("RVEL", (PipelineDriveTrain.right1.selectedSensorVelocity * 10) / tpu)
+        SmartDashboard.putNumber("LERR", PipelineDriveTrain.left1.closedLoopError / tpu)
+        SmartDashboard.putNumber("RERR", PipelineDriveTrain.right1.closedLoopError / tpu)
+    }
+
+    override fun teleopInit() {
+        super.teleopInit()
+
+        PipelineDriveTrain.masters { setSelectedSensorPosition(0) }
+        PipelineNavx.navx.zeroYaw()
+
+        PipelineDriveTrain.all {
+            setBrake(true)
+        }
+    }
+
+    override fun disabledInit() {
+        super.disabledInit()
+        notifier = Notifier {
+            Thread.sleep(1000)
+            PipelineDriveTrain.all {
+                setBrake(false)
+            }
+        }
+        notifier?.startSingle(1.0)
+    }
 }
 
 /**
@@ -180,6 +442,18 @@ private object PipelineDriveTrain {
         enableCurrentLimit(false)
         inverted = true
         set(ControlMode.Follower, right1.deviceID.toDouble())
+    }
+
+    fun all(block: ChickenTalon.() -> Unit) {
+        for (talon in listOf(left1, left2, left3, right1, right2, right3)) {
+            talon.block()
+        }
+    }
+
+    fun masters(block: ChickenTalon.() -> Unit) {
+        for (talon in listOf(left1, right1)) {
+            talon.block()
+        }
     }
 }
 

@@ -1,8 +1,8 @@
 package org.team1540.rooster.drive.pipeline;
 
 import edu.wpi.first.wpilibj.Joystick;
-import java.util.OptionalDouble;
 import org.team1540.rooster.Utilities;
+import org.team1540.rooster.functional.Input;
 
 /**
  * Simple tank-style input from a WPILib {@link Joystick}. The left and right joysticks are used to
@@ -42,22 +42,7 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
             Utilities.invertIf(invertRight, joystick.getRawAxis(rightAxis)), deadzone
         ) + triggerValue, 1);
 
-    return new TankDriveData(
-        new DriveData(
-            OptionalDouble.empty(),
-            OptionalDouble.empty(),
-            OptionalDouble.empty(),
-            OptionalDouble.of(leftThrottle)
-        ),
-        new DriveData(
-            OptionalDouble.empty(),
-            OptionalDouble.empty(),
-            OptionalDouble.empty(),
-            OptionalDouble.of(rightThrottle)
-        ),
-        OptionalDouble.empty(),
-        OptionalDouble.empty()
-    );
+    return new TankDriveData().withAdditionalFeedForwards(leftThrottle, rightThrottle);
   }
 
   /**
