@@ -22,7 +22,7 @@ env:
 before_deploy: travis-scripts/name-release-files.sh
 deploy:
   - provider: pages # Javadoc deployment to Github Pages
-    local-dir: lib/build/docs/javadoc/
+    local-dir: build/docs/javadoc/
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
     keep-history: true
@@ -31,7 +31,7 @@ deploy:
   - provider: releases # Automatic JAR file deployment whenever a release is created
     api_key: $GITHUB_TOKEN
     file-glob: true
-    file: lib/build/libs/*
+    file: build/libs/*
     skip-cleanup: true
     on:
       tags: true
