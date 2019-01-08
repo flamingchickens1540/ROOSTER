@@ -1,0 +1,14 @@
+org.team1540.rooster
+org.team1540.rooster.adjustables
+org.team1540.rooster.drive
+org.team1540.rooster.drive.pipeline
+org.team1540.rooster.functional
+org.team1540.rooster.motionprofiling
+org.team1540.rooster.power
+org.team1540.rooster.preferencemanager
+org.team1540.rooster.testers
+org.team1540.rooster.testers.motor
+org.team1540.rooster.triggers
+org.team1540.rooster.util
+org.team1540.rooster.util.robots
+org.team1540.rooster.wrappers
