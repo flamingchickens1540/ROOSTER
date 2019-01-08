@@ -93,3 +93,17 @@ Command somethingOrSomethingElse = new SimpleConditionalCommand(this::getFoo,
     new DoSomethingElse());
 ```
 
+## SimpleAsyncCommand
+
+[`SimpleAsyncCommand`](https://flamingchickens1540.github.io/ROOSTER/org/team1540/rooster/util/SimpleAsyncCommand.html) is a variant of `SimpleLoopCommand` which leverages the [`AsyncCommand`](https://flamingchickens1540.github.io/ROOSTER/org/team1540/rooster/util/AsyncCommand.html) class to run code in a seperate loop outside of the main robot loop. It's useful for mechanism control loops and other code that needs to update faster than the main robot loop. It is used exactly like a `SimpleLoopCommand`, with the exception of an additional parameter specifying the loop time.
+
+Note that any code provided to the command will be run in a separate thread and thus must be thread-safe.
+
+### Examples
+
+Update a drivetrain's control loop every 10 milliseconds:
+
+```java
+Command controlLoopCommand = new SimpleAsyncCommand("Update", 20, Robot.drivetrain::update(), Robot.drivetrain);
+```
+
