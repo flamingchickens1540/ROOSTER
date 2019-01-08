@@ -11,7 +11,7 @@ import org.team1540.rooster.drive.pipeline.*
 import org.team1540.rooster.functional.Executable
 import org.team1540.rooster.functional.Input
 import org.team1540.rooster.functional.Processor
-import org.team1540.rooster.motionprofiling.ProfileContainer
+import org.team1540.rooster.motionprofiling.PathfinderProfileContainer
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
 import org.team1540.rooster.util.SimpleAsyncCommand
@@ -282,7 +282,7 @@ class MotionProfilePipelineTestRobot : DrivePipelineTestRobot() {
     override fun robotInit() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
-            val container = ProfileContainer(File("/home/lvuser/roostertest"))
+            val container = PathfinderProfileContainer(File("/home/lvuser/roostertest"))
             println("Loaded profiles: ${container.profileNames}")
 
             val profile = container[profileName]
