@@ -2,6 +2,8 @@ package org.team1540.rooster.testing
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.kauailabs.navx.frc.AHRS
+import com.revrobotics.CANSparkMax
+import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.Scheduler
@@ -47,6 +49,17 @@ class SimpleDrivePipelineTestRobot : DrivePipelineTestRobot() {
                     CTREOutput(PipelineDriveTrain.left1, PipelineDriveTrain.right1)
     )
 }
+
+/**
+ * just to test that everything's sane but sparks now
+ * */
+class SparkMaxPipelineTestRobot : DrivePipelineTestRobot() {
+    override val command = SimpleLoopCommand("Drive",
+            SimpleJoystickInput(Joystick(0), 1, 5, 3, 2, false, false) +
+                    SparkMaxOutput(PipelineSparkDriveTrain.left1, PipelineSparkDriveTrain.right1)
+    )
+}
+
 
 /**
  * Testing class for [AdvancedArcadeJoystickInput].
@@ -455,6 +468,11 @@ private object PipelineDriveTrain {
             talon.block()
         }
     }
+}
+
+private object PipelineSparkDriveTrain {
+    val left1 = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless);
+    val right1 = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless);
 }
 
 /**
