@@ -93,7 +93,7 @@ dependencies {
 }
 ```
 
-Additionally, you should be using the latest version of GradleRIO with CTRE Phoenix, Kauai Labs NavX, and Pathfinder v1 vendor libraries installed.
+Additionally, you should be using the latest version of GradleRIO with CTRE Phoenix, Kauai Labs NavX, REV Robotics, and Pathfinder v1 vendor libraries installed.
 
 We use [JitPack](https://jitpack.io) as a Gradle/Maven repository. This means that if you add the project using Gradle it will be automatically updated with the latest changes to the `master` branch, as well as source code and documentation .jar files.
 
