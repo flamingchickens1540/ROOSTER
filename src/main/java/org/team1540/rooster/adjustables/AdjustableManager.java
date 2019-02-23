@@ -148,6 +148,7 @@ public class AdjustableManager {
    *
    * @deprecated No longer necessary; now updates automatically.
    */
+  @Deprecated
   public void update() {
     run();
   }

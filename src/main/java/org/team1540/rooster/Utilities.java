@@ -17,6 +17,7 @@ public class Utilities {
    * @deprecated Use {@link #processDeadzone(double, double) processDeadzone()}'s improved
    * algorithm.
    */
+  @Deprecated
   public static double processAxisDeadzone(double axis, double deadzone) {
     return (Math.abs(axis) > Math.abs(deadzone)) ? axis : 0;
   }

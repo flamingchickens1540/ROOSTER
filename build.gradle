@@ -129,7 +129,7 @@ jar.dependsOn(compileTestbotsJava)
 jar {
     inputs.files(compileTestbotsJava.outputs.files)
     gradle.taskGraph.whenReady {
-        if (gradle.taskGraph.hasTask(":deployFrcJava") || gradle.taskGraph.hasTask(":simulateJava") || gradle.taskGraph.hasTask(":simulateExternalJava")) {
+        if (gradle.taskGraph.hasTask(":deployFrcJavaRoborio") || gradle.taskGraph.hasTask(":simulateJava") || gradle.taskGraph.hasTask(":simulateExternalJava")) {
             // fully qualified task name is needed
             System.out.println("Deployment or simulation detected.")
             from((configurations.compile.collect {
