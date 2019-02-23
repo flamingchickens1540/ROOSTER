@@ -1,5 +1,6 @@
 package org.team1540.rooster.testing;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,7 +24,7 @@ public class TestbotLoaderMain {
     }
 
     // try to find a robotclass.txt file
-    File robotClassFile = new File("robotclass.txt");
+    File robotClassFile = Filesystem.getOperatingDirectory().toPath().resolve("robotclass.txt").toFile();
 
     if (robotClassFile.isFile()) {
       // attempt to read from the file
