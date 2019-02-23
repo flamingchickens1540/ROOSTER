@@ -17,7 +17,7 @@ public class MultiAxisButton extends Button {
   private int[] axes;
 
   /**
-   * Constructs an {@code AxisButton}.
+   * Constructs an {@code MultiAxisButton}.
    *
    * @param stick The axes's joystick
    * @param threshold The threshold for the button to be triggered (if any axes are over the threshold)
@@ -28,11 +28,11 @@ public class MultiAxisButton extends Button {
   }
 
   /**
-   * Constructs an {@code AxisButton}.
+   * Constructs an {@code MultiAxisButton}.
    *
    * @param stick The axes's joystick
    * @param axes The axes to use as a button
-   * @param threshold The threshold for the button to be triggered (if any axes are over the threshold)
+   * @param threshold The threshold for the button to be triggered (if any specified axes are over the threshold)
    * @throws NullPointerException If {@code stick} is {@code null}.
    */
   public MultiAxisButton(@NotNull GenericHID stick, double threshold, int[] axes) {
