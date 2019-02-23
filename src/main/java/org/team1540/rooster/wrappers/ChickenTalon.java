@@ -1108,6 +1108,7 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
    * @param flip True if sensor input should be flipped; False if not.
    * @deprecated Use {@link #setSensorPhase(boolean)}
    */
+  @Deprecated
   public void reverseSensor(boolean flip) {
     setSensorPhase(flip);
   }
