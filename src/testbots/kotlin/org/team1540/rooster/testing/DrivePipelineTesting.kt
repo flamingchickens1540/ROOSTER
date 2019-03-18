@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import org.team1540.rooster.Utilities
 import org.team1540.rooster.drive.pipeline.*
 import org.team1540.rooster.functional.Executable
 import org.team1540.rooster.functional.Input
@@ -14,12 +13,10 @@ import org.team1540.rooster.functional.Processor
 import org.team1540.rooster.motionprofiling.ProfileContainer
 import org.team1540.rooster.preferencemanager.Preference
 import org.team1540.rooster.preferencemanager.PreferenceManager
-import org.team1540.rooster.util.SimpleAsyncCommand
-import org.team1540.rooster.util.SimpleCommand
-import org.team1540.rooster.util.SimpleLoopCommand
+import org.team1540.rooster.util.*
 import org.team1540.rooster.wrappers.ChickenTalon
 import java.io.File
-import java.util.OptionalDouble
+import java.util.*
 import java.util.function.DoubleSupplier
 
 /**
@@ -88,11 +85,11 @@ class AdvancedJoystickInputPipelineTestRobot : DrivePipelineTestRobot() {
         PreferenceManager.getInstance().add(this)
         val reset = SimpleCommand("reset", Executable {
             _command = SimpleAsyncCommand("Drive", 20, AdvancedArcadeJoystickInput(revBack,
-                    DoubleSupplier { Utilities.scale(-Utilities.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
-                    DoubleSupplier { Utilities.scale(Utilities.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
+                    DoubleSupplier { MathUtils.preserveSignRaiseToPower(-OIUtils.processDeadzone(joystick.getY(GenericHID.Hand.kLeft), 0.1), power) },
+                    DoubleSupplier { MathUtils.preserveSignRaiseToPower(OIUtils.processDeadzone(joystick.getX(GenericHID.Hand.kRight), 0.1), power) },
                     DoubleSupplier {
-                        Utilities.scale((Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
-                                - Utilities.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
+                        MathUtils.preserveSignRaiseToPower((OIUtils.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kRight), 0.1)
+                                - OIUtils.processDeadzone(joystick.getTriggerAxis(GenericHID.Hand.kLeft), 0.1)), power)
                     })
                     + FeedForwardToVelocityProcessor(maxVelocity)
                     + (FeedForwardProcessor(1 / maxVelocity, 0.0, 0.0))

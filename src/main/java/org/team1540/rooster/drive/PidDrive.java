@@ -7,7 +7,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import java.util.Objects;
 import org.team1540.rooster.ChickenSubsystem;
-import org.team1540.rooster.Utilities;
+import org.team1540.rooster.util.MathUtils;
+import org.team1540.rooster.util.OIUtils;
 import org.team1540.rooster.wrappers.ChickenController;
 
 public class PidDrive extends Command {
@@ -76,21 +77,21 @@ public class PidDrive extends Command {
   @Override
   protected void execute() {
     // inputs
-    double fwdTriggerInput = Utilities
+    double fwdTriggerInput = OIUtils
         .processDeadzone(joystick.getRawAxis(forwardTrigger), deadzone);
 
-    double backTriggerInput = Utilities.processDeadzone(joystick.getRawAxis(backTrigger), deadzone);
+    double backTriggerInput = OIUtils.processDeadzone(joystick.getRawAxis(backTrigger), deadzone);
 
     double triggerInput = fwdTriggerInput - backTriggerInput;
 
-    double leftInput = Utilities
-        .invertIf(invertLeft, Utilities.processDeadzone(joystick.getRawAxis(leftAxis), deadzone));
+    double leftInput = MathUtils
+        .negateDoubleIf(invertLeft, OIUtils.processDeadzone(joystick.getRawAxis(leftAxis), deadzone));
 
-    double rightInput = Utilities
-        .invertIf(invertRight, Utilities.processDeadzone(joystick.getRawAxis(rightAxis), deadzone));
+    double rightInput = MathUtils
+        .negateDoubleIf(invertRight, OIUtils.processDeadzone(joystick.getRawAxis(rightAxis), deadzone));
 
-    double leftSetpoint = Utilities.constrain(scaling.scale(leftInput + triggerInput), 1);
-    double rightSetpoint = Utilities.constrain(scaling.scale(rightInput + triggerInput), 1);
+    double leftSetpoint = MathUtils.constrain(scaling.scale(leftInput + triggerInput), 1);
+    double rightSetpoint = MathUtils.constrain(scaling.scale(rightInput + triggerInput), 1);
 
     doPeakOutput(left, leftSetpoint, invertLeftBrakeDirection);
     doPeakOutput(right, rightSetpoint, invertRightBrakeDirection);
@@ -250,7 +251,7 @@ public class PidDrive extends Command {
     if (!stopped && setpoint < brakeOverrideThresh) {
       // process braking
       boolean goingForward =
-          Utilities.invertIf(invertBrake, controller.getSelectedSensorVelocity()) > 0;
+          MathUtils.negateDoubleIf(invertBrake, controller.getSelectedSensorVelocity()) > 0;
       configPeakOutput.accept(controller, goingForward ? 1 : maxBrakePct, goingForward ?
           -maxBrakePct : -1);
     } else {

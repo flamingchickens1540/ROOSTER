@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.team1540.rooster.Utilities;
 import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
+import org.team1540.rooster.util.OIUtils;
 import org.team1540.rooster.util.SimpleCommand;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
@@ -145,7 +145,7 @@ public class PIDTuningRobot extends IterativeRobot {
         motor1.set(controlModeChooser.getSelected(), setpoint);
       } else {
         motor1
-            .set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(1), 0.1));
+            .set(ControlMode.PercentOutput, OIUtils.processDeadzone(joystick.getRawAxis(1), 0.1));
       }
     }
   }
