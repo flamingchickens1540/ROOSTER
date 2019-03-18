@@ -38,6 +38,15 @@ public class SimpleLoopCommand extends Command {
   public SimpleLoopCommand(@NotNull String name, @NotNull Executable action,
       @NotNull Subsystem... requirements) {
     super(Objects.requireNonNull(name));
+    setup(action, requirements);
+  }
+
+  public SimpleLoopCommand(@NotNull Executable action,
+      @NotNull Subsystem... requirements) {
+    setup(action, requirements);
+  }
+
+  private void setup(@NotNull Executable action, @NotNull Subsystem[] requirements) {
     executable = Objects.requireNonNull(action);
 
     for (Subsystem requirement : requirements) {
