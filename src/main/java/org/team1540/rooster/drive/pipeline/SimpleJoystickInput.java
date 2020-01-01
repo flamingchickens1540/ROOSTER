@@ -2,8 +2,8 @@ package org.team1540.rooster.drive.pipeline;
 
 import edu.wpi.first.wpilibj.Joystick;
 import org.team1540.rooster.functional.Input;
+import org.team1540.rooster.util.ControlUtils;
 import org.team1540.rooster.util.MathUtils;
-import org.team1540.rooster.util.OIUtils;
 
 /**
  * Simple tank-style input from a WPILib {@link Joystick}. The left and right joysticks are used to
@@ -29,17 +29,17 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
   public TankDriveData get() {
       double triggerValue;
       if (fwdAxis != -1 && backAxis != -1) {
-          triggerValue = OIUtils.processDeadzone(joystick.getRawAxis(fwdAxis), deadzone)
-              - OIUtils.processDeadzone(joystick.getRawAxis(backAxis), deadzone);
+          triggerValue = ControlUtils.deadzone(joystick.getRawAxis(fwdAxis), deadzone)
+              - ControlUtils.deadzone(joystick.getRawAxis(backAxis), deadzone);
       } else {
           triggerValue = 0;
       }
       double leftThrottle = MathUtils.constrain(
-          OIUtils.processDeadzone(
+          ControlUtils.deadzone(
               MathUtils.negateDoubleIf(invertLeft, joystick.getRawAxis(leftAxis)), deadzone
           ) + triggerValue, 1);
       double rightThrottle = MathUtils.constrain(
-          OIUtils.processDeadzone(
+          ControlUtils.deadzone(
               MathUtils.negateDoubleIf(invertRight, joystick.getRawAxis(rightAxis)), deadzone
           ) + triggerValue, 1);
 
@@ -99,7 +99,7 @@ public class SimpleJoystickInput implements Input<TankDriveData> {
    * axis.
    * @param invertLeft Whether to invert the axis value of the left axis.
    * @param invertRight Whether to invert the axis value of the right axis.
-   * @param deadzone The deadzone for the axes (see {@link OIUtils#processDeadzone(double, double)}).
+   * @param deadzone The deadzone for the axes (see {@link ControlUtils#deadzone(double, double)}).
    */
   public SimpleJoystickInput(Joystick joystick, int leftAxis, int rightAxis, int fwdAxis,
       int backAxis, boolean invertLeft, boolean invertRight, double deadzone) {
