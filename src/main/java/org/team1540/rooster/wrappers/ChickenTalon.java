@@ -752,26 +752,6 @@ public class ChickenTalon extends TalonSRX implements ChickenController {
   }
 
   /**
-   * Is forward limit switch closed.
-   *
-   * @return '1' iff forward limit switch is closed, 0 iff switch is open. This function works
-   * regardless if limit switch feature is enabled.
-   */
-  public boolean isFwdLimitSwitchClosed() {
-    return getSensorCollection().isFwdLimitSwitchClosed();
-  }
-
-  /**
-   * Is reverse limit switch closed.
-   *
-   * @return '1' iff reverse limit switch is closed, 0 iff switch is open. This function works
-   * regardless if limit switch feature is enabled.
-   */
-  public boolean isRevLimitSwitchClosed() {
-    return getSensorCollection().isRevLimitSwitchClosed();
-  }
-
-  /**
    * Selects which profile slot to use for closed-loop control.
    *
    * @param slotIdx Profile slot to select.

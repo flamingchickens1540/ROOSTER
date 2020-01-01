@@ -1,5 +1,4 @@
 /**
- * Contains various implementations of custom advanced drive code, as well as the {@linkplain
- * org.team1540.rooster.drive.pipeline pipeline} system.
+ * Contains the {@linkplain org.team1540.rooster.drive.pipeline drive pipeline} system.
  */
 package org.team1540.rooster.drive;

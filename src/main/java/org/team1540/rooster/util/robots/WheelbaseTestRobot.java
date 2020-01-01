@@ -3,12 +3,11 @@ package org.team1540.rooster.util.robots;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
-import org.team1540.rooster.util.SimpleCommand;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
@@ -65,7 +64,7 @@ public class WheelbaseTestRobot extends IterativeRobot {
 
     PreferenceManager.getInstance().add(this);
 
-    Command reset = new SimpleCommand("Reset", () -> {
+    var reset = new InstantCommand(() -> {
       if (lMotor1ID != -1) {
         lMotor1 = new ChickenTalon(lMotor1ID);
         lMotor1.setSensorPhase(invertLeftSensor);
@@ -135,12 +134,17 @@ public class WheelbaseTestRobot extends IterativeRobot {
       for (ChickenTalon motor : new ChickenTalon[]{rMotor1, rMotor2, rMotor3}) {
         motor.setInverted(invertRightMotor);
       }
-    });
-    reset.setRunWhenDisabled(true);
-    reset.start();
-    SmartDashboard.putData(reset);
+    }) {
+      @Override
+      public boolean runsWhenDisabled() {
+        return true;
+      }
+    };
+    reset.setName("Reset");
+    reset.schedule();
+    SmartDashboard.putData("Reset", reset);
 
-    Command zero = new SimpleCommand("Zero", () -> {
+    var zero = new InstantCommand(() -> {
       if (lMotor1 != null) {
         lMotor1.setSelectedSensorPosition(0);
       }
@@ -148,9 +152,14 @@ public class WheelbaseTestRobot extends IterativeRobot {
       if (rMotor1 != null) {
         rMotor1.setSelectedSensorPosition(0);
       }
-    });
-    zero.setRunWhenDisabled(true);
-    SmartDashboard.putData(zero);
+    }) {
+      @Override
+      public boolean runsWhenDisabled() {
+        return true;
+      }
+    };
+    zero.setName("Zero");
+    SmartDashboard.putData("Zero", zero);
   }
 
   @Override
@@ -171,7 +180,7 @@ public class WheelbaseTestRobot extends IterativeRobot {
 
   @Override
   public void robotPeriodic() {
-    Scheduler.getInstance().run();
+    CommandScheduler.getInstance().run();
     if (lMotor1 != null && rMotor1 != null) {
       SmartDashboard.putNumber("LPOS", lMotor1.getSelectedSensorPosition());
       SmartDashboard.putNumber("RPOS", rMotor1.getSelectedSensorPosition());
