@@ -5,8 +5,11 @@ plugins {
     id "maven"
     id "edu.wpi.first.GradleRIO" version "2020.1.1"
     id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "com.palantir.git-version" version "0.12.2"
 }
 
+group "org.team1540"
+version gitVersion()
 
 // Maven/Jitpack configuration
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -17,6 +20,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+
+install {
+	doLast {
+		System.out.println("Installing with version " + gitVersion())
+	}
 }
 
 artifacts {
