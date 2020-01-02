@@ -12,7 +12,7 @@ import org.apache.log4j.spi.LoggingEvent;
  * level {@link Level#WARN} will be reported using {@link DriverStation#reportWarning(String,
  * boolean) DriverStation#reportWarning()}
  */
-public class DriverStationAppender extends AppenderSkeleton { // TODO: Rooster
+public class DriverStationAppender extends AppenderSkeleton {
 
     @Override
     protected void append(LoggingEvent loggingEvent) {
