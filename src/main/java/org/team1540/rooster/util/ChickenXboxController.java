@@ -1,9 +1,13 @@
 package org.team1540.rooster.util;
 
+import static org.team1540.rooster.util.ControlUtils.deadzone;
+import static org.team1540.rooster.util.MathUtils.preserveSignRaiseToPower;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleSupplier;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.team1540.rooster.triggers.AxisButton;
 import org.team1540.rooster.triggers.DPadAxis;
@@ -116,11 +120,11 @@ public class ChickenXboxController extends XboxController {
      * @param hand Left vs right joystick of the xbox this
      * @return Angle in radians counter-clockwise from 12 o'clock
      */
-    public double get2DJoystickAngle(Hand hand) { // TODO: Migrate to ROOSTER
+    public double get2DJoystickAngle(Hand hand) {
         return Math.atan2(getRectifiedY(hand), getRectifiedX(hand));
     }
 
-    public double get2DJoystickMagnitude(Hand hand) { // TODO: Migrate to ROOSTER
+    public double get2DJoystickMagnitude(Hand hand) {
         return Vector2D.ZERO.distance(get2DJoystickVector(hand));
     }
 
@@ -142,5 +146,52 @@ public class ChickenXboxController extends XboxController {
             axesIds[i] = axes[i].value;
         }
         return new MultiAxisButton(this, threshold, axesIds);
+    }
+
+    public Axis getAxis(XboxAxis axis) {
+        return () -> getRawAxis(axis);
+    }
+
+    public Axis getAxis(int axis) {
+        return () -> getRawAxis(axis);
+    }
+
+    public Axis getXAxis(Hand hand) {
+        return () -> getX(hand);
+    }
+
+    public Axis getYAxis(Hand hand) {
+        return () -> getY(hand);
+    }
+
+    public Axis getRectifiedXAxis(Hand hand) {
+        return getYAxis(hand).inverted();
+    }
+
+    public Axis getRectifiedYAxis(Hand hand) {
+        return getXAxis(hand).inverted();
+    }
+
+    public Axis get2DJoystickMagnitudeAxis(Hand hand) {
+        return () -> get2DJoystickMagnitude(hand);
+    }
+
+    public interface Axis extends DoubleSupplier {
+
+        default Axis withDeadzone(double deadzone) {
+            return () -> deadzone(value(), deadzone);
+        }
+
+        default Axis powerScaled(double power) {
+            return () -> preserveSignRaiseToPower(value(), power);
+        }
+
+        default Axis inverted() {
+            return () -> -value();
+        }
+
+        default double value() {
+            return getAsDouble();
+        }
     }
 }
