@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.team1540.rooster.triggers.AxisButton;
 import org.team1540.rooster.triggers.DPadAxis;
@@ -172,8 +173,8 @@ public class ChickenXboxController extends XboxController {
         return getXAxis(hand).inverted();
     }
 
-    public Axis get2DJoystickMagnitudeAxis(Hand hand) {
-        return () -> get2DJoystickMagnitude(hand);
+    public Axis2D getJoystick(Hand hand) {
+        return () -> get2DJoystickVector(hand);
     }
 
     public interface Axis extends DoubleSupplier {
@@ -190,8 +191,42 @@ public class ChickenXboxController extends XboxController {
             return () -> -value();
         }
 
+        default Axis2D withYAxis(Axis axis) {
+            return () -> new Vector2D(value(), axis.value());
+        }
+
+        default Axis2D withXAxis(Axis axis) {
+            return () -> new Vector2D(axis.value(), value());
+        }
+
         default double value() {
             return getAsDouble();
+        }
+    }
+
+    public interface Axis2D extends Supplier<Vector2D> {
+
+        default Axis magnitude() {
+            return () -> value().getNorm();
+        }
+
+        default Axis angle() {
+            return () -> {
+                Vector2D value = value(); // to avoid creating the object twice
+                return Math.atan2(value.getY(), value.getX());
+            };
+        }
+
+        default Axis x() {
+            return () -> value().getX();
+        }
+
+        default Axis y() {
+            return () -> value().getY();
+        }
+
+        default Vector2D value() {
+            return get();
         }
     }
 }
