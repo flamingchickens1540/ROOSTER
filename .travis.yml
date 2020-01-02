@@ -19,7 +19,6 @@ notifications:
 env:
   global:
     secure: GJCLGiOLpllPpiJqOmVICPRBRt8/8EqEA56BejDpH1gA0pka1OOWu6tG6d76KbJ8kBC6XcZ4DRhyDKGv+4cmrCTpm44I3sJf1R56o0PkXl5mEm1zhtyxyzxcFi7Tep5tKt9wUC0YHymdrozJBybHJ+hfDQP7cWCMGOhcThX/haCLLHfIGD8um/WvEjcTXgnx+wsgMIJy2aouKCY7s8WNp/lJPDMr/6b+12QR127PCoorOa9K2SpPCb2e3pf0Kzr+vWlnFXE+mZ+lFsy2d9BVCYS7TSwl6F9uxRE5xcKIRWWvLxER6UNXO5K98ObYZEiTUxVkxowgBFol0fIm6vQDPlMZrqOAnCAqvaMU119kDT5s82rKu0+alixzv980HhasNn1hbfournYGE+SP39YRZ+PRAXgl6ZddOzbs1YfYCg1lWrtpVbXESfKbpZUL0mmQ94L3pR4ZC4gM1X9eyG/80/hFiXTrCXDN5yx0pt9QaGb3Cqve8bgLMqEJuelvdDs1j0Pvd9MpqQlX3QZER+PmJbBq5kLlmHozT9NTe09kfRx28p6F9bAE8Whg5IOG56ZuW9cwGZDQuLe18NNkMqZuXULDrt+2QucLFbwezUaTZwgfri9Fg/ZDN4cctpVyER1GpiJIT2fxBbKenk0OckritLXlcPYlZ6E/XCs9n1Kv8ss=
-before_deploy: travis-scripts/name-release-files.sh
 deploy:
   - provider: pages # Javadoc deployment to Github Pages
     local-dir: build/docs/javadoc/
