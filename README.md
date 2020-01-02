@@ -12,39 +12,17 @@ A common library of useful classes and systems intended to be used for all Team 
 
 [Javadoc hosted on Github Pages](https://flamingchickens1540.github.io/ROOSTER)
 
-#### Drive Code
-
-`org.team1540.rooster.drive`
-
-Advanced closed-loop drive code for a tank drive.
-
 #### Drive Pipeline System
 
 `org.team1540.rooster.drive.pipeline`
 
 A flexible system for controlling a robot drive. More docs [here](docs/Drive%20Pipelines.md), with a specific section on motion profiling [here](docs/Motion%20Profiling.md).
 
-#### Power Management
-
-`org.team1540.rooster.power`
-
-A flexible, dynamic power management system. Uses a centralized `PowerManager` that takes `PowerManageable`s, including the default implementation `ChickenSubsystem`.
-
 #### Preferences
 
 `org.team1540.rooster.preferencemanager`
 
 A system to easily set tuning fields through WPILib `Preferences`.
-
-#### Testing
-
-`org.team1540.rooster.testers`
-
-Various classes for testing common things.
-- `BurnoutTester` for testing if motors are burned out.
-- `EncoderTester` for testing if motors have working encoders attached.
-- `SimpleControllersTester` for easily running motors.
-- `ControllersMultiTester` for automatically running multiple tests across motor groups.
 
 #### Triggers
 
@@ -54,7 +32,6 @@ Simple triggers that extend WPILib's joystick binding functionality.
 
 - `AxisButton` allows using a joystick axis (triggers or joysticks) as a button–the button will trigger when the axis passes a user-defined threshold.
 - `DPadButton` and `StrictDPadButton` allow using any axis of a controller D-Pad as a button.
-- `SimpleButton` allows using a generic `BooleanSupplier` as a button.
 
 #### Utilities
 
@@ -66,15 +43,6 @@ Functions and classes for common tasks.
 - Capping an output
 - Inverting an input/output depending on a boolean
 
-#### Utility Classes
-
-`org.team1540.rooster.util`
-
-Classes (mostly WPILib `Commands`) to make life easier.
-
-- `AsyncCommand` to execute a command in a separate thread on a loop.
-- `SimpleCommand`/`SimpleLoopCommand` to quickly create a one-shot or loop command from a lambda.
-- `SimpleConditionalCommand` to quickly create a `ConditionalCommand` from a lambda.
 
 ### Installation
 

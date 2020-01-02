@@ -1,10 +1,9 @@
 package org.team1540.rooster.triggers;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.buttons.Button;
-import org.jetbrains.annotations.NotNull;
-
+import edu.wpi.first.wpilibj2.command.button.Button;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A button based on a set of joystick axes.

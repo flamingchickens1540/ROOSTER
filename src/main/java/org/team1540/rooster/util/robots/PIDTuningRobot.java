@@ -3,16 +3,15 @@ package org.team1540.rooster.util.robots;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.team1540.rooster.Utilities;
 import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
-import org.team1540.rooster.util.SimpleCommand;
+import org.team1540.rooster.util.ControlUtils;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
@@ -80,14 +79,14 @@ public class PIDTuningRobot extends IterativeRobot {
             + " * allow the values to take effect. To disable a motor, set its motor ID to -1. Motor 1 will be \n"
             + " * configured as the master Talon and motors 2, 3, and 4 will be slaved to it in follower mode.");
     PreferenceManager.getInstance().add(this);
-    Scheduler.getInstance().run(); // allow the PreferenceManager to update
+    CommandScheduler.getInstance().run(); // allow the PreferenceManager to update
 
-    controlModeChooser.addDefault("Position", ControlMode.Position);
-    controlModeChooser.addDefault("Velocity", ControlMode.Velocity);
-    controlModeChooser.addDefault("MotionMagic", ControlMode.MotionMagic);
+    controlModeChooser.setDefaultOption("Position", ControlMode.Position);
+    controlModeChooser.addOption("Velocity", ControlMode.Velocity);
+    controlModeChooser.addOption("MotionMagic", ControlMode.MotionMagic);
 
     SmartDashboard.putData("Control Mode Chooser", controlModeChooser);
-    Command reset = new SimpleCommand("Reset", () -> {
+    var reset = new InstantCommand(() -> {
       if (motor1ID != -1) {
         motor1 = new ChickenTalon(motor1ID);
       } else {
@@ -116,17 +115,25 @@ public class PIDTuningRobot extends IterativeRobot {
           motor.enableCurrentLimit(false);
         }
       }
-    });
-    reset.setRunWhenDisabled(true);
-    reset.start();
+    }) {
+      @Override
+      public boolean runsWhenDisabled() {
+        return true;
+      }
+    };
+    reset.schedule();
     SmartDashboard.putData(reset);
 
-    Command zero = new SimpleCommand("Zero Position", () -> {
+    var zero = new InstantCommand(() -> {
       if (motor1 != null) {
         motor1.setSelectedSensorPosition(0);
       }
-    });
-    zero.setRunWhenDisabled(true);
+    }) {
+      @Override
+      public boolean runsWhenDisabled() {
+        return true;
+      }
+    };
     SmartDashboard.putData(zero);
   }
 
@@ -144,15 +151,14 @@ public class PIDTuningRobot extends IterativeRobot {
       if (enablePID) {
         motor1.set(controlModeChooser.getSelected(), setpoint);
       } else {
-        motor1
-            .set(ControlMode.PercentOutput, Utilities.processDeadzone(joystick.getRawAxis(1), 0.1));
+        motor1.set(ControlMode.PercentOutput, ControlUtils.deadzone(joystick.getRawAxis(1), 0.1));
       }
     }
   }
 
   @Override
   public void robotPeriodic() {
-    Scheduler.getInstance().run();
+    CommandScheduler.getInstance().run();
     for (ChickenTalon motor : new ChickenTalon[]{motor1, motor2, motor3, motor4}) {
       if (motor != null) {
         motor.setInverted(invertOutput);

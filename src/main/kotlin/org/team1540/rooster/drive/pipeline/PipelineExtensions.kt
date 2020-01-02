@@ -2,14 +2,13 @@
 
 package org.team1540.rooster.drive.pipeline
 
-import org.team1540.rooster.functional.Executable
 import java.util.function.Consumer
 import java.util.function.Supplier
 
 // somewhat unfortunate names
 operator fun <T> (() -> T).plus(f: (T) -> Unit): () -> Unit = { f(this()) }
 
-operator fun <T> Supplier<T>.plus(f: Consumer<T>): Executable = Executable { f.accept(this.get()) }
+operator fun <T> Supplier<T>.plus(f: Consumer<T>): Runnable = Runnable { f.accept(this.get()) }
 
 @JvmName("plusProcessor")
 operator fun <T, R> (() -> T).plus(f: (T) -> R): () -> R = { f(this()) }

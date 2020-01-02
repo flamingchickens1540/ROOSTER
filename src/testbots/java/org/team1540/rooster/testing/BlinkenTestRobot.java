@@ -17,10 +17,10 @@ public class BlinkenTestRobot extends TimedRobot {
     boolean defaultSet = false;
     for (ColorPattern pattern : ColorPattern.values()) {
       if (!defaultSet) {
-        patternChooser.addDefault(pattern.name(), pattern);
+        patternChooser.setDefaultOption(pattern.name(), pattern);
         defaultSet = true;
       } else {
-        patternChooser.addObject(pattern.name(), pattern);
+        patternChooser.addOption(pattern.name(), pattern);
       }
     }
 

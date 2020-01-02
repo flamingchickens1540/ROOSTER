@@ -3,8 +3,7 @@ package org.team1540.rooster.testing;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.command.Scheduler;
-import org.team1540.rooster.power.PowerManager;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.team1540.rooster.preferencemanager.Preference;
 import org.team1540.rooster.preferencemanager.PreferenceManager;
 
@@ -38,7 +37,6 @@ public class PreferencesTestRobot extends TimedRobot {
   @Override
   public void robotInit() {
     PreferenceManager.getInstance().add(this);
-    PowerManager.getInstance().interrupt();
     new Notifier(() -> {
       System.out.println("Current boolean value: " + b);
       System.out.println("Current String value: " + string);
@@ -55,6 +53,6 @@ public class PreferencesTestRobot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    Scheduler.getInstance().run();
+    CommandScheduler.getInstance().run();
   }
 }

@@ -1,7 +1,6 @@
 package org.team1540.rooster.triggers;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.buttons.Button;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * A button based on a joystick axis. This can be used to emulate a button using a trigger or
  * joystick.
  */
-public class AxisButton extends Button {
+public class AxisButton {
 
   private GenericHID stick;
   private double threshold;
@@ -29,7 +28,7 @@ public class AxisButton extends Button {
     this.axis = axis;
   }
 
-  @Override
+  //  @Override
   public boolean get() {
     return (Math.abs(stick.getRawAxis(axis)) >= Math.abs(threshold)
         && Math.signum(stick.getRawAxis(axis)) == Math.signum(threshold));

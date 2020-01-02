@@ -1,7 +1,7 @@
 package org.team1540.rooster.triggers;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.buttons.Button;
+import edu.wpi.first.wpilibj2.command.button.Button;
 import java.util.Objects;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

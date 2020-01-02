@@ -3,8 +3,8 @@ package org.team1540.rooster.drive.pipeline;
 import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import org.jetbrains.annotations.NotNull;
-import org.team1540.rooster.Utilities;
 import org.team1540.rooster.functional.Input;
+import org.team1540.rooster.util.MathUtils;
 
 /**
  * Modified arcade drive joystick input.
@@ -84,10 +84,10 @@ public class AdvancedArcadeJoystickInput implements Input<TankDriveData> {
     // scale the soft turn by the throttle, but don't scale the hard turn
     // add turn value to left and subtract from right
     double leftPowerRaw = throttle
-        + (soft * Utilities.invertIf(reverseBackwards && throttle < 0, Math.abs(throttle)))
+        + (soft * MathUtils.negateDoubleIf(reverseBackwards && throttle < 0, Math.abs(throttle)))
         + hard;
     double rightPowerRaw = throttle
-        - (soft * Utilities.invertIf(reverseBackwards && throttle < 0, Math.abs(throttle)))
+        - (soft * MathUtils.negateDoubleIf(reverseBackwards && throttle < 0, Math.abs(throttle)))
         - hard;
 
     // scale the powers, so if the total power for one side is greater than 1 we start reducing the
